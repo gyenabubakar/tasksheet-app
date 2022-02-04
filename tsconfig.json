@@ -13,7 +13,19 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./*"],
+      "@@components/*": ["./components/*"],
+      "@@assets/*": ["./assets/*"],
+      "@@public/*": ["./public/*"],
+      "@@hooks/*": ["./hooks/*"],
+      "@@context/*": ["./context/*"],
+      "@@netlify-functions": ["./netlify/functions/*"],
+      "@@netlify-lib": ["./netlify/lib/*"],
+      "@@firebase": ["./netlify/firebase/*"]
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
