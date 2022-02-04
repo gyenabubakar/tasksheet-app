@@ -18,6 +18,7 @@
     "paths": {
       "~/*": ["./*"],
       "@@components/*": ["./components/*"],
+      "@@styles/*": ["./styles/*"],
       "@@assets/*": ["./assets/*"],
       "@@public/*": ["./public/*"],
       "@@hooks/*": ["./hooks/*"],
