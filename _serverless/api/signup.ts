@@ -3,11 +3,11 @@ import HTTPMethod from 'http-method-enum';
 import validator from 'validator';
 import { StatusCodes } from 'http-status-codes';
 
-import validateRequest from '~/.serverless/lib/utils/validateRequest';
-import supportedHttpMethods from '~/.serverless/lib/methods';
-import FirebaseAuth from '~/.serverless/firebase/auth';
-import getRequestBody from '~/.serverless/lib/utils/getRequestBody';
-import { SignupInfo } from '~/.serverless/lib/types';
+import validateRequest from '~/_serverless/lib/utils/validateRequest';
+import supportedHttpMethods from '~/_serverless/lib/methods';
+import FirebaseAuth from '~/_serverless/firebase/auth';
+import getRequestBody from '~/_serverless/lib/utils/getRequestBody';
+import { SignupInfo } from '~/_serverless/lib/types';
 
 export const handler: Handler = async (event) => {
   const errorResponse = validateRequest(
@@ -19,9 +19,7 @@ export const handler: Handler = async (event) => {
     return errorResponse;
   }
 
-  const { email, password, confirmPassword, name } = getRequestBody<SignupInfo>(
-    event.body,
-  )!;
+  const { email, password, name } = getRequestBody<SignupInfo>(event.body)!;
 
   const errors: { [p: string]: string } = {};
 
@@ -39,10 +37,7 @@ export const handler: Handler = async (event) => {
       minUppercase: 1,
     })
   ) {
-    errors.password = "Password isn't strong.";
-  }
-  if (password !== confirmPassword) {
-    errors.confirmPassword = "Passwords aren't the same.";
+    errors.password = "Password isn't strong enough.";
   }
   if (!name.length) {
     errors.name = 'Name is required';

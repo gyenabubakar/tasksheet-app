@@ -1,5 +1,5 @@
 import * as FirebaseAdmin from 'firebase-admin';
-import getFirebasePrivateKey from '~/.serverless/firebase/private-key';
+import getFirebasePrivateKey from '~/_serverless/firebase/private-key';
 
 const firebasePrivateKey = getFirebasePrivateKey();
 

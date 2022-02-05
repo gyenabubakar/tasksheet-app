@@ -1,32 +1,40 @@
-@import "fonts.css";
+@import 'fonts.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-    box-sizing: border-box;
-    transition: all 0.3s ease;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+::-moz-selection {
+  background: #5c67ff97;
+}
+
+::selection {
+  background: #5c67ff97;
 }
 
 body {
-    font-family: "Space Grotesk", sans-serif;
-    font-size: 18px;
-    @apply text-fakeblack;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  @apply text-fakeblack bg-secondarybg;
 }
 
 .input-wrapper input {
-    @apply border border-lightgray rounded-small outline-none w-full;
+  @apply border border-lightgray rounded-small outline-none w-full;
 }
 
 .input-wrapper input::placeholder {
-    @apply font-medium select-none;
+  @apply font-medium select-none;
 }
 
 .text-password {
-    font-family: 'Password', sans-serif;
+  font-family: 'Password', sans-serif;
 }
 
 .width-max-content {
-    width: max-content;
+  width: max-content;
 }

@@ -1,5 +1,5 @@
 import { auth } from 'firebase-admin';
-import FirebaseApp from '~/.serverless/firebase/app';
+import FirebaseApp from '~/_serverless/firebase/app';
 
 const FirebaseAuth = auth(FirebaseApp);
 

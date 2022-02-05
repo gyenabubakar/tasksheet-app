@@ -1,11 +1,8 @@
 # example netlify.toml
 [build]
   command = "npm run build"
-  functions = "netlify/functions"
+  functions = "_serverless/api"
   publish = ".next"
-
-[functions]
-  directory = ".serverless/api"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
