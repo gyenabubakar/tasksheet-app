@@ -1,6 +1,6 @@
 # example netlify.toml
 [build]
-  command = "npm run build"
+  command = "npm run lint -- --fix && npm run build"
   functions = "_serverless/api"
   publish = ".next"
 
