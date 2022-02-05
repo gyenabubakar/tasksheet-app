@@ -3,11 +3,11 @@ import HTTPMethod from 'http-method-enum';
 import validator from 'validator';
 import { StatusCodes } from 'http-status-codes';
 
-import validateRequest from '~/netlify/lib/utils/validateRequest';
-import supportedHttpMethods from '~/netlify/lib/methods';
-import FirebaseAuth from '~/netlify/firebase/auth';
-import getRequestBody from '~/netlify/lib/utils/getRequestBody';
-import { SignupInfo } from '~/netlify/lib/types';
+import validateRequest from '~/.serverless/lib/utils/validateRequest';
+import supportedHttpMethods from '~/.serverless/lib/methods';
+import FirebaseAuth from '~/.serverless/firebase/auth';
+import getRequestBody from '~/.serverless/lib/utils/getRequestBody';
+import { SignupInfo } from '~/.serverless/lib/types';
 
 export const handler: Handler = async (event) => {
   const errorResponse = validateRequest(
