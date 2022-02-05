@@ -131,6 +131,10 @@ const VerifyEmailPage: PageWithLayout = () => {
     setTimeout(() => {
       startResendTimer();
     }, 2000);
+
+    return () => {
+      stopResendTimer();
+    };
   }, []);
 
   useEffect(() => {
@@ -150,6 +154,10 @@ const VerifyEmailPage: PageWithLayout = () => {
     } else if (timerMode === 'stop') {
       stopResendTimer();
     }
+
+    return () => {
+      stopResendTimer();
+    };
   }, [timerMode]);
 
   return (
