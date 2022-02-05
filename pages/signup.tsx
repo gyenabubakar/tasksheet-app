@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import validator from 'validator';
 
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import Input from '~/components/common/Input';
 import iconUser from '~/assets/icons/user.svg';
 import iconEmail from '~/assets/icons/email.svg';
@@ -13,11 +13,23 @@ import { SignupInfo } from '~/_serverless/lib/types';
 import { PageWithLayout } from '~/assets/ts/types';
 import Container from '~/components/common/Container';
 
+interface FormErrors {
+  name: string | null;
+  email: string | null;
+  password: string | null;
+}
+
 const SignupPage: PageWithLayout = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreedToPolicy, setAgreedToPolicy] = useState(true);
+
+  const [errors, setErrors] = useState<FormErrors>({
+    name: null,
+    email: null,
+    password: null,
+  });
 
   const [passwordIsMasked, setPasswordIsMasked] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -34,7 +46,53 @@ const SignupPage: PageWithLayout = () => {
         minUppercase: 1,
       });
   const formIsValid =
-    !!nameIsValid && !!emailIsValid && !!passwordIsValid && !!agreedToPolicy;
+    !!nameIsValid && !!emailIsValid && !!passwordIsValid && agreedToPolicy;
+
+  useEffect(() => {
+    if (nameIsValid === false) {
+      setErrors((prevState) => ({
+        ...prevState,
+        name: 'Enter a valid name.',
+      }));
+      return;
+    }
+
+    setErrors((prevState) => ({
+      ...prevState,
+      name: null,
+    }));
+  }, [nameIsValid]);
+
+  useEffect(() => {
+    if (emailIsValid === false) {
+      setErrors((prevState) => ({
+        ...prevState,
+        email: 'Enter a valid email.',
+      }));
+      return;
+    }
+
+    setErrors((prevState) => ({
+      ...prevState,
+      email: null,
+    }));
+  }, [emailIsValid]);
+
+  useEffect(() => {
+    if (passwordIsValid === false) {
+      setErrors((prevState) => ({
+        ...prevState,
+        password:
+          'Password must be at least 6 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 symbol.',
+      }));
+      return;
+    }
+
+    setErrors((prevState) => ({
+      ...prevState,
+      password: null,
+    }));
+  }, [passwordIsValid]);
 
   function handleSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -58,7 +116,7 @@ const SignupPage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Sign up - TaskSheet</title>
+        <title>Sign up | TaskSheet</title>
         <meta
           name="description"
           content="Sign up for an account on TaskSheet and start managing your projects."
@@ -86,7 +144,8 @@ const SignupPage: PageWithLayout = () => {
                 value={name}
                 maxLength={255}
                 label="Full name"
-                wrapperClass="mb-8"
+                wrapperClass="mb-1.5"
+                error={errors.name}
                 placeholder="Enter your full name"
                 icon={{
                   position: 'left',
@@ -107,9 +166,11 @@ const SignupPage: PageWithLayout = () => {
               />
               <Input
                 id="email"
+                type="email"
                 value={email}
                 label="Email"
-                wrapperClass="mb-8"
+                wrapperClass="mb-1.5"
+                error={errors.email}
                 icon={{
                   position: 'left',
                   elements: [
@@ -133,7 +194,8 @@ const SignupPage: PageWithLayout = () => {
                 type={passwordIsMasked ? 'password' : 'text'}
                 value={password}
                 label="Password"
-                wrapperClass="mb-5"
+                wrapperClass="mb-1.5"
+                error={errors.password}
                 icon={{
                   position: 'both',
                   elements: [
@@ -161,26 +223,35 @@ const SignupPage: PageWithLayout = () => {
                 }}
               />
 
-              <div className="privacy-policy flex max-w-[95%] md:w-[450px] mx-auto">
-                <Checkbox
-                  isChecked={agreedToPolicy}
-                  toggle={() => setAgreedToPolicy((prevState) => !prevState)}
-                />
-                <span
-                  className="inline-block ml-3 cursor-default"
-                  onClick={() => setAgreedToPolicy((prevState) => !prevState)}
-                >
-                  I agree to our{' '}
-                  <Link href="/privacy-policy">
-                    <a className="text-main pb-1 border-b-[3px] border-white hover:border-main">
-                      Privacy Policy
-                    </a>
-                  </Link>
-                  .
-                </span>
+              <div className="privacy-policy max-w-[95%] md:w-[450px] mx-auto">
+                <div className="flex">
+                  <Checkbox
+                    isChecked={agreedToPolicy}
+                    toggle={() => setAgreedToPolicy((prevState) => !prevState)}
+                  />
+                  <span
+                    className="inline-block ml-3 cursor-default"
+                    onClick={() => setAgreedToPolicy((prevState) => !prevState)}
+                  >
+                    I agree to our{' '}
+                    <Link href="/privacy-policy">
+                      <a className="text-main pb-1 border-b-[3px] border-white hover:border-main">
+                        Privacy Policy
+                      </a>
+                    </Link>
+                    .
+                  </span>
+                </div>
+
+                <div className={!agreedToPolicy ? 'visible' : 'invisible'}>
+                  <span className="text-red-600 text-sm min-h-[5px] inline-block font-medium">
+                    {!agreedToPolicy &&
+                      'You must read and accept our privacy policy.'}
+                  </span>
+                </div>
               </div>
 
-              <div className="text-center mt-16">
+              <div className="text-center mt-10">
                 <button
                   type="submit"
                   disabled={!formIsValid}

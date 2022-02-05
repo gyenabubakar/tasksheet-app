@@ -4,6 +4,7 @@ type InputProps = Partial<
   React.HTMLProps<HTMLInputElement> & {
     label: React.ReactNode;
     wrapperClass: string;
+    error: string | null;
     icon: { elements: React.ReactNode[]; position: 'left' | 'right' | 'both' };
   }
 >;
@@ -15,6 +16,7 @@ const Input: React.FC<InputProps> = ({
   id,
   label = null,
   icon,
+  error,
   ...props
 }) => {
   const iconSpacingClass = icon
@@ -59,6 +61,12 @@ const Input: React.FC<InputProps> = ({
           className={`px-5 py-3 ${iconSpacingClass} ${className}`}
           {...props}
         />
+      </div>
+
+      <div className={error ? 'visible' : 'invisible'}>
+        <span className="text-red-600 text-sm font-medium min-h-[5px] inline-block">
+          {error}
+        </span>
       </div>
     </div>
   );
