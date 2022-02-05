@@ -1,3 +1,5 @@
+@import "fonts.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,6 +9,24 @@
     transition: all 0.3s ease;
 }
 
+body {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 18px;
+}
+
 .input-wrapper input {
-    @apply border border-lightgray;
+    @apply px-5 py-3;
+    @apply border border-lightgray rounded-small outline-none w-full;
+}
+
+.input-wrapper input::placeholder {
+    @apply font-medium;
+}
+
+.text-password {
+    font-family: 'Password', sans-serif;
+}
+
+.width-max-content {
+    width: max-content;
 }
