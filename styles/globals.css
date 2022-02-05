@@ -12,15 +12,15 @@
 body {
     font-family: "Space Grotesk", sans-serif;
     font-size: 18px;
+    @apply text-fakeblack;
 }
 
 .input-wrapper input {
-    @apply px-5 py-3;
     @apply border border-lightgray rounded-small outline-none w-full;
 }
 
 .input-wrapper input::placeholder {
-    @apply font-medium;
+    @apply font-medium select-none;
 }
 
 .text-password {
