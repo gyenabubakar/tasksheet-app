@@ -1,7 +1,7 @@
 import HTTPMethod from 'http-method-enum';
 import type { Response } from '@netlify/functions/dist/function/response';
 import { StatusCodes } from 'http-status-codes';
-import getRequestBody from '~/netlify/lib/utils/getRequestBody';
+import getRequestBody from '~/.serverless/lib/utils/getRequestBody';
 
 function validateRequest(
   methods: HTTPMethod[],

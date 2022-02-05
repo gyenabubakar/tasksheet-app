@@ -1,5 +1,5 @@
 import * as FirebaseAdmin from 'firebase-admin';
-import getFirebasePrivateKey from '~/netlify/firebase/private-key';
+import getFirebasePrivateKey from '~/.serverless/firebase/private-key';
 
 const firebasePrivateKey = getFirebasePrivateKey();
 
