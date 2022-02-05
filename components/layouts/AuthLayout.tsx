@@ -26,10 +26,10 @@ const AuthLayout: React.FC = ({ children }) => {
         <Container className="py-5 flex flex-col justify-center items-center md:flex-row md:justify-between">
           <Link href="/">
             <a className="logo-wrapper flex items-center">
-              <div className="logo w-[40px] h-[37px] lg:w-[70px] lg:h-[67px] relative">
+              <div className="logo w-[40px] h-[37px] relative">
                 <Image src={logo} layout="fill" alt="TaskSheet logo" />
               </div>
-              <h3 className="text-3xl lg:text-[48px] font-bold text-main ml-2 lg:ml-8 select-none">
+              <h3 className="text-3xl font-bold text-main ml-2 select-none">
                 TaskSheet
               </h3>
             </a>
