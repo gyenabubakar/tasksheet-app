@@ -10,7 +10,7 @@ import iconEmail from '~/assets/icons/email.svg';
 import iconLock from '~/assets/icons/lock.svg';
 import Checkbox from '~/components/common/Checkbox';
 import validator from 'validator';
-import { SignupInfo } from '~/api/lib/types';
+import { SignupInfo } from '~/_serverless/lib/types';
 
 const SignupPage: NextPage = () => {
   const [name, setName] = useState('');
