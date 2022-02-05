@@ -36,5 +36,11 @@ body {
 }
 
 .width-max-content {
-  width: max-content;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .width-max-content {
+    width: max-content;
+  }
 }

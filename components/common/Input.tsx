@@ -31,7 +31,9 @@ const Input: React.FC<InputProps> = ({
     : '';
 
   return (
-    <div className={`input-wrapper w-[450px] ${wrapperClass}`}>
+    <div
+      className={`input-wrapper max-w-[95%] md:w-[450px] mx-auto ${wrapperClass}`}
+    >
       {label && (
         <label
           htmlFor={id}
