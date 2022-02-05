@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import validator from 'validator';
 
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Input from '~/components/common/Input';
 import iconUser from '~/assets/icons/user.svg';
 import iconEmail from '~/assets/icons/email.svg';
@@ -12,8 +12,11 @@ import Checkbox from '~/components/common/Checkbox';
 import { SignupInfo } from '~/_serverless/lib/types';
 import { PageWithLayout } from '~/assets/ts/types';
 import Container from '~/components/common/Container';
+import useFormValidation, {
+  FormValidationErrors,
+} from '~/hooks/useFormValidation';
 
-interface FormErrors {
+interface FormErrors extends FormValidationErrors {
   name: string | null;
   email: string | null;
   password: string | null;
@@ -24,12 +27,6 @@ const SignupPage: PageWithLayout = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreedToPolicy, setAgreedToPolicy] = useState(true);
-
-  const [errors, setErrors] = useState<FormErrors>({
-    name: null,
-    email: null,
-    password: null,
-  });
 
   const [passwordIsMasked, setPasswordIsMasked] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -48,51 +45,19 @@ const SignupPage: PageWithLayout = () => {
   const formIsValid =
     !!nameIsValid && !!emailIsValid && !!passwordIsValid && agreedToPolicy;
 
-  useEffect(() => {
-    if (nameIsValid === false) {
-      setErrors((prevState) => ({
-        ...prevState,
-        name: 'Enter a valid name.',
-      }));
-      return;
-    }
-
-    setErrors((prevState) => ({
-      ...prevState,
+  const { errors } = useFormValidation<FormErrors>(
+    {
       name: null,
-    }));
-  }, [nameIsValid]);
-
-  useEffect(() => {
-    if (emailIsValid === false) {
-      setErrors((prevState) => ({
-        ...prevState,
-        email: 'Enter a valid email.',
-      }));
-      return;
-    }
-
-    setErrors((prevState) => ({
-      ...prevState,
       email: null,
-    }));
-  }, [emailIsValid]);
-
-  useEffect(() => {
-    if (passwordIsValid === false) {
-      setErrors((prevState) => ({
-        ...prevState,
-        password:
-          'Password must be at least 6 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 symbol.',
-      }));
-      return;
-    }
-
-    setErrors((prevState) => ({
-      ...prevState,
       password: null,
-    }));
-  }, [passwordIsValid]);
+    },
+    [nameIsValid, emailIsValid, passwordIsValid],
+    [
+      'Enter a valid name.',
+      'Enter a valid email address.',
+      'Password must be at least 6 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 symbol.',
+    ],
+  );
 
   function handleSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
