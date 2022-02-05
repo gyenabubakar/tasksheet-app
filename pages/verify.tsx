@@ -1,8 +1,11 @@
 import Head from 'next/head';
-import React, { ChangeEvent, useRef, useState } from 'react';
+import Image from 'next/image';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { PageWithLayout } from '~/assets/ts/types';
 import Container from '~/components/common/Container';
 import Input from '~/components/common/Input';
+import iconArrowLeft from '~/assets/icons/arrow-left.svg';
+import illustrationVerification from '~/public/illustrations/verification.svg';
 
 type DigitInput = 'input1' | 'input2' | 'input3' | 'input4' | 'input5';
 
@@ -46,6 +49,22 @@ const VerifyEmailPage: PageWithLayout = () => {
     input4: '',
     input5: '',
   });
+  const [seconds, setSeconds] = useState(60);
+  const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const [timerMode, setTimerMode] = useState<'start' | 'stop' | null>('stop');
+  const [intervalID, setIntervalID] = useState<number | null>(null);
+
+  const otpCode = (() => {
+    let code = '';
+    Object.keys(inputs).forEach((input) => {
+      code += inputs[input as DigitInput];
+    });
+    return code;
+  })();
+
+  const formIsValid = /^\d{5}$/.test(otpCode);
 
   const inputsRef = useRef<InputsRefType>({
     input1: () => document.querySelector('#input1') as HTMLInputElement,
@@ -56,7 +75,7 @@ const VerifyEmailPage: PageWithLayout = () => {
   });
 
   function handleFirstInputPaste(e: React.ClipboardEvent<HTMLInputElement>) {
-    const digitsRgx = /^\d{6}$/;
+    const digitsRgx = /^\d{5}$/;
     const data = e.clipboardData.getData('Text');
     if (digitsRgx.test(data)) {
       e.preventDefault();
@@ -74,7 +93,63 @@ const VerifyEmailPage: PageWithLayout = () => {
     }
   }
 
-  function handleVerify() {}
+  function startResendTimer() {
+    setSeconds(60);
+    setTimerMode('start');
+  }
+
+  function stopResendTimer() {
+    if (intervalID !== null) {
+      setTimerMode('stop');
+      clearInterval(intervalID);
+    }
+  }
+
+  function handleVerify() {
+    setSubmitting(true);
+    setTimeout(() => {
+      // eslint-disable-next-line no-console
+      console.log({ code: otpCode });
+      setSubmitting(false);
+    }, 3000);
+  }
+
+  function handleResendCode() {
+    if (seconds === 0) {
+      setResending(true);
+      setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.log('Code resent!');
+        setResending(false);
+        startResendTimer();
+      }, 3000);
+    }
+  }
+
+  useEffect(() => {
+    setTimeout(() => {
+      startResendTimer();
+    }, 2000);
+  }, []);
+
+  useEffect(() => {
+    if (seconds === 0) {
+      stopResendTimer();
+    }
+  }, [seconds]);
+
+  useEffect(() => {
+    if (timerMode === 'start') {
+      setSeconds(60);
+      setIntervalID(
+        setInterval(() => {
+          setSeconds((prevSecs) => prevSecs - 1);
+        }, 1000) as unknown as number,
+      );
+    } else if (timerMode === 'stop') {
+      stopResendTimer();
+    }
+  }, [timerMode]);
 
   return (
     <>
@@ -87,8 +162,35 @@ const VerifyEmailPage: PageWithLayout = () => {
           <form
             onSubmit={handleVerify}
             autoComplete="off"
-            className="signup-form width-max-content mx-auto bg-white pt-10 pb-16 md:p-16 mb-20 rounded-large"
+            className="signup-form width-max-content mx-auto bg-white pt-10 pb-16 md:p-16 md:pt-10 mb-16 rounded-large"
           >
+            <div className="form-head mb-12">
+              <button type="button">
+                <Image
+                  src={iconArrowLeft}
+                  width="19px"
+                  height="14px"
+                  alt="arrow left icon"
+                />
+                <span className="inline-block ml-3">Back</span>
+              </button>
+
+              <div className="max-w-[168px] h-[158px] relative mx-auto mt-12">
+                <Image src={illustrationVerification} layout="fill" />
+              </div>
+
+              <h3 className="font-bold text-2xl text-center mt-4 mb-5">
+                Email Verification
+              </h3>
+
+              <p className="text-darkgray text-center">
+                We sent a 5-digit code to{' '}
+                <span className="text-main font-medium">john@doe.com</span>.{' '}
+                <br />
+                Enter the code in the fields below.
+              </p>
+            </div>
+
             <div className="digit-inputs flex justify-center">
               <Input
                 id="input1"
@@ -106,7 +208,7 @@ const VerifyEmailPage: PageWithLayout = () => {
                 }}
                 onKeyDown={handleKeyDown(inputsRef)}
                 onKeyUp={handleKeyUp(inputsRef)}
-                onPaste={handleFirstInputPaste}
+                onPaste={(e) => handleFirstInputPaste(e)}
               />
               <Input
                 id="input2"
@@ -176,6 +278,63 @@ const VerifyEmailPage: PageWithLayout = () => {
                 onKeyDown={handleKeyDown(inputsRef)}
                 onKeyUp={handleKeyUp(inputsRef)}
               />
+            </div>
+
+            <div className="text-center text-[16px] mt-8">
+              <p className="text-darkgray">Didn’t receive the code?</p>
+              <p className="text-darkgray">
+                Resend after{' '}
+                <span className="text-fakeblack font-medium">
+                  {seconds?.toString().padStart(2, '0')}
+                </span>{' '}
+                seconds.
+              </p>
+
+              <div className="text-center mt-3">
+                <button
+                  type="button"
+                  disabled={seconds !== 0 || resending}
+                  className="text-main font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => handleResendCode()}
+                >
+                  {resending ? 'Resending...' : 'Resend Code'}
+                </button>
+              </div>
+            </div>
+
+            <div className="text-center mt-10">
+              <button
+                type="submit"
+                disabled={!formIsValid}
+                className={`bg-main text-white font-medium px-20 py-4 mx-auto rounded-small flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                  submitting || !formIsValid ? '' : 'hover:bg-darkmain'
+                }`}
+              >
+                {submitting && (
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                )}
+
+                {submitting ? 'Verifying...' : 'Verify'}
+              </button>
             </div>
           </form>
         </Container>

@@ -2,7 +2,7 @@ import React from 'react';
 import type { AppProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
 
-import '../styles/globals.css';
+import '~/styles/globals.css';
 import { PageWithLayout } from '~/assets/ts/types';
 import Head from 'next/head';
 import useLayout from '~/hooks/useLayout';
