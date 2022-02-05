@@ -1,24 +1,26 @@
-import React from 'react';
+import React, { ComponentProps } from 'react';
 
-type InputProps = Partial<
-  React.HTMLProps<HTMLInputElement> & {
-    label: React.ReactNode;
-    wrapperClass: string;
-    error: string | null;
-    icon: { elements: React.ReactNode[]; position: 'left' | 'right' | 'both' };
-  }
->;
+interface InputProps extends ComponentProps<'input'> {
+  label?: React.ReactNode;
+  wrapperClass?: string;
+  error?: string | null;
+  icon?: { elements: React.ReactNode[]; position: 'left' | 'right' | 'both' };
+  noErrors?: boolean;
+}
 
-const Input: React.FC<InputProps> = ({
-  type,
-  className = '',
-  wrapperClass = '',
-  id,
-  label = null,
-  icon,
-  error,
-  ...props
-}) => {
+const Input: React.FC<InputProps> = (props) => {
+  const {
+    type,
+    className = '',
+    wrapperClass = '',
+    id,
+    label = null,
+    icon,
+    error,
+    noErrors,
+    ...restProps
+  } = props;
+
   const iconSpacingClass = icon
     ? (() => {
         switch (icon.position) {
@@ -59,15 +61,17 @@ const Input: React.FC<InputProps> = ({
           type={type || 'text'}
           id={id}
           className={`px-5 py-3 ${iconSpacingClass} ${className}`}
-          {...props}
+          {...restProps}
         />
       </div>
 
-      <div className={error ? 'visible' : 'invisible'}>
-        <span className="text-red-600 text-sm font-medium min-h-[5px] inline-block">
-          {error}
-        </span>
-      </div>
+      {noErrors !== true && (
+        <div className={error ? 'visible' : 'invisible'}>
+          <span className="text-red-600 text-sm font-medium min-h-[5px] inline-block">
+            {error}
+          </span>
+        </div>
+      )}
     </div>
   );
 };
