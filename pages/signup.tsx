@@ -1,12 +1,6 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
-import React, {
-  ChangeEvent,
-  FormEvent,
-  FormEventHandler,
-  ReactEventHandler,
-  useState,
-} from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Input from '~/components/common/Input';
 
 const SignupPage: NextPage = () => {
@@ -15,7 +9,9 @@ const SignupPage: NextPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  function handleSignup(e: React.FormEvent<HTMLFormElement>) {}
+  function handleSignup(e: FormEvent<HTMLFormElement>) {
+    console.log(e);
+  }
 
   return (
     <>
@@ -31,8 +27,27 @@ const SignupPage: NextPage = () => {
         <form onSubmit={handleSignup}>
           <Input
             value={name}
+            maxLength={255}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setName(e.target.value);
+            }}
+          />
+          <Input
+            value={email}
             onChange={(e: ChangeEvent<HTMLInputElement>) => {
               setEmail(e.target.value);
+            }}
+          />
+          <Input
+            value={password}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setPassword(e.target.value);
+            }}
+          />
+          <Input
+            value={confirmPassword}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
+              setConfirmPassword(e.target.value);
             }}
           />
         </form>
