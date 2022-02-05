@@ -9,14 +9,14 @@ import iconLogin from '~/assets/icons/login.svg';
 
 const AuthLayout: React.FC = ({ children }) => {
   const router = useRouter();
-  const linkText = (() => {
+  const link = (() => {
     switch (router.route) {
       case '/signup':
-        return 'Log in instead';
+        return { text: 'Log in instead', route: '/login' };
       case '/login':
-        return 'Create an account';
+        return { text: 'Create an account', route: '/signup' };
       default:
-        return 'Log in';
+        return { text: 'Log in', route: '/login' };
     }
   })();
 
@@ -36,9 +36,9 @@ const AuthLayout: React.FC = ({ children }) => {
           </Link>
 
           <div className="links mt-8 md:mt-0">
-            <Link href="/login">
+            <Link href={link.route}>
               <a className="flex items-center font-bold">
-                <span className="mr-3">{linkText}</span>
+                <span className="mr-3">{link.text}</span>
                 <Image
                   src={iconLogin}
                   alt="Login icon"

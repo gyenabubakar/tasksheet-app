@@ -28,28 +28,6 @@ function useFormValidation<E extends FormValidationErrors>(
     });
   }, dependencies);
 
-  // useEffect(() => {
-  //   console.log('validation:', validation);
-
-  //   const keys = Object.keys(validation);
-
-  //   keys.forEach((key) => {
-  //     if (validation[key].value === false) {
-  //       setErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         [key]: validation[key].message,
-  //       }));
-  //     } else {
-  //       setErrors((prevErrors) => ({
-  //         ...prevErrors,
-  //         [key]: null,
-  //       }));
-  //     }
-  //   });
-  // }, [Object.entries(validation).map(entry => {
-  //   entry['']
-  // })]);
-
   return { errors, setErrors };
 }
 
