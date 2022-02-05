@@ -6,6 +6,7 @@ import Container from '~/components/common/Container';
 import Input from '~/components/common/Input';
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
 import illustrationVerification from '~/public/illustrations/verification.svg';
+import Link from 'next/link';
 
 type DigitInput = 'input1' | 'input2' | 'input3' | 'input4' | 'input5';
 
@@ -165,15 +166,17 @@ const VerifyEmailPage: PageWithLayout = () => {
             className="signup-form width-max-content mx-auto bg-white pt-10 pb-16 md:p-16 md:pt-10 mb-16 rounded-large"
           >
             <div className="form-head mb-12">
-              <button type="button">
-                <Image
-                  src={iconArrowLeft}
-                  width="19px"
-                  height="14px"
-                  alt="arrow left icon"
-                />
-                <span className="inline-block ml-3">Back</span>
-              </button>
+              <Link href="/signup">
+                <a type="button">
+                  <Image
+                    src={iconArrowLeft}
+                    width="19px"
+                    height="14px"
+                    alt="arrow left icon"
+                  />
+                  <span className="inline-block ml-3">Back</span>
+                </a>
+              </Link>
 
               <div className="max-w-[168px] h-[158px] relative mx-auto mt-12">
                 <Image src={illustrationVerification} layout="fill" />
