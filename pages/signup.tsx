@@ -1,7 +1,7 @@
-import { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
+import validator from 'validator';
 
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Input from '~/components/common/Input';
@@ -9,10 +9,10 @@ import iconUser from '~/assets/icons/user.svg';
 import iconEmail from '~/assets/icons/email.svg';
 import iconLock from '~/assets/icons/lock.svg';
 import Checkbox from '~/components/common/Checkbox';
-import validator from 'validator';
 import { SignupInfo } from '~/_serverless/lib/types';
+import { PageWithLayout } from '~/assets/ts/types';
 
-const SignupPage: NextPage = () => {
+const SignupPage: PageWithLayout = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -142,7 +142,7 @@ const SignupPage: NextPage = () => {
 
                   <button
                     type="button"
-                    className="text-sm uppercase font-bold text-main inline-block absolute bottom-[0.95rem] right-[1.125rem]"
+                    className="text-sm uppercase font-bold text-main inline-block absolute bottom-[0.95rem] right-[1.125rem] "
                     onClick={() => setPasswordIsMasked((state) => !state)}
                   >
                     {passwordIsMasked ? 'Show' : 'Hide'}
@@ -160,7 +160,10 @@ const SignupPage: NextPage = () => {
                 isChecked={agreedToPolicy}
                 toggle={() => setAgreedToPolicy((prevState) => !prevState)}
               />
-              <span className="inline-block ml-3">
+              <span
+                className="inline-block ml-3 cursor-default"
+                onClick={() => setAgreedToPolicy((prevState) => !prevState)}
+              >
                 I agree to our{' '}
                 <Link href="/privacy-policy">
                   <a className="text-main pb-1 border-b-[3px] border-white hover:border-main">
@@ -211,5 +214,7 @@ const SignupPage: NextPage = () => {
     </>
   );
 };
+
+SignupPage.layout = 'auth';
 
 export default SignupPage;

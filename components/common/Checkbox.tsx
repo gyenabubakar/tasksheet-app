@@ -7,7 +7,7 @@ interface Props {
 
 const Checkbox: React.FC<Props> = ({ isChecked, toggle }) => (
   <div
-    className="w-[25px] h-[25px] inline-block border-2 border-lightgray rounded-md flex items-center justify-center"
+    className="w-[25px] h-[25px] inline-block border-[3px] border-lightgray rounded-md flex items-center justify-center hover:border-main"
     onClick={toggle}
   >
     {isChecked && (
