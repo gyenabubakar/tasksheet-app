@@ -35,19 +35,21 @@ const AuthLayout: React.FC = ({ children }) => {
             </a>
           </Link>
 
-          <div className="links mt-8 md:mt-0">
-            <Link href={link.route}>
-              <a className="flex items-center font-bold">
-                <span className="mr-3">{link.text}</span>
-                <Image
-                  src={iconLogin}
-                  alt="Login icon"
-                  width="22px"
-                  height="22px"
-                />
-              </a>
-            </Link>
-          </div>
+          {router.route !== '/verify' && (
+            <div className="links mt-8 md:mt-0">
+              <Link href={link.route}>
+                <a className="flex items-center font-bold">
+                  <span className="mr-3">{link.text}</span>
+                  <Image
+                    src={iconLogin}
+                    alt="Login icon"
+                    width="22px"
+                    height="22px"
+                  />
+                </a>
+              </Link>
+            </div>
+          )}
         </Container>
       </header>
 
