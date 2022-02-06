@@ -1,8 +1,9 @@
-import { AppLayout } from '~/assets/ts/types';
+import { AppLayout as LayoutType } from '~/assets/ts/types';
 import React, { useCallback } from 'react';
 import AuthLayout from '~/components/layouts/AuthLayout';
+import AppLayout from '~/components/layouts/AppLayout';
 
-const useLayout = (layout: AppLayout | undefined) => {
+const useLayout = (layout: LayoutType | undefined) => {
   const Layout = useCallback<React.FC>(
     ({ children }) => {
       let LayoutElement: JSX.Element;
@@ -10,6 +11,9 @@ const useLayout = (layout: AppLayout | undefined) => {
       switch (layout) {
         case 'auth':
           LayoutElement = <AuthLayout>{children}</AuthLayout>;
+          break;
+        case 'app':
+          LayoutElement = <AppLayout>{children}</AppLayout>;
           break;
         default:
           LayoutElement = <div>{children}</div>;

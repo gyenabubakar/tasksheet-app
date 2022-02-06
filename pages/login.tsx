@@ -77,7 +77,7 @@ const LoginPage: PageWithLayout = () => {
             <div className="form-head mb-10">
               <h1 className="text-[36px] font-bold text-center">Log in</h1>
               <p className="text-darkgray text-center mt-5">
-                Get back to managing your tasks.
+                Get back to managing your projects.
               </p>
             </div>
 

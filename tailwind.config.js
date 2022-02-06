@@ -9,6 +9,7 @@ module.exports = {
       colors: {
         main: '#5C68FF',
         darkmain: '#4452fd',
+        faintmain: 'rgba(92, 104, 255, 0.1)',
         darkgray: '#7A7A7A',
         lightgray: '#E8E8E8',
         fakeblack: '#121212',

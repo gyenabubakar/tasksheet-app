@@ -32,7 +32,7 @@ input[type='number'] {
 body {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 18px;
-  @apply text-fakeblack bg-secondarybg;
+  @apply text-fakeblack bg-secondarybg relative overflow-x-hidden overflow-y-auto;
 }
 
 .input-wrapper input {
@@ -60,6 +60,24 @@ body {
 .digit-inputs > div.input-wrapper:not(:last-child) {
   @apply mr-3 md:mr-3;
 }
+
 .digit-inputs > div.input-wrapper input {
   @apply focus:border-main;
+}
+
+nav {
+  @apply bg-white w-full h-max;
+}
+
+nav .link-item {
+  background: #fff;
+  @apply py-5 px-8 h-full font-medium text-darkgray border-b-4 border-white;
+}
+
+nav .link-item:hover {
+  @apply text-main border-main;
+}
+
+nav .link-item.exact-active {
+  @apply bg-faintmain border-main text-main;
 }

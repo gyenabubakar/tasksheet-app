@@ -9,6 +9,7 @@ const Button: React.FC<Props> = ({
   disabled,
   type = 'button',
   children,
+  className = '',
   ...props
 }) => (
   <button
@@ -16,7 +17,7 @@ const Button: React.FC<Props> = ({
     disabled={disabled}
     className={`bg-main text-white font-medium px-20 py-4 mx-auto rounded-small flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
       disabled ? '' : 'hover:bg-darkmain'
-    }`}
+    } ${className}`}
     {...props}
   >
     {loading && (
