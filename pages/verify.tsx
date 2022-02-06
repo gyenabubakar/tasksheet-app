@@ -5,7 +5,7 @@ import { PageWithLayout } from '~/assets/ts/types';
 import Container from '~/components/common/Container';
 import Input from '~/components/common/Input';
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
-import illustrationVerification from '~/public/illustrations/verification.svg';
+import illustrationVerification from '~/assets/illustrations/verification.svg';
 import Link from 'next/link';
 
 type DigitInput = 'input1' | 'input2' | 'input3' | 'input4' | 'input5';

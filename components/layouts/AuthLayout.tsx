@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 import Container from '~/components/common/Container';
-import logo from '~/public/images/logo.svg';
+import logo from '~/assets/images/logo.svg';
 import iconLogin from '~/assets/icons/login.svg';
 
 const AuthLayout: React.FC = ({ children }) => {
