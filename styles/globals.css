@@ -58,7 +58,7 @@ body {
 }
 
 .digit-inputs > div.input-wrapper:not(:last-child) {
-  @apply mr-3;
+  @apply mr-0 md:mr-3;
 }
 .digit-inputs > div.input-wrapper input {
   @apply focus:border-main;

@@ -86,7 +86,7 @@ const LoginPage: PageWithLayout = () => {
                 type="email"
                 value={email}
                 label="Email"
-                wrapperClass="mb-1.5"
+                wrapperClass="mb-1.5 mx-auto"
                 error={errors.email}
                 icon={{
                   position: 'left',
@@ -111,7 +111,7 @@ const LoginPage: PageWithLayout = () => {
                 type={passwordIsMasked ? 'password' : 'text'}
                 value={password}
                 label="Password"
-                wrapperClass="mb-1.5"
+                wrapperClass="mb-1.5 mx-auto"
                 error={errors.password}
                 icon={{
                   position: 'both',

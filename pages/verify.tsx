@@ -53,6 +53,7 @@ const VerifyEmailPage: PageWithLayout = () => {
   const [seconds, setSeconds] = useState(60);
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
+  const [isInvalidCode, setIsInvalidCode] = useState(false);
 
   const [timerMode, setTimerMode] = useState<'start' | 'stop' | null>('stop');
   const [intervalID, setIntervalID] = useState<number | null>(null);
@@ -107,6 +108,7 @@ const VerifyEmailPage: PageWithLayout = () => {
   }
 
   function handleVerify() {
+    setIsInvalidCode(false);
     setSubmitting(true);
     setTimeout(() => {
       // eslint-disable-next-line no-console
@@ -312,6 +314,14 @@ const VerifyEmailPage: PageWithLayout = () => {
                 </button>
               </div>
             </div>
+
+            {isInvalidCode && (
+              <div className="text-center mt-8">
+                <span className="text-red-600 font-medium">
+                  The code you entered is incorrect.
+                </span>
+              </div>
+            )}
 
             <div className="text-center mt-10">
               <button

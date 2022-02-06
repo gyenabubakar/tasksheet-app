@@ -109,7 +109,7 @@ const SignupPage: PageWithLayout = () => {
                 value={name}
                 maxLength={255}
                 label="Full name"
-                wrapperClass="mb-1.5"
+                wrapperClass="mb-1.5 mx-auto"
                 error={errors.name}
                 placeholder="Enter your full name"
                 icon={{
@@ -134,7 +134,7 @@ const SignupPage: PageWithLayout = () => {
                 type="email"
                 value={email}
                 label="Email"
-                wrapperClass="mb-1.5"
+                wrapperClass="mb-1.5 mx-auto"
                 error={errors.email}
                 icon={{
                   position: 'left',
@@ -159,7 +159,7 @@ const SignupPage: PageWithLayout = () => {
                 type={passwordIsMasked ? 'password' : 'text'}
                 value={password}
                 label="Password"
-                wrapperClass="mb-1.5"
+                wrapperClass="mb-1.5 mx-auto"
                 error={errors.password}
                 icon={{
                   position: 'both',
