@@ -24,6 +24,7 @@ module.exports = {
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
     ],
     'import/prefer-default-export': 0,
+    'react/button-has-type': 0,
     'react/require-default-props': 0,
     'react-hooks/exhaustive-deps': 0,
     'react/react-in-jsx-scope': 0,

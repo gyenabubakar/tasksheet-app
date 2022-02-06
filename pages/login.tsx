@@ -151,6 +151,7 @@ const LoginPage: PageWithLayout = () => {
 
               <div className="text-center mt-10">
                 <Button
+                  type="submit"
                   loading={submitting}
                   disabled={submitting || !formIsValid}
                 >

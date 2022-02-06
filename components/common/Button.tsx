@@ -4,9 +4,15 @@ interface Props extends ComponentProps<'button'> {
   loading?: boolean;
 }
 
-const Button: React.FC<Props> = ({ loading, disabled, children, ...props }) => (
+const Button: React.FC<Props> = ({
+  loading,
+  disabled,
+  type = 'button',
+  children,
+  ...props
+}) => (
   <button
-    type="submit"
+    type={type}
     disabled={disabled}
     className={`bg-main text-white font-medium px-20 py-4 mx-auto rounded-small flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
       disabled ? '' : 'hover:bg-darkmain'

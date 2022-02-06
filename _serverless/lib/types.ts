@@ -8,3 +8,12 @@ export interface LoginInfo {
   email: string;
   password: string;
 }
+
+export interface ResetPasswordEmailInfo {
+  email: string;
+}
+
+export interface VerificationCodeInfo {
+  email: string;
+  code: string;
+}
