@@ -3,9 +3,11 @@ import type { AppProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
 
 import '~/styles/globals.css';
+import 'react-toastify/dist/ReactToastify.css';
 import { PageWithLayout } from '~/assets/ts/types';
 import Head from 'next/head';
 import useLayout from '~/hooks/useLayout';
+import { ToastContainer } from 'react-toastify';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const Layout = useLayout((Component as PageWithLayout).layout);
@@ -29,6 +31,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
+
+      <ToastContainer />
     </>
   );
 }

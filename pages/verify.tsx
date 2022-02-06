@@ -15,6 +15,7 @@ import illustrationVerification from '~/assets/illustrations/verification.svg';
 import Link from 'next/link';
 import Button from '~/components/common/Button';
 import { VerificationCodeInfo } from '~/_serverless/lib/types';
+import notify from '~/assets/ts/notify';
 
 type DigitInput = 'input1' | 'input2' | 'input3' | 'input4' | 'input5';
 
@@ -147,6 +148,7 @@ const VerifyEmailPage: PageWithLayout = () => {
 
   useEffect(() => {
     setTimeout(() => {
+      notify('Code resent!');
       startResendTimer();
     }, 2000);
 
