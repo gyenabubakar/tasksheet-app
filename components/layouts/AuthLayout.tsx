@@ -14,7 +14,7 @@ const AuthLayout: React.FC = ({ children }) => {
       case '/signup':
         return { text: 'Log in instead', route: '/login' };
       case '/login':
-        return { text: 'Create an account', route: '/signup' };
+        return { text: 'Create new account', route: '/signup' };
       default:
         return { text: 'Log in', route: '/login' };
     }
