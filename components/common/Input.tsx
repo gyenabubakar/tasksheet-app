@@ -1,10 +1,13 @@
-import React, { ComponentProps } from 'react';
+import React, { Children, cloneElement, ComponentProps } from 'react';
 
 interface InputProps extends ComponentProps<'input'> {
   label?: React.ReactNode;
   wrapperClass?: string;
   error?: string | null;
-  icon?: { elements: React.ReactNode[]; position: 'left' | 'right' | 'both' };
+  icon?: {
+    elements: React.ReactElement[];
+    position: 'left' | 'right' | 'both';
+  };
   noErrors?: boolean;
 }
 
@@ -47,20 +50,29 @@ const Input: React.FC<InputProps> = (props) => {
       <br />
 
       <div className="input-wrapper--inner relative">
-        {icon && (
-          <>
-            {icon.elements[0]}
-
-            {icon.elements.length === 2 && icon.elements[1]}
-          </>
-        )}
-
         <input
           type={type || 'text'}
           id={id}
           className={`px-5 py-3 ${iconSpacingClass} ${className}`}
           {...restProps}
         />
+
+        {icon && (
+          <>
+            {Children.map(icon.elements[0], (child) =>
+              cloneElement(child, {
+                tabIndex: '-1',
+              }),
+            )}
+
+            {icon.elements.length === 2 &&
+              Children.map(icon.elements[1], (child) =>
+                cloneElement(child, {
+                  tabIndex: '-1',
+                }),
+              )}
+          </>
+        )}
       </div>
 
       {noErrors !== true && (
