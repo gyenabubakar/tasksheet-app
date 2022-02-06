@@ -13,6 +13,11 @@ export interface ResetPasswordEmailInfo {
   email: string;
 }
 
+export interface ResetPasswordPasswordsInfo {
+  password: string;
+  confirmPassword: string;
+}
+
 export interface VerificationCodeInfo {
   email: string;
   code: string;

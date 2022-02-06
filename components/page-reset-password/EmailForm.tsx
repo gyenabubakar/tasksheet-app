@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, SetStateAction } from 'react';
+import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Image from 'next/image';
 
 import illustrationResetPassword from '~/assets/illustrations/reset-password.svg';
@@ -6,29 +6,47 @@ import Input from '~/components/common/Input';
 import iconEmail from '~/assets/icons/email.svg';
 import Button from '~/components/common/Button';
 import useFormValidation from '~/hooks/useFormValidation';
+import { ResetPasswordEmailInfo } from '~/_serverless/lib/types';
+import validator from 'validator';
 
 interface Props {
-  handleConfirmEmail: (e: FormEvent<HTMLFormElement>) => void;
-  submitting: boolean;
-  emailIsValid: null | boolean;
-  email: string;
-  setEmail: React.Dispatch<SetStateAction<string>>;
+  handleEmailFormSubmitted: () => void;
 }
 
-const EmailForm: React.FC<Props> = ({
-  handleConfirmEmail,
-  submitting,
-  emailIsValid,
-  email,
-  setEmail,
-}) => {
+const EmailForm: React.FC<Props> = ({ handleEmailFormSubmitted }) => {
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const emailIsValid = !email ? null : validator.isEmail(email);
+
   const { errors } = useFormValidation<{ email: string | null }>(
     {
       email: null,
     },
     [emailIsValid],
-    ['Enter a valid email address.'],
+    [
+      'Password must be at least 6 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 symbol.',
+      "Passwords aren't the same.",
+    ],
   );
+
+  function handleConfirmEmail(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (emailIsValid && !submitting) {
+      const form: ResetPasswordEmailInfo = {
+        email,
+      };
+
+      setSubmitting(true);
+      setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.log(form);
+        setSubmitting(false);
+        handleEmailFormSubmitted();
+      }, 3000);
+    }
+  }
 
   return (
     <form

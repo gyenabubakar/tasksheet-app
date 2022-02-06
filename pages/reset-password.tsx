@@ -1,34 +1,21 @@
-import { FormEvent, useState } from 'react';
+import { useState } from 'react';
 import Head from 'next/head';
-import validator from 'validator';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import Container from '~/components/common/Container';
-import { ResetPasswordEmailInfo } from '~/_serverless/lib/types';
 import EmailForm from '~/components/page-reset-password/EmailForm';
+import PasswordForm from '~/components/page-reset-password/PasswordForm';
 
 const ResetPasswordPage: PageWithLayout = () => {
-  const [email, setEmail] = useState('');
-  const [submitting, setSubmitting] = useState(false);
+  const [activeForm, setActiveForm] = useState<'email' | 'password'>(
+    'password',
+  );
 
-  const emailIsValid = !email ? null : validator.isEmail(email);
-
-  function handleConfirmEmail(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    if (emailIsValid && !submitting) {
-      const form: ResetPasswordEmailInfo = {
-        email,
-      };
-
-      setSubmitting(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
-      }, 3000);
-    }
+  function handleEmailFormSubmitted() {
+    setActiveForm('password');
   }
+
+  function handleSubmittedPasswords() {}
 
   return (
     <>
@@ -38,15 +25,15 @@ const ResetPasswordPage: PageWithLayout = () => {
 
       <main>
         <Container>
-          <EmailForm
-            handleConfirmEmail={(e: FormEvent<HTMLFormElement>) =>
-              handleConfirmEmail(e)
-            }
-            submitting={submitting}
-            emailIsValid={emailIsValid}
-            email={email}
-            setEmail={setEmail}
-          />
+          {activeForm === 'email' ? (
+            <EmailForm
+              handleEmailFormSubmitted={() => handleEmailFormSubmitted()}
+            />
+          ) : (
+            <PasswordForm
+              handleSubmittedPasswords={() => handleSubmittedPasswords()}
+            />
+          )}
         </Container>
       </main>
     </>
