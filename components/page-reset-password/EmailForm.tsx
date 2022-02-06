@@ -62,9 +62,10 @@ const EmailForm: React.FC<Props> = ({ handleEmailFormSubmitted }) => {
         </div>
 
         <p className="text-darkgray text-center mt-5">
-          Enter the email you created your account with. <br /> If the account
-          exists, we’ll send you a{' '}
-          <span className="text-fakeblack font-medium">5-digit</span> code.
+          Enter the email you created your account with.{' '}
+          <br className="hidden md:block" /> If the account exists, we’ll send
+          you a <span className="text-fakeblack font-medium">5-digit</span>{' '}
+          code.
         </p>
       </div>
 

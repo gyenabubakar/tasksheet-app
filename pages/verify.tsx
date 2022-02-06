@@ -226,7 +226,6 @@ const VerifyEmailPage: PageWithLayout = () => {
                 type="text"
                 maxLength={1}
                 value={inputs.input1}
-                autoFocus
                 wrapperClass="w-[56px] md:w-[56px]"
                 className="text-center text-lg font-bold"
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -323,7 +322,7 @@ const VerifyEmailPage: PageWithLayout = () => {
                 <button
                   type="button"
                   disabled={seconds !== 0 || resending}
-                  className="text-main font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-main font-medium disabled:opacity-25 disabled:cursor-not-allowed"
                   onClick={() => handleResendCode()}
                 >
                   {resending ? 'Resending...' : 'Resend Code'}

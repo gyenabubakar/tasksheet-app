@@ -7,9 +7,7 @@ import EmailForm from '~/components/page-reset-password/EmailForm';
 import PasswordForm from '~/components/page-reset-password/PasswordForm';
 
 const ResetPasswordPage: PageWithLayout = () => {
-  const [activeForm, setActiveForm] = useState<'email' | 'password'>(
-    'password',
-  );
+  const [activeForm, setActiveForm] = useState<'email' | 'password'>('email');
 
   function handleEmailFormSubmitted() {
     setActiveForm('password');
