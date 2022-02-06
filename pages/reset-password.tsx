@@ -15,7 +15,19 @@ const ResetPasswordPage: PageWithLayout = () => {
     setActiveForm('password');
   }
 
-  function handleSubmittedPasswords() {}
+  function handleSubmittedPasswords() {
+    // swal({
+    //   icon: 'success',
+    //   title: 'New password has been saved successfully!',
+    //   showConfirmButton: true,
+    //   showLoaderOnConfirm: true,
+    //   preConfirm() {
+    //     return new Promise((resolve) => {
+    //       setTimeout(resolve, 2000);
+    //     });
+    //   },
+    // }).then((resp) => console.log(resp));
+  }
 
   return (
     <>
