@@ -82,7 +82,7 @@ const SignupPage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Sign up | TaskSheet</title>
+        <title>Sign up · TaskSheet</title>
         <meta
           name="description"
           content="Sign up for an account on TaskSheet and start managing your projects."

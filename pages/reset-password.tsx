@@ -30,7 +30,7 @@ const ResetPasswordPage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Reset Password | TaskSheet</title>
+        <title>Reset Password · TaskSheet</title>
       </Head>
 
       <main>

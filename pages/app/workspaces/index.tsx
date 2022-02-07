@@ -8,7 +8,7 @@ const WorkspacesHomePage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Dashboard | TaskSheet</title>
+        <title>Your Workspaces · TaskSheet</title>
       </Head>
 
       <main>

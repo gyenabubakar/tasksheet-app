@@ -183,7 +183,7 @@ const VerifyEmailPage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Verify your email | TaskSheet</title>
+        <title>Verify your email · TaskSheet</title>
       </Head>
 
       <main>

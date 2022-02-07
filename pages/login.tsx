@@ -64,7 +64,7 @@ const LoginPage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Log in | TaskSheet</title>
+        <title>Log in · TaskSheet</title>
       </Head>
 
       <main>

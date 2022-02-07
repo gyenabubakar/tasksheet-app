@@ -7,13 +7,14 @@ const WorkspaceDetailsPage: PageWithLayout = (props) => {
   const router = useRouter();
 
   useEffect(() => {
+    // eslint-disable-next-line no-console
     console.log(props);
   }, [router]);
 
   return (
     <>
       <Head>
-        <title>Your Workspaces | TaskSheet</title>
+        <title>Workspace ID · TaskSheet</title>
       </Head>
 
       <main>
