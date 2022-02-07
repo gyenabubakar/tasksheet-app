@@ -1,6 +1,6 @@
 # `/context` directory
 
-This directory contains all everything React Context.
+This directory contains all React Context providers.
 
 If you need to create a context/provider, do it in this directory.
 
