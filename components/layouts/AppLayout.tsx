@@ -17,7 +17,7 @@ const AppLayout: React.FC = ({ children }) => {
 
   return (
     <div className="relative h-screen w-screen overflow-x-hidden">
-      <nav className="fixed w-full right-0 top-0 left-0">
+      <nav className="fixed w-full right-0 top-0 left-0 z-30">
         <Container className="flex justify-between items-center">
           <button className="lg:hidden logo w-[40px] h-[37px] relative">
             <Image src={iconMenu} layout="fill" alt="Menu" />
@@ -66,10 +66,10 @@ const AppLayout: React.FC = ({ children }) => {
 
       <Container className="mt-[4.42rem] pt-8 md:pt-12">{children}</Container>
 
-      <div className="w-full fixed bottom-12">
-        <Button className="rounded-full px-10 flex items-center">
+      <div className="w-full fixed bottom-5 lg:bottom-12">
+        <Button className="rounded-full px-4 md:px-10 flex items-center">
           <Image src={iconPlus} width="23px" height="23px" />
-          <span className="ml-5">Create Task</span>
+          <span className="ml-5 hidden md:inline">Create Task</span>
         </Button>
       </div>
     </div>

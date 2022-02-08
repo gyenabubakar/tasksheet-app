@@ -10,3 +10,18 @@ export type PageWithLayout = NextPage & {
   layout?: AppLayout;
   SecondaryLayout?: React.FC;
 };
+
+export interface FolderType {
+  id: string;
+  name: string;
+  colour: string;
+  workspaceId?: string;
+  category: {
+    id: string;
+    name: string;
+  };
+  tasks: {
+    completed: number;
+    total: number;
+  };
+}

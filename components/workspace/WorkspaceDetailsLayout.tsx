@@ -22,9 +22,6 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
   const isRequestsTab = pathname === '/app/workspaces/[workspaceID]/requests';
 
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log(router.pathname);
-
     setIsMounted(true);
   }, []);
 
