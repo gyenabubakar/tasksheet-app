@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
-// import {} from 'react';
 import Head from 'next/head';
 
 import { FolderType, PageWithLayout } from '~/assets/ts/types';
 import WorkspaceDetailsLayout from '~/components/workspace/WorkspaceDetailsLayout';
 import Folder from '~/components/workspace/Folder';
+import swal from '~/assets/ts/sweetalert';
 
 const WorkspaceDetailsPage: PageWithLayout = () => {
   const router = useRouter();
@@ -41,6 +41,39 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
     },
   ];
 
+  function onEditFolder(folder: FolderType) {
+    console.log('edit:', folder);
+  }
+
+  async function onDeleteFolder(folder: FolderType) {
+    await swal({
+      icon: 'warning',
+      title: (
+        <>
+          Proceed deleting{' '}
+          <span className="font-bold text-main">{folder.name}</span>?
+        </>
+      ),
+      text: "You can't undo this.",
+      showConfirmButton: true,
+      showCancelButton: true,
+      showLoaderOnConfirm: true,
+      confirmButtonText: 'Yes, delete',
+      preConfirm(confirmed: boolean): Promise<null> | null {
+        if (!confirmed) {
+          return null;
+        }
+
+        return new Promise<null>((resolve) => {
+          setTimeout(() => {
+            console.log('delete:', folder);
+            resolve(null);
+          }, 3000);
+        });
+      },
+    });
+  }
+
   return (
     <>
       <Head>
@@ -59,6 +92,8 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
                 href={`/app/folders/${folder.id}`}
                 key={folder.id}
                 folder={folder}
+                onEdit={(f) => onEditFolder(f)}
+                onDelete={(f) => onDeleteFolder(f)}
               />
             ))}
           </div>

@@ -12,9 +12,17 @@ import ReactTooltip from 'react-tooltip';
 interface FolderProps extends ComponentProps<'div'> {
   folder: FolderType;
   href: string;
+  onDelete: (f: FolderType) => void;
+  onEdit: (f: FolderType) => void;
 }
 
-const Folder: React.FC<FolderProps> = ({ className, href, folder }) => {
+const Folder: React.FC<FolderProps> = ({
+  className,
+  href,
+  folder,
+  onDelete,
+  onEdit,
+}) => {
   const [isMounted, setIsMounted] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
@@ -97,7 +105,7 @@ const Folder: React.FC<FolderProps> = ({ className, href, folder }) => {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Edit');
+                      onEdit(folder);
                     }}
                   >
                     <Image src={iconPencil} width="17px" height="16px" />
@@ -108,7 +116,7 @@ const Folder: React.FC<FolderProps> = ({ className, href, folder }) => {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('Remove');
+                      onDelete(folder);
                     }}
                   >
                     <Image src={iconBin} width="20px" height="20px" />
