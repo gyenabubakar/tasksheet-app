@@ -36,3 +36,13 @@ export interface MemberType {
     total: number;
   };
 }
+
+export interface RequestType {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+  };
+}

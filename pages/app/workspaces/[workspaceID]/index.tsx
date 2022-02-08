@@ -42,6 +42,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
   ];
 
   function onEditFolder(folder: FolderType) {
+    // eslint-disable-next-line no-console
     console.log('edit:', folder);
   }
 
@@ -66,6 +67,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
 
         return new Promise<null>((resolve) => {
           setTimeout(() => {
+            // eslint-disable-next-line no-console
             console.log('delete:', folder);
             resolve(null);
           }, 3000);

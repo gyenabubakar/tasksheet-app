@@ -2,6 +2,7 @@ import React, { ComponentProps } from 'react';
 
 interface Props extends ComponentProps<'button'> {
   loading?: boolean;
+  icon?: JSX.Element;
 }
 
 const Button: React.FC<Props> = ({
@@ -10,12 +11,13 @@ const Button: React.FC<Props> = ({
   type = 'button',
   children,
   className = '',
+  icon = null,
   ...props
 }) => (
   <button
     type={type}
     disabled={disabled}
-    className={`bg-main text-white font-medium px-20 py-4 mx-auto rounded-small flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
+    className={`bg-main text-white font-medium px-20 py-4 rounded-small flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
       disabled ? '' : 'hover:bg-darkmain'
     } ${className}`}
     {...props}
@@ -42,6 +44,8 @@ const Button: React.FC<Props> = ({
         />
       </svg>
     )}
+
+    {!loading && icon}
 
     {children}
   </button>
