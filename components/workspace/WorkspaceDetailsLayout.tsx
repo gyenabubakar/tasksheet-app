@@ -78,7 +78,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
                   isFoldersTab ? 'active' : ''
                 }`}
               >
-                Folders
+                <span>Folders</span>
               </a>
             </Link>
 
@@ -94,11 +94,12 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
 
             <Link href={`/app/workspaces/${workspaceID}/requests`}>
               <a
-                className={`tab text-base px-5 md:px-8 py-2 rounded-[12px] ${
+                className={`tab flex items-center text-base px-5 md:px-8 py-2 rounded-[12px] ${
                   isRequestsTab ? 'active' : ''
                 }`}
               >
-                Join Requests
+                <span>Join Requests</span>
+                <span className="important ml-2" />
               </a>
             </Link>
           </div>

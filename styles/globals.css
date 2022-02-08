@@ -95,3 +95,7 @@ nav .link-item.exact-active {
 .workspace-heading .nav .tab.active {
   @apply bg-white shadow-md shadow-[#EAEBFF] text-main;
 }
+
+.important {
+  @apply bg-red-500 rounded-full w-2 h-2;
+}
