@@ -47,7 +47,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
         <title>Folders | {router.query.workspaceID} · TaskSheet</title>
       </Head>
 
-      <main className="page-workspace-id mt-8 pb-20">
+      <main className="page-workspace-id mt-8">
         <div className="body">
           <p className="text-darkgray font-medium">
             2 Folders and 7/10 completed tasks

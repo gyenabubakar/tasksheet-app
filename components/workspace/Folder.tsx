@@ -1,8 +1,10 @@
-import React, { ComponentProps, useEffect, useState } from 'react';
+import React, { ComponentProps, FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { FolderType } from '~/assets/ts/types';
 import iconFolder from '~/assets/icons/workspace/folder.svg';
 import iconMoreOptions from '~/assets/icons/workspace/more-options.svg';
+import iconPencil from '~/assets/icons/workspace/pencil-gray.svg';
+import iconBin from '~/assets/icons/workspace/bin.svg';
 import hexToRGB from '~/assets/ts/hexToRGB';
 import Link from 'next/link';
 import ReactTooltip from 'react-tooltip';
@@ -14,19 +16,47 @@ interface FolderProps extends ComponentProps<'div'> {
 
 const Folder: React.FC<FolderProps> = ({ className, href, folder }) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+
   const { tasks, colour } = folder;
   const completedTasksPercent = (tasks.completed / tasks.total) * 100;
+
+  function onShowOptions(e: FormEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowOptions((prevState) => !prevState);
+  }
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const btn = document.querySelector(`#btn-${folder.id}-options`);
+      if (target.id !== `btn-${folder.id}-options` && !btn?.contains(target)) {
+        setShowOptions(false);
+      }
+    };
+
+    if (showOptions) {
+      document.addEventListener('click', handleClickOutside);
+    } else {
+      document.removeEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showOptions]);
 
   return (
     <Link href={href}>
       <a
         className={`folder-card bg-white shadow-lg shadow-faintmain p-5 rounded-small ${className}`}
       >
-        <div className="head flex justify-between items-center">
+        <div className="head flex justify-between items-center relative">
           <div
             className="icon p-2.5 rounded-xl"
             style={{ backgroundColor: colour }}
@@ -36,7 +66,11 @@ const Folder: React.FC<FolderProps> = ({ className, href, folder }) => {
             </div>
           </div>
 
-          <button>
+          <button
+            id={`btn-${folder.id}-options`}
+            className="relative"
+            onClick={onShowOptions}
+          >
             <Image
               src={iconMoreOptions}
               width="24px"
@@ -54,6 +88,34 @@ const Folder: React.FC<FolderProps> = ({ className, href, folder }) => {
               >
                 More options
               </ReactTooltip>
+            )}
+
+            {showOptions && (
+              <div className="options absolute">
+                <ul>
+                  <li
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Edit');
+                    }}
+                  >
+                    <Image src={iconPencil} width="17px" height="16px" />
+                    <span>Edit</span>
+                  </li>
+
+                  <li
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Remove');
+                    }}
+                  >
+                    <Image src={iconBin} width="20px" height="20px" />
+                    <span className="text-red-500">Remove</span>
+                  </li>
+                </ul>
+              </div>
             )}
           </button>
         </div>
