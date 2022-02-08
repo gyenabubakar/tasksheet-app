@@ -126,3 +126,7 @@ nav .link-item.exact-active {
     transform: translateY(0);
   }
 }
+
+.card {
+  @apply bg-white shadow-lg shadow-faintmain p-5 rounded-small;
+}

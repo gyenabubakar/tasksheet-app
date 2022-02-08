@@ -1,4 +1,4 @@
-import React, { ComponentProps, FormEvent, useEffect, useState } from 'react';
+import React, { ComponentProps, FormEvent, useState } from 'react';
 import Image from 'next/image';
 import { FolderType } from '~/assets/ts/types';
 import iconFolder from '~/assets/icons/workspace/folder.svg';
@@ -7,7 +7,7 @@ import iconPencil from '~/assets/icons/workspace/pencil-gray.svg';
 import iconBin from '~/assets/icons/workspace/bin.svg';
 import hexToRGB from '~/assets/ts/hexToRGB';
 import Link from 'next/link';
-import ReactTooltip from 'react-tooltip';
+import Options from '../common/Options';
 
 interface FolderProps extends ComponentProps<'div'> {
   folder: FolderType;
@@ -23,7 +23,6 @@ const Folder: React.FC<FolderProps> = ({
   onDelete,
   onEdit,
 }) => {
-  const [isMounted, setIsMounted] = useState(false);
   const [showOptions, setShowOptions] = useState(false);
 
   const { tasks, colour } = folder;
@@ -35,35 +34,9 @@ const Folder: React.FC<FolderProps> = ({
     setShowOptions((prevState) => !prevState);
   }
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const btn = document.querySelector(`#btn-${folder.id}-options`);
-      if (target.id !== `btn-${folder.id}-options` && !btn?.contains(target)) {
-        setShowOptions(false);
-      }
-    };
-
-    if (showOptions) {
-      document.addEventListener('click', handleClickOutside);
-    } else {
-      document.removeEventListener('click', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [showOptions]);
-
   return (
     <Link href={href}>
-      <a
-        className={`folder-card bg-white shadow-lg shadow-faintmain p-5 rounded-small ${className}`}
-      >
+      <a className={`folder-card card ${className}`}>
         <div className="head flex justify-between items-center relative">
           <div
             className="icon p-2.5 rounded-xl"
@@ -79,51 +52,40 @@ const Folder: React.FC<FolderProps> = ({
             className="relative"
             onClick={onShowOptions}
           >
-            <Image
-              src={iconMoreOptions}
-              width="24px"
-              height="24px"
-              data-tip
-              data-for={`folder-${folder.id}-options`}
-            />
-
-            {isMounted && (
-              <ReactTooltip
-                id={`folder-${folder.id}-options`}
-                place="left"
-                type="dark"
-                effect="solid"
-              >
-                More options
-              </ReactTooltip>
-            )}
+            <Image src={iconMoreOptions} width="24px" height="24px" />
 
             {showOptions && (
-              <div className="options absolute right-0">
-                <ul>
-                  <li
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onEdit(folder);
-                    }}
-                  >
-                    <Image src={iconPencil} width="17px" height="16px" />
-                    <span>Edit</span>
-                  </li>
-
-                  <li
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      onDelete(folder);
-                    }}
-                  >
-                    <Image src={iconBin} width="20px" height="20px" />
-                    <span className="text-red-500">Remove</span>
-                  </li>
-                </ul>
-              </div>
+              <Options
+                className="absolute right-0"
+                show={showOptions}
+                setShow={setShowOptions}
+                originID={`btn-${folder.id}-options`}
+                optionObject={folder}
+                options={[
+                  {
+                    element: (
+                      <>
+                        <Image src={iconPencil} width="17px" height="16px" />
+                        <span>Edit</span>
+                      </>
+                    ),
+                    onClick(f: FolderType) {
+                      onEdit(f);
+                    },
+                  },
+                  {
+                    element: (
+                      <>
+                        <Image src={iconBin} width="20px" height="20px" />
+                        <span className="text-red-500">Remove</span>
+                      </>
+                    ),
+                    onClick(f: FolderType) {
+                      onDelete(f);
+                    },
+                  },
+                ]}
+              />
             )}
           </button>
         </div>

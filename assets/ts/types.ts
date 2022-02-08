@@ -25,3 +25,14 @@ export interface FolderType {
     total: number;
   };
 }
+
+export interface MemberType {
+  id: string;
+  name: string;
+  avatar: string;
+  role: string;
+  tasks: {
+    completed: number;
+    total: number;
+  };
+}

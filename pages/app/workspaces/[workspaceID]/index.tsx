@@ -80,23 +80,21 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
         <title>Folders | {router.query.workspaceID} · TaskSheet</title>
       </Head>
 
-      <main className="page-workspace-id mt-8">
-        <div className="body">
-          <p className="text-darkgray font-medium">
-            2 Folders and 7/10 completed tasks
-          </p>
+      <main className="page-workspace-folders mt-8">
+        <p className="text-darkgray font-medium">
+          2 Folders and 7/10 completed tasks
+        </p>
 
-          <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {folders.map((folder) => (
-              <Folder
-                href={`/app/folders/${folder.id}`}
-                key={folder.id}
-                folder={folder}
-                onEdit={(f) => onEditFolder(f)}
-                onDelete={(f) => onDeleteFolder(f)}
-              />
-            ))}
-          </div>
+        <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {folders.map((folder) => (
+            <Folder
+              href={`/app/folders/${folder.id}`}
+              key={folder.id}
+              folder={folder}
+              onEdit={(f) => onEditFolder(f)}
+              onDelete={(f) => onDeleteFolder(f)}
+            />
+          ))}
         </div>
       </main>
     </>
