@@ -10,7 +10,8 @@ import useLayout from '~/hooks/useLayout';
 import { ToastContainer } from 'react-toastify';
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const Layout = useLayout((Component as PageWithLayout).layout);
+  const PageComponent = Component as PageWithLayout;
+  const Layout = useLayout(PageComponent.layout);
 
   return (
     <>
@@ -29,7 +30,13 @@ function MyApp({ Component, pageProps }: AppProps) {
       />
 
       <Layout>
-        <Component {...pageProps} />
+        {PageComponent.SecondaryLayout ? (
+          <PageComponent.SecondaryLayout>
+            <PageComponent {...pageProps} />
+          </PageComponent.SecondaryLayout>
+        ) : (
+          <PageComponent {...pageProps} />
+        )}
       </Layout>
 
       <ToastContainer />

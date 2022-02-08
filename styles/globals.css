@@ -81,3 +81,17 @@ nav .link-item:hover {
 nav .link-item.exact-active {
   @apply bg-faintmain border-main text-main;
 }
+
+.workspace-heading button[data-for='add-folder'],
+.workspace-heading button[data-for='add-member'],
+.workspace-heading button[data-for='leave-workspace'] {
+  @apply mr-7;
+}
+
+.workspace-heading .nav .tab:hover {
+  @apply text-main;
+}
+
+.workspace-heading .nav .tab.active {
+  @apply bg-white shadow-md shadow-[#EAEBFF] text-main;
+}
