@@ -99,7 +99,7 @@ const Folder: React.FC<FolderProps> = ({
             )}
 
             {showOptions && (
-              <div className="options absolute">
+              <div className="options absolute right-0">
                 <ul>
                   <li
                     onClick={(e) => {

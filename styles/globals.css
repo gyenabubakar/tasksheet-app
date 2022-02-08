@@ -103,6 +103,7 @@ nav .link-item.exact-active {
 .options {
   @apply bg-white rounded-lg min-w-[200px] shadow-xl shadow-faintmain z-[2];
   box-shadow: 0 10px 15px rgba(92, 104, 255, 0.2);
+  animation: ShowOptions 0.3s ease forwards;
 }
 
 .options ul li {
@@ -113,4 +114,15 @@ nav .link-item.exact-active {
 }
 .options ul li:not(:last-child) {
   @apply border-b;
+}
+
+@keyframes ShowOptions {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
