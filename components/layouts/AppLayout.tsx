@@ -64,7 +64,7 @@ const AppLayout: React.FC = ({ children }) => {
         </Container>
       </nav>
 
-      <Container className="mt-[4.42rem]">{children}</Container>
+      <Container className="mt-[4.42rem] pt-8 md:pt-12">{children}</Container>
 
       <div className="w-full fixed bottom-12">
         <Button className="rounded-full px-10 flex items-center">
