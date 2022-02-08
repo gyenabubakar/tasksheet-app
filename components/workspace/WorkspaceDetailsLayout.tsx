@@ -6,7 +6,7 @@ import iconArrowLeft from '~/assets/icons/arrow-left.svg';
 import iconFolderAdd from '~/assets/icons/workspace/folder-add.svg';
 import iconPeople from '~/assets/icons/workspace/people.svg';
 import iconLogout from '~/assets/icons/workspace/logout.svg';
-import iconBin from '~/assets/icons/workspace/bin.svg';
+import iconSettings from '~/assets/icons/workspace/cog.svg';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 
@@ -145,7 +145,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
             )}
 
             <button data-tip data-for="delete-workspace">
-              <Image src={iconBin} />
+              <Image src={iconSettings} width="28px" height="28px" />
             </button>
             {isMounted && (
               <ReactTooltip
@@ -154,7 +154,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
                 type="dark"
                 effect="solid"
               >
-                Delete Workspace
+                Workspace settings
               </ReactTooltip>
             )}
           </div>
