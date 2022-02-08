@@ -320,7 +320,7 @@ const VerifyEmailPage: PageWithLayout = () => {
                 seconds.
               </p>
 
-              <div className="text-center mt-3">
+              <div className="flex justify-center mt-3">
                 <button
                   type="button"
                   disabled={seconds !== 0 || resending}

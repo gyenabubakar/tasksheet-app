@@ -149,7 +149,7 @@ const LoginPage: PageWithLayout = () => {
                 </Link>
               </div>
 
-              <div className="text-center mt-10">
+              <div className="flex justify-center mt-10">
                 <Button
                   type="submit"
                   loading={submitting}

@@ -53,7 +53,7 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
       </Head>
 
       <main className="page-workspace-requests mt-8">
-        <p className="text-darkgray font-medium">1 member</p>
+        <p className="text-darkgray font-medium">1 pending request</p>
 
         <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5">
           {requests.map((request) => (

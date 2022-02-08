@@ -31,7 +31,7 @@ const Request: React.FC<RequesProps> = ({ request, onAccept, onReject }) => {
         <p className="text-[20px] font-medium">{name}</p>
         <span className="text-base text-darkgray">{email}</span>
 
-        <div className="actions mt-5 flex md:flex-col md:items-center lg:flex-row">
+        <div className="actions mt-5 flex md:flex-col md:items-center xl:flex-row">
           <Button
             className="bg-transparent border-[3px] border-red-500 text-red-400 hover:bg-red-500 hover:text-white px-8 py-3 mr-3 md:mr-0 lg:mr-3"
             onClick={() => onReject(request)}
@@ -40,7 +40,7 @@ const Request: React.FC<RequesProps> = ({ request, onAccept, onReject }) => {
           </Button>
 
           <Button
-            className="px-8 py-3 md:mt-3 lg:mt-0"
+            className="px-8 py-3 md:mt-3 xl:mt-0"
             loading={accepting}
             disabled={accepting}
             icon={

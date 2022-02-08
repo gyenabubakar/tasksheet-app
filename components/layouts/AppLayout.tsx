@@ -68,7 +68,7 @@ const AppLayout: React.FC = ({ children }) => {
         {children}
       </Container>
 
-      <div className="w-full fixed bottom-5 lg:bottom-12">
+      <div className="w-full flex justify-center fixed bottom-5 lg:bottom-12">
         <Button className="rounded-full px-4 md:px-10 flex items-center">
           <Image src={iconPlus} width="23px" height="23px" />
           <span className="ml-5 hidden md:inline">Create Task</span>
