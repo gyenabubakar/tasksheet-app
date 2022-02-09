@@ -11,6 +11,8 @@ import Button from '~/components/common/Button';
 
 const WorkspaceDetailsPage: PageWithLayout = () => {
   const router = useRouter();
+  const { workspaceID } = router.query;
+
   const folders: FolderType[] = [
     // {
     //   id: '1',
@@ -113,7 +115,14 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
             </h3>
 
             <div className="mt-10">
-              <Button className="px-10 py-6">Create New Folder</Button>
+              <Button
+                className="px-10 py-6"
+                onClick={() =>
+                  router.push(`/app/workspaces/${workspaceID}/new-folder`)
+                }
+              >
+                Create New Folder
+              </Button>
             </div>
           </div>
         )}

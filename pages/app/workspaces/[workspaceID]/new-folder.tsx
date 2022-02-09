@@ -99,7 +99,11 @@ const NewFolderPage: PageWithLayout = () => {
             Folders are used to organise your tasks in a workspace.
           </p>
 
-          <form className="mt-16" onSubmit={handleCreateFolder}>
+          <form
+            className="mt-16"
+            onSubmit={handleCreateFolder}
+            autoComplete="off"
+          >
             <Input
               id="folder-title"
               type="text"
