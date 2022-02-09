@@ -30,9 +30,9 @@ const NewFolderPage: PageWithLayout = () => {
   const router = useRouter();
   const { workspaceID } = router.query;
 
-  const titleIsValid = title ? title.length > 2 && title.length < 100 : null;
+  const titleIsValid = title ? title.length >= 2 && title.length < 100 : null;
   const categoryIsValid = category
-    ? category.length > 2 && category.length < 50
+    ? category.length >= 2 && category.length < 50
     : null;
   const formIsValid = titleIsValid === true && categoryIsValid && colour !== '';
 

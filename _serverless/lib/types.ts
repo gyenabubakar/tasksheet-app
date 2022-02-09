@@ -28,3 +28,8 @@ export interface NewFolderInfo {
   category: string;
   colour: string;
 }
+
+export interface WorkspaceInfo {
+  name: string;
+  description: string;
+}
