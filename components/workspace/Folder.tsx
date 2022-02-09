@@ -26,7 +26,8 @@ const Folder: React.FC<FolderProps> = ({
   const [showOptions, setShowOptions] = useState(false);
 
   const { tasks, colour } = folder;
-  const completedTasksPercent = (tasks.completed / tasks.total) * 100;
+  const completedTasksPercent =
+    ((tasks?.completed || 0) / (tasks?.total || 0)) * 100;
 
   function onShowOptions(e: FormEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -92,15 +93,13 @@ const Folder: React.FC<FolderProps> = ({
 
         <div className="details mt-5">
           <p className="font-medium">{folder.name}</p>
-          <span className="text-darkgray text-base">
-            {folder.category.name}
-          </span>
+          <span className="text-darkgray text-base">{folder.category}</span>
 
           <div className="progress mt-5">
             <div className="text-right mb-3">
               <div className="stat font-medium text-base">
-                <span>{tasks.completed}</span>/
-                <span className="text-darkgray">{tasks.total}</span>
+                <span>{tasks?.completed || '0'}</span>/
+                <span className="text-darkgray">{tasks?.total || '0'}</span>
               </div>
             </div>
 

@@ -130,3 +130,7 @@ nav .link-item.exact-active {
 .card {
   @apply bg-white shadow-lg shadow-faintmain p-5 rounded-small;
 }
+
+.colours-wrapper .colour {
+  @apply mr-2;
+}

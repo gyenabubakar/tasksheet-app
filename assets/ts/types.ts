@@ -16,11 +16,8 @@ export interface FolderType {
   name: string;
   colour: string;
   workspaceId?: string;
-  category: {
-    id: string;
-    name: string;
-  };
-  tasks: {
+  category: string;
+  tasks?: {
     completed: number;
     total: number;
   };

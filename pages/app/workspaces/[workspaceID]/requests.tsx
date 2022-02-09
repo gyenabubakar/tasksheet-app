@@ -77,11 +77,11 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
               <Image src={illustrationEmpty} />
             </div>
 
-            <h3 className="font-bold text-[24px] mt-10">
+            <h3 className="font-bold text-center text-[24px] mt-10">
               There are no join requests at this time.
             </h3>
 
-            <p className="text-center w-8/12 mx-auto text-darkgray mt-5">
+            <p className="text-center w-11/12 md:w-8/12 mx-auto text-darkgray mt-5">
               You can share your public link to allow anyone to send join
               requests to this workspace.
             </p>

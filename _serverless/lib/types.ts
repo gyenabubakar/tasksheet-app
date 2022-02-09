@@ -22,3 +22,9 @@ export interface VerificationCodeInfo {
   email: string;
   code: string;
 }
+
+export interface NewFolderInfo {
+  title: string;
+  category: string;
+  colour: string;
+}
