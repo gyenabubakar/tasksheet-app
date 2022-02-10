@@ -31,7 +31,10 @@ const NewWorkspacePage: PageWithLayout = () => {
 
   const nameIsValid = name ? name.length >= 2 && name.length <= 100 : null;
   const descriptionIsValid = description.length <= 280;
-  const formIsValid = nameIsValid === true && descriptionIsValid === true;
+  const formIsValid =
+    nameIsValid === true &&
+    descriptionIsValid === true &&
+    stage === 'description';
 
   const { errors } = useFormValidation<NewWorkspaceFormErrors>(
     {
@@ -134,7 +137,8 @@ const NewWorkspacePage: PageWithLayout = () => {
                   id="folder-title"
                   type="text"
                   value={name}
-                  wrapperClass="mb-1.5"
+                  className="lg:text-lg lg:px-8 lg:py-5"
+                  wrapperClass="mb-1.5 md:w-[600px]"
                   error={errors.name}
                   placeholder="e.g. React Projects"
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +170,7 @@ const NewWorkspacePage: PageWithLayout = () => {
                   workspace.
                 </h2>
 
-                <div className="input-wrapper w-[500px]">
+                <div className="input-wrapper w-full md:w-[600px]">
                   <textarea
                     id="workspace-description"
                     className="px-5 py-3 border border-lightgray rounded-small outline-none w-full min-h-[200px]"
@@ -178,9 +182,22 @@ const NewWorkspacePage: PageWithLayout = () => {
                   />
 
                   <div className="flex justify-between items-center">
-                    <small />
-                    <small className="text-darkgray">
-                      {description.length}/280 characters
+                    {errors.description ? (
+                      <small className="text-red-600 font-medium">
+                        {errors.description}
+                      </small>
+                    ) : (
+                      <br />
+                    )}
+
+                    <small
+                      className={
+                        description.length >= 280
+                          ? 'text-red-600'
+                          : 'text-darkgray'
+                      }
+                    >
+                      {description.length}/280
                     </small>
                   </div>
                 </div>
@@ -190,7 +207,6 @@ const NewWorkspacePage: PageWithLayout = () => {
                     type="submit"
                     disabled={!formIsValid || submitting}
                     loading={submitting}
-                    onClick={(e) => handleNextStage(e)}
                   >
                     {submitting ? 'On it...' : 'Create Workspace'}
                   </Button>

@@ -44,10 +44,6 @@ body {
   @apply font-medium select-none;
 }
 
-.text-password {
-  font-family: 'Password', sans-serif;
-}
-
 .width-max-content {
   width: 100%;
 }

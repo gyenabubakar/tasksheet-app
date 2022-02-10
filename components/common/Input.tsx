@@ -49,7 +49,7 @@ const Input: React.FC<InputProps> = (props) => {
       )}
       <br />
 
-      <div className="input-wrapper--inner relative">
+      <div className="input-wrapper--inner w-full relative">
         <input
           type={type || 'text'}
           id={id}
