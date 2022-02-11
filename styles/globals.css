@@ -39,8 +39,8 @@ body {
   @apply border border-lightgray rounded-small outline-none w-full;
 }
 
-.input-wrapper input::placeholder,
-.input-wrapper textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   @apply font-medium select-none;
 }
 

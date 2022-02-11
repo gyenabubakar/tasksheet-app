@@ -146,7 +146,13 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
               </ReactTooltip>
             )}
 
-            <button data-tip data-for="add-member">
+            <button
+              data-tip
+              data-for="add-member"
+              onClick={() =>
+                router.push(`/app/workspaces/${workspaceID}/invite`)
+              }
+            >
               <Image src={iconPeople} />
             </button>
             {isMounted && (

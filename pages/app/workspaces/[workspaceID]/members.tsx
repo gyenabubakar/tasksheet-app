@@ -10,6 +10,7 @@ import Button from '~/components/common/Button';
 
 const WorkspaceMembersPage: PageWithLayout = () => {
   const router = useRouter();
+  const { workspaceID } = router.query;
 
   const members: MemberType[] = [
     // {
@@ -92,7 +93,14 @@ const WorkspaceMembersPage: PageWithLayout = () => {
             </h3>
 
             <div className="mt-10">
-              <Button className="px-8 py-6">Invite New Members</Button>
+              <Button
+                className="px-8 py-6"
+                onClick={() =>
+                  router.push(`/app/workspaces/${workspaceID}/invite`)
+                }
+              >
+                Invite New Members
+              </Button>
             </div>
           </div>
         )}

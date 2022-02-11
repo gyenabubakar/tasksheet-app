@@ -11,19 +11,17 @@ interface InputProps extends ComponentProps<'input'> {
   noErrors?: boolean;
 }
 
-const Input: React.FC<InputProps> = (props) => {
-  const {
-    type,
-    className = '',
-    wrapperClass = '',
-    id,
-    label = null,
-    icon,
-    error,
-    noErrors,
-    ...restProps
-  } = props;
-
+const Input: React.FC<InputProps> = ({
+  type,
+  className = '',
+  wrapperClass = '',
+  id,
+  label = null,
+  icon,
+  error,
+  noErrors,
+  ...restProps
+}) => {
   const iconSpacingClass = icon
     ? (() => {
         switch (icon.position) {
