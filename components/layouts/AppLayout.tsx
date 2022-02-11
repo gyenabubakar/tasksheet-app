@@ -76,11 +76,13 @@ const AppLayout: React.FC = ({ children }) => {
       </Container>
 
       {!floatingButtonBlacklistedPathnames.includes(router.pathname) && (
-        <div className="w-full flex justify-center fixed bottom-5 lg:bottom-12">
-          <Button className="px-4 md:px-10 flex items-center rounded-full">
-            <Image src={iconPlus} width="23px" height="23px" />
-            <span className="ml-5 hidden md:inline">Create Task</span>
-          </Button>
+        <div className="w-full flex justify-end fixed bottom-5 lg:bottom-12">
+          <Container className="flex justify-end">
+            <Button className="px-4 md:px-10 flex items-center rounded-full">
+              <Image src={iconPlus} width="23px" height="23px" />
+              <span className="ml-5 hidden md:inline">Create Task</span>
+            </Button>
+          </Container>
         </div>
       )}
     </div>
