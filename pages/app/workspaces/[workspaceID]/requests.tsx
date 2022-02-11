@@ -8,9 +8,12 @@ import WorkspaceDetailsLayout from '~/components/workspace/WorkspaceDetailsLayou
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
 import iconShare from '~/assets/icons/workspace/share.svg';
+import swal from '~/assets/ts/sweetalert';
 
 const WorkspaceRequestsPage: PageWithLayout = () => {
   const router = useRouter();
+
+  const { workspaceID } = router.query;
 
   const requests: RequestType[] = [
     // {
@@ -34,6 +37,29 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
     //   },
     // },
   ];
+
+  async function handleShareLink() {
+    await swal({
+      icon: 'warning',
+      title:
+        'Anyone with this link can issue a join request.<br /><br />Proceed?',
+      showCancelButton: true,
+      showConfirmButton: true,
+      confirmButtonText: 'Yes, copy link!',
+      async preConfirm(confirmed) {
+        if (confirmed) {
+          const workspaceLink = `${window.location.protocol}//${window.location.host}/invitation/${workspaceID}`;
+
+          await window.navigator.clipboard.writeText(workspaceLink);
+          await swal({
+            icon: 'success',
+            title: 'Link copied!',
+            text: 'You can always pause receiving incoming join requests on the workspace settings page.',
+          });
+        }
+      },
+    });
+  }
 
   function onAccept(request: RequestType) {
     // eslint-disable-next-line no-console
@@ -90,6 +116,7 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
               <Button
                 className="px-8 py-6"
                 icon={<Image src={iconShare} width="27px" height="27px" />}
+                onClick={() => handleShareLink()}
               >
                 <span className="ml-8">Share Link</span>
               </Button>
