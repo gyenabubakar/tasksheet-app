@@ -4,7 +4,7 @@ import ReactTooltip from 'react-tooltip';
 
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
 import iconFolderAdd from '~/assets/icons/workspace/folder-add.svg';
-import iconPeople from '~/assets/icons/workspace/people.svg';
+import iconAddUser from '~/assets/icons/workspace/add-user.svg';
 import iconShare from '~/assets/icons/workspace/share-orange.svg';
 import iconSettings from '~/assets/icons/workspace/cog.svg';
 import { useRouter } from 'next/router';
@@ -153,7 +153,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
                 router.push(`/app/workspaces/${workspaceID}/invite`)
               }
             >
-              <Image src={iconPeople} />
+              <Image src={iconAddUser} width="30px" height="28px" />
             </button>
             {isMounted && (
               <ReactTooltip
