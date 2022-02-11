@@ -88,10 +88,10 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
 
             <div className="mt-10">
               <Button
-                className="px-10 py-6"
+                className="px-8 py-6"
                 icon={<Image src={iconShare} width="27px" height="27px" />}
               >
-                <span className="ml-3">Share Link</span>
+                <span className="ml-8">Share Link</span>
               </Button>
             </div>
           </div>

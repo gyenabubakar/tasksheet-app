@@ -92,7 +92,7 @@ const WorkspaceMembersPage: PageWithLayout = () => {
             </h3>
 
             <div className="mt-10">
-              <Button className="px-10 py-6">Invite New Members</Button>
+              <Button className="px-8 py-6">Invite New Members</Button>
             </div>
           </div>
         )}

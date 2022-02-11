@@ -116,7 +116,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
 
             <div className="mt-10">
               <Button
-                className="px-10 py-6"
+                className="px-8 py-6"
                 onClick={() =>
                   router.push(`/app/workspaces/${workspaceID}/new-folder`)
                 }
