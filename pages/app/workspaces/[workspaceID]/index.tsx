@@ -88,9 +88,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
       </Head>
 
       <main className="page-workspace-folders mt-8">
-        <p className="text-darkgray font-medium">
-          {folders.length} folders and 7/10 completed tasks
-        </p>
+        <p className="text-darkgray font-medium">{folders.length} folders</p>
 
         {folders.length ? (
           <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

@@ -44,9 +44,19 @@ export interface RequestType {
   };
 }
 
-export enum TaskPriority {
-  Low = 'Low',
-  Normal = 'Normal',
-  High = 'High',
-  Urgent = 'Urgent',
+type TaskPriorityType = 'Low' | 'Normal' | 'High' | 'Urgent';
+export const TaskPriority: { [key in TaskPriorityType]: TaskPriorityType } = {
+  Low: 'Low',
+  Normal: 'Normal',
+  High: 'High',
+  Urgent: 'Urgent',
+};
+
+export interface WorkspaceCardInfo {
+  id: string;
+  name: string;
+  description: string;
+  foldersCount: number;
+  membersCount: number;
+  tasksCount: number;
 }
