@@ -32,7 +32,7 @@ const SignupPage: PageWithLayout = () => {
   const [passwordIsMasked, setPasswordIsMasked] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const nameIsValid = !name ? null : name.length > 1;
+  const nameIsValid = !name ? null : /^[a-z\- ]{2,}$/.test(name);
   const emailIsValid = !email ? null : validator.isEmail(email);
   const passwordIsValid = !password
     ? null
