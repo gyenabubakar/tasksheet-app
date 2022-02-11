@@ -3,6 +3,7 @@ import React, { ComponentProps } from 'react';
 interface Props extends ComponentProps<'button'> {
   loading?: boolean;
   icon?: JSX.Element;
+  paddingClasses?: string;
 }
 
 const Button: React.FC<Props> = ({
@@ -11,10 +12,11 @@ const Button: React.FC<Props> = ({
   type = 'button',
   children,
   className = '',
+  paddingClasses = 'px-20 py-4',
   icon = null,
   ...props
 }) => {
-  const customClassName = /rounded-.+/.test(className)
+  const roundedClassName = /rounded-.+/.test(className)
     ? className
     : `${className} rounded-small`;
 
@@ -22,9 +24,9 @@ const Button: React.FC<Props> = ({
     <button
       type={type}
       disabled={disabled}
-      className={`bg-main text-white font-medium px-20 py-4 flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
+      className={`bg-main text-white font-medium ${paddingClasses} flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
         disabled ? '' : 'hover:bg-darkmain'
-      } ${customClassName}`}
+      } ${roundedClassName}`}
       {...props}
     >
       {loading && (

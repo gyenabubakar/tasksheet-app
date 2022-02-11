@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
@@ -79,14 +78,12 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
 
       <main className="page-new-workspace">
         <div className="button-wrapper mb-10">
-          <Link href={`/app/workspaces/${workspaceID}`}>
+          <button onClick={() => router.back()}>
             <a>
               <Image src={iconArrowLeft} width="19px" height="14px" />
-              <span className="inline-block ml-3 font-medium">
-                Montreal Projects
-              </span>
+              <span className="inline-block ml-3 font-medium">Back </span>
             </a>
-          </Link>
+          </button>
         </div>
 
         <div className="content mt-12">

@@ -53,12 +53,12 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
     <>
       <div className="workspace-heading">
         <div className="button-wrapper mb-10">
-          <Link href="/app/workspaces/">
+          <button onClick={() => router.back()}>
             <a>
               <Image src={iconArrowLeft} width="19px" height="14px" />
-              <span className="inline-block ml-3 font-medium">Workspaces</span>
+              <span className="inline-block ml-3 font-medium">Back</span>
             </a>
-          </Link>
+          </button>
         </div>
 
         <div className="workspace-info flex flex-col-reverse justify-between items-center lg:justify-start lg:items-start lg:grid grid-cols-12">

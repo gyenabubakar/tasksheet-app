@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import Link from 'next/link';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
@@ -79,14 +78,12 @@ const NewFolderPage: PageWithLayout = () => {
 
       <main className="page-new-folder">
         <div className="button-wrapper mb-10">
-          <Link href={`/app/workspaces/${workspaceID}`}>
+          <button onClick={() => router.back()}>
             <a>
               <Image src={iconArrowLeft} width="19px" height="14px" />
-              <span className="inline-block ml-3 font-medium">
-                Montreal Projects
-              </span>
+              <span className="inline-block ml-3 font-medium">Back</span>
             </a>
-          </Link>
+          </button>
         </div>
 
         <div className="content mt-16">

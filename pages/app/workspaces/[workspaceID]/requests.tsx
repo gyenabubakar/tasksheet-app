@@ -114,7 +114,7 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
 
             <div className="mt-10">
               <Button
-                className="px-8 py-6"
+                paddingClasses="px-8 py-6"
                 icon={<Image src={iconShare} width="27px" height="27px" />}
                 onClick={() => handleShareLink()}
               >
