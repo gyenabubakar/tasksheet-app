@@ -20,7 +20,7 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
     //   id: '1',
     //   user: {
     //     id: '1',
-    //     name: 'De Graft Athur',
+    //     name: 'De Graft Arthur',
     //     email: 'degraft@gmail.com',
     //     avatar:
     //       'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
@@ -30,7 +30,7 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
     //   id: '2',
     //   user: {
     //     id: '1',
-    //     name: 'De Graft Athur',
+    //     name: 'De Graft Arthur',
     //     email: 'degraft@gmail.com',
     //     avatar:
     //       'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
@@ -115,7 +115,9 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
             <div className="mt-10">
               <Button
                 paddingClasses="px-8 py-6"
-                icon={<Image src={iconShare} width="27px" height="27px" />}
+                icon={
+                  <Image src={iconShare} width="27px" height="27px" priority />
+                }
                 onClick={() => handleShareLink()}
               >
                 <span className="ml-8">Share Link</span>

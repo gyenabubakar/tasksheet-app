@@ -55,7 +55,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
         <div className="button-wrapper mb-10">
           <button onClick={() => router.back()}>
             <a>
-              <Image src={iconArrowLeft} width="19px" height="14px" />
+              <Image src={iconArrowLeft} width="19px" height="14px" priority />
               <span className="inline-block ml-3 font-medium">Back</span>
             </a>
           </button>
@@ -63,7 +63,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
 
         <div className="workspace-info flex flex-col-reverse justify-between items-center lg:justify-start lg:items-start lg:grid grid-cols-12">
           <div className="div col-span-8">
-            <h1 className="font-bold text-4xl md:text-[48px] md:text-center lg:text-left">
+            <h1 className="font-bold text-3xl md:text-[48px] md:text-center lg:text-left">
               Montreal Projects
             </h1>
 
@@ -76,11 +76,12 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
           </div>
 
           <div className="cover-wrapper w-full mb-5 lg:mb-0 col-start-10 col-span-3">
-            <div className="cover w-full h-56 md:w-8/12 md:h-72 md:mx-auto lg:mx-0 lg:w-72 lg:h-40 relative">
+            <div className="cover w-full h-56 sm:h-72 md:w-8/12 md:h-72 md:mx-auto lg:mx-0 lg:w-72 lg:h-40 relative">
               <Image
                 src="/images/macbook.jpeg"
                 layout="fill"
                 className="rounded-md"
+                priority
               />
             </div>
             <div className="text-center">
@@ -92,10 +93,10 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
         </div>
 
         <div className="nav flex flex-col md:flex-row justify-between items-center pt-12">
-          <div className="tabs font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px]">
+          <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
             <Link href={`/app/workspaces/${workspaceID}`}>
               <a
-                className={`tab text-base px-5 md:px-8 py-2 rounded-[12px] ${
+                className={`tab flex-grow text-center px-3 sm:px-5 md:px-8 py-2 rounded-[12px] ${
                   isFoldersTab ? 'active' : ''
                 }`}
               >
@@ -105,7 +106,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
 
             <Link href={`/app/workspaces/${workspaceID}/members`}>
               <a
-                className={`tab text-base px-5 md:px-8 py-2 rounded-[12px] ${
+                className={`tab flex-grow text-center px-3 sm:px-5 md:px-8 py-2 rounded-[12px] ${
                   isMembersTab ? 'active' : ''
                 }`}
               >
@@ -115,7 +116,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
 
             <Link href={`/app/workspaces/${workspaceID}/requests`}>
               <a
-                className={`tab flex items-center text-base px-5 md:px-8 py-2 rounded-[12px] ${
+                className={`tab flex-grow justify-center flex items-center px-3 sm:px-5 md:px-8 py-2 rounded-[12px] ${
                   isRequestsTab ? 'active' : ''
                 }`}
               >
@@ -133,7 +134,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
                 router.push(`/app/workspaces/${workspaceID}/new-folder`)
               }
             >
-              <Image src={iconFolderAdd} />
+              <Image src={iconFolderAdd} priority />
             </button>
             {isMounted && (
               <ReactTooltip
@@ -153,7 +154,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
                 router.push(`/app/workspaces/${workspaceID}/invite`)
               }
             >
-              <Image src={iconAddUser} width="30px" height="28px" />
+              <Image src={iconAddUser} width="30px" height="28px" priority />
             </button>
             {isMounted && (
               <ReactTooltip
@@ -167,7 +168,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
             )}
 
             <button data-tip data-for="share-link" onClick={handleShareLink}>
-              <Image src={iconShare} width="28px" height="28px" />
+              <Image src={iconShare} width="28px" height="28px" priority />
             </button>
             {isMounted && (
               <ReactTooltip
@@ -187,7 +188,7 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
                 router.push(`/app/workspaces/${workspaceID}/settings`)
               }
             >
-              <Image src={iconSettings} width="28px" height="28px" />
+              <Image src={iconSettings} width="28px" height="28px" priority />
             </button>
             {isMounted && (
               <ReactTooltip

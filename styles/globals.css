@@ -84,6 +84,9 @@ nav .link-item.exact-active {
 .workspace-heading button[data-for='share-link'] {
   @apply mr-7;
 }
+.workspace-heading .nav .tabs {
+  /*@apply  ;*/
+}
 
 .workspace-heading .nav .tab:hover {
   @apply text-main;
