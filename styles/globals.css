@@ -132,3 +132,14 @@ nav .link-item.exact-active {
 .colours-wrapper .colour {
   @apply mr-2;
 }
+
+.page-workspace-settings .tab {
+  @apply border-l-4 border-l-secondarybg font-medium pl-5;
+}
+.page-workspace-settings .tab:hover {
+  @apply bg-faintmain;
+}
+
+.page-workspace-settings .tab.active {
+  @apply border-l-4 border-l-main bg-faintmain;
+}

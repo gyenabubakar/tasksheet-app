@@ -56,7 +56,7 @@ const NewWorkspacePage: PageWithLayout = () => {
     }
   }
 
-  function handleCreateFolder(e: FormEvent<HTMLFormElement>) {
+  function handleCreateWorkspace(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (formIsValid) {
@@ -120,7 +120,7 @@ const NewWorkspacePage: PageWithLayout = () => {
           <form
             autoComplete="off"
             className="mt-24"
-            onSubmit={handleCreateFolder}
+            onSubmit={handleCreateWorkspace}
           >
             {stage === 'name' && (
               <div className="stage-name">

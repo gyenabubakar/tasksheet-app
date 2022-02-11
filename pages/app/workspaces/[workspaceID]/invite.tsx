@@ -4,12 +4,12 @@ import Image from 'next/image';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import validator from 'validator';
 
-import iconArrowLeft from '~/assets/icons/arrow-left.svg';
 import iconEmail from '~/assets/icons/email.svg';
 import { PageWithLayout } from '~/assets/ts/types';
 import ReactTooltip from 'react-tooltip';
 import Button from '~/components/common/Button';
 import swal from '~/assets/ts/sweetalert';
+import Navigation from '~/components/common/Navigation';
 
 interface Invite {
   timestamp: number;
@@ -77,14 +77,7 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
       </Head>
 
       <main className="page-new-workspace">
-        <div className="button-wrapper mb-10">
-          <button onClick={() => router.back()}>
-            <a>
-              <Image src={iconArrowLeft} width="19px" height="14px" />
-              <span className="inline-block ml-3 font-medium">Back </span>
-            </a>
-          </button>
-        </div>
+        <Navigation />
 
         <div className="content mt-12">
           <h1 className="text-[48px] font-bold">

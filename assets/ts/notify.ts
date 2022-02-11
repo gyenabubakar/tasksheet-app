@@ -6,12 +6,12 @@ const notify = (message: ToastContent, options: ToastOptions = {}) =>
     position: 'top-right',
     type: 'success',
     theme: 'dark',
-    autoClose: 5000,
+    autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,
     pauseOnHover: true,
     draggable: true,
-    pauseOnFocusLoss: true,
+    pauseOnFocusLoss: false,
     ...options,
   });
 

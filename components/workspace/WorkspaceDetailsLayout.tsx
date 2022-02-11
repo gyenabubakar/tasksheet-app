@@ -180,7 +180,13 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
               </ReactTooltip>
             )}
 
-            <button data-tip data-for="delete-workspace">
+            <button
+              data-tip
+              data-for="delete-workspace"
+              onClick={() =>
+                router.push(`/app/workspaces/${workspaceID}/settings`)
+              }
+            >
               <Image src={iconSettings} width="28px" height="28px" />
             </button>
             {isMounted && (
