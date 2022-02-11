@@ -87,7 +87,7 @@ const NewFolderPage: PageWithLayout = () => {
         </div>
 
         <div className="content mt-16">
-          <h1 className="text-4xl md:text-[36px] font-bold">
+          <h1 className="text-4xl md:text-[36px] font-bold line-h-50">
             Create a project folder in the <br />
             <span className="text-main">Montreal Projects</span> workspace.
           </h1>

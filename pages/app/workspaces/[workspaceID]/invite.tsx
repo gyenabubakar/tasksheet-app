@@ -80,13 +80,12 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
         <Navigation />
 
         <div className="content mt-12">
-          <h1 className="text-[48px] font-bold">
-            Invite Team Members to
-            <br />
+          <h1 className="text-4xl lg:text-[48px] font-bold line-h-50">
+            Invite Team Members to <br className="hidden md:block" />
             <span className="text-main">Workspace Name</span>.
           </h1>
 
-          <p className="mt-5 mb-16 w-[435px] text-lg text-darkgray">
+          <p className="mt-5 mb-16 md:w-[435px] text-lg text-darkgray">
             Enter one or more email addresses below and we’ll send them
             invitation mails.
           </p>
@@ -97,8 +96,8 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
                 <div key={timestamp} className="invite flex">
                   <div className="input">
                     <div className="input-et-actions flex items-center">
-                      <div className="input-inner w-[500px] relative">
-                        <div className="absolute top-4 left-4">
+                      <div className="input-inner w-[270px] md:w-[500px] relative">
+                        <div className="absolute hidden md:block top-4 left-4">
                           <Image
                             src={iconEmail}
                             width="22px"
@@ -111,7 +110,7 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
                           type="email"
                           value={email}
                           placeholder="Enter email address"
-                          className="border border-lightgray rounded-small outline-none w-full pl-12 pr-5 py-3"
+                          className="border border-lightgray rounded-small outline-none w-full px-3 md:pl-12 md:pr-5 py-3"
                           onChange={(e: ChangeEvent<HTMLInputElement>) => {
                             const invitesCopy = [...invites];
                             invitesCopy.splice(index, 1, {

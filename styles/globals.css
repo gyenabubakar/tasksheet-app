@@ -5,144 +5,149 @@
 @tailwind utilities;
 
 * {
-  box-sizing: border-box;
-  transition: all 0.3s ease;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type='number'] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 ::-moz-selection {
-  background: #5c67ff97;
+    background: #5c67ff97;
 }
 
 ::selection {
-  background: #5c67ff97;
+    background: #5c67ff97;
 }
 
 body {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 18px;
-  @apply text-fakeblack bg-secondarybg relative overflow-x-hidden overflow-y-auto;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    @apply text-fakeblack bg-secondarybg relative overflow-x-hidden overflow-y-auto;
+}
+
+.line-h-50 {
+    line-height: 50px;
 }
 
 .input-wrapper input {
-  @apply border border-lightgray rounded-small outline-none w-full;
+    @apply border border-lightgray rounded-small outline-none w-full;
 }
 
 input::placeholder,
 textarea::placeholder {
-  @apply font-medium select-none;
+    @apply font-medium select-none;
 }
 
 .width-max-content {
-  width: 100%;
+    width: 100%;
 }
 
 @media (min-width: 768px) {
-  .width-max-content {
-    width: max-content;
-  }
+    .width-max-content {
+        width: max-content;
+    }
 }
 
 .digit-inputs > div.input-wrapper:not(:last-child) {
-  @apply mr-3 md:mr-3;
+    @apply mr-3 md:mr-3;
 }
 
 .digit-inputs > div.input-wrapper input {
-  @apply focus:border-main;
+    @apply focus:border-main;
 }
 
 nav {
-  @apply bg-white w-full h-max;
+    @apply bg-white w-full h-max;
 }
 
 nav .link-item {
-  background: #fff;
-  @apply py-5 px-8 h-full font-medium text-darkgray border-b-4 border-white;
+    background: #fff;
+    @apply py-5 px-8 h-full font-medium text-darkgray border-b-4 border-white;
 }
 
 nav .link-item:hover {
-  @apply text-main border-main;
+    @apply text-main border-main;
 }
 
 nav .link-item.exact-active {
-  @apply bg-faintmain border-main text-main;
+    @apply bg-faintmain border-main text-main;
 }
 
 .workspace-heading button[data-for='add-folder'],
 .workspace-heading button[data-for='add-member'],
 .workspace-heading button[data-for='share-link'] {
-  @apply mr-7;
-}
-.workspace-heading .nav .tabs {
-  /*@apply  ;*/
+    @apply mr-7;
 }
 
+
 .workspace-heading .nav .tab:hover {
-  @apply text-main;
+    @apply text-main;
 }
 
 .workspace-heading .nav .tab.active {
-  @apply bg-white shadow-md shadow-[#EAEBFF] text-main;
+    @apply bg-white shadow-md shadow-[#EAEBFF] text-main;
 }
 
 .important {
-  @apply bg-red-500 rounded-full w-2 h-2;
+    @apply bg-red-500 rounded-full w-2 h-2;
 }
 
 .options {
-  @apply bg-white rounded-lg min-w-[200px] shadow-xl shadow-faintmain z-[2];
-  box-shadow: 0 10px 15px rgba(92, 104, 255, 0.2);
-  animation: ShowOptions 0.3s ease forwards;
+    @apply bg-white rounded-lg min-w-[200px] shadow-xl shadow-faintmain z-[2];
+    box-shadow: 0 10px 15px rgba(92, 104, 255, 0.2);
+    animation: ShowOptions 0.3s ease forwards;
 }
 
 .options ul li {
-  @apply px-3 py-3 flex items-center text-base;
+    @apply px-3 py-3 flex items-center text-base;
 }
+
 .options ul li > span {
-  @apply ml-4;
+    @apply ml-4;
 }
+
 .options ul li:not(:last-child) {
-  @apply border-b;
+    @apply border-b;
 }
 
 @keyframes ShowOptions {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-    @apply text-orange-500;
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+        @apply text-orange-500;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .card {
-  @apply bg-white shadow-lg shadow-faintmain p-5 rounded-small;
+    @apply bg-white shadow-lg shadow-faintmain p-5 rounded-small;
 }
 
 .colours-wrapper .colour {
-  @apply mr-2;
+    @apply mr-2;
 }
 
 .page-workspace-settings .tab {
-  @apply border-l-4 border-l-secondarybg font-medium pl-5;
+    @apply border-l-4 border-l-secondarybg font-medium pl-5;
 }
+
 .page-workspace-settings .tab:hover {
-  @apply bg-faintmain;
+    @apply bg-faintmain;
 }
 
 .page-workspace-settings .tab.active {
-  @apply border-l-4 border-l-main bg-faintmain;
+    @apply border-l-4 border-l-main bg-faintmain;
 }

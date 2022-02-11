@@ -93,7 +93,7 @@ const NewWorkspacePage: PageWithLayout = () => {
 
         <div className="content mt-12">
           <h1 className="text-3xl md:text-[36px] font-medium">
-            Create a New Workspace
+            Create New Workspace
           </h1>
 
           <div className="stages mt-10 flex items-center">
@@ -124,7 +124,7 @@ const NewWorkspacePage: PageWithLayout = () => {
           >
             {stage === 'name' && (
               <div className="stage-name">
-                <h2 className="font-bold text-4xl lg:text-[48px]">
+                <h2 className="font-bold text-4xl lg:text-[48px] line-h-50">
                   What’s the <span className="text-main">name</span> of your new{' '}
                   <br className="hidden md:block" />
                   workspace?
@@ -160,7 +160,7 @@ const NewWorkspacePage: PageWithLayout = () => {
 
             {stage === 'description' && (
               <div className="stage-description">
-                <h2 className="font-bold text-4xl lg:text-[48px]">
+                <h2 className="font-bold text-4xl lg:text-[48px] line-h-50">
                   In a few words, <span className="text-main">describe</span>{' '}
                   your <br className="hidden md:block" />
                   workspace.
