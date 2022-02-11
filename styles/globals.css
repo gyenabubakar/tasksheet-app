@@ -81,7 +81,7 @@ nav .link-item.exact-active {
 
 .workspace-heading button[data-for='add-folder'],
 .workspace-heading button[data-for='add-member'],
-.workspace-heading button[data-for='leave-workspace'] {
+.workspace-heading button[data-for='share-link'] {
   @apply mr-7;
 }
 
@@ -117,6 +117,7 @@ nav .link-item.exact-active {
   from {
     opacity: 0;
     transform: translateY(-20px);
+    @apply text-orange-500;
   }
   to {
     opacity: 1;

@@ -5,10 +5,11 @@ import ReactTooltip from 'react-tooltip';
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
 import iconFolderAdd from '~/assets/icons/workspace/folder-add.svg';
 import iconPeople from '~/assets/icons/workspace/people.svg';
-import iconLogout from '~/assets/icons/workspace/logout.svg';
+import iconShare from '~/assets/icons/workspace/share-orange.svg';
 import iconSettings from '~/assets/icons/workspace/cog.svg';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import swal from '~/assets/ts/sweetalert';
 
 const WorkspaceDetailsLayout: React.FC = ({ children }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -20,6 +21,29 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
   const isFoldersTab = pathname === '/app/workspaces/[workspaceID]';
   const isMembersTab = pathname === '/app/workspaces/[workspaceID]/members';
   const isRequestsTab = pathname === '/app/workspaces/[workspaceID]/requests';
+
+  async function handleShareLink() {
+    await swal({
+      icon: 'warning',
+      title:
+        'Anyone with this link can issue a join request.<br /><br />Proceed?',
+      showCancelButton: true,
+      showConfirmButton: true,
+      confirmButtonText: 'Yes, copy link!',
+      async preConfirm(confirmed) {
+        if (confirmed) {
+          const workspaceLink = `${window.location.protocol}//${window.location.host}/invitation/${workspaceID}`;
+
+          await window.navigator.clipboard.writeText(workspaceLink);
+          await swal({
+            icon: 'success',
+            title: 'Link copied!',
+            text: 'You can always pause receiving incoming join requests on the workspace settings page.',
+          });
+        }
+      },
+    });
+  }
 
   useEffect(() => {
     setIsMounted(true);
@@ -102,7 +126,13 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
           </div>
 
           <div className="workspace-actions-wrapper my-5">
-            <button data-tip data-for="add-folder">
+            <button
+              data-tip
+              data-for="add-folder"
+              onClick={() =>
+                router.push(`/app/workspaces/${workspaceID}/new-folder`)
+              }
+            >
               <Image src={iconFolderAdd} />
             </button>
             {isMounted && (
@@ -130,17 +160,17 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
               </ReactTooltip>
             )}
 
-            <button data-tip data-for="leave-workspace">
-              <Image src={iconLogout} />
+            <button data-tip data-for="share-link" onClick={handleShareLink}>
+              <Image src={iconShare} width="28px" height="28px" />
             </button>
             {isMounted && (
               <ReactTooltip
-                id="leave-workspace"
+                id="share-link"
                 place="bottom"
                 type="dark"
                 effect="solid"
               >
-                Leave workspace
+                Share link
               </ReactTooltip>
             )}
 

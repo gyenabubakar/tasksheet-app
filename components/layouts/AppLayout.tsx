@@ -13,6 +13,7 @@ const floatingButtonBlacklistedPathnames = [
   '/app/workspaces/new',
   '/app/workspaces/[workspaceID]/invite',
   '/app/workspaces/[workspaceID]/settings',
+  '/app/workspaces/[workspaceID]/new-folder',
 ];
 
 const AppLayout: React.FC = ({ children }) => {
