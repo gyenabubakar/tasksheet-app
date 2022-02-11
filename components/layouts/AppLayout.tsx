@@ -9,6 +9,12 @@ import iconMenu from '~/assets/icons/nav/menu.svg';
 import Button from '~/components/common/Button';
 import Container from '~/components/common/Container';
 
+const floatingButtonBlacklistedPathnames = [
+  '/app/workspaces/new',
+  '/app/workspaces/[workspaceID]/invite',
+  '/app/workspaces/[workspaceID]/settings',
+];
+
 const AppLayout: React.FC = ({ children }) => {
   const router = useRouter();
   const isHomePage = /^\/app(\/)?$/.test(router.route);
@@ -68,12 +74,14 @@ const AppLayout: React.FC = ({ children }) => {
         {children}
       </Container>
 
-      <div className="w-full flex justify-center fixed bottom-5 lg:bottom-12">
-        <Button className="px-4 md:px-10 flex items-center rounded-full">
-          <Image src={iconPlus} width="23px" height="23px" />
-          <span className="ml-5 hidden md:inline">Create Task</span>
-        </Button>
-      </div>
+      {!floatingButtonBlacklistedPathnames.includes(router.pathname) && (
+        <div className="w-full flex justify-center fixed bottom-5 lg:bottom-12">
+          <Button className="px-4 md:px-10 flex items-center rounded-full">
+            <Image src={iconPlus} width="23px" height="23px" />
+            <span className="ml-5 hidden md:inline">Create Task</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -122,7 +122,7 @@ const NewWorkspacePage: PageWithLayout = () => {
 
           <form
             autoComplete="off"
-            className="mt-32"
+            className="mt-24"
             onSubmit={handleCreateFolder}
           >
             {stage === 'name' && (
@@ -169,6 +169,11 @@ const NewWorkspacePage: PageWithLayout = () => {
                   <br />
                   workspace.
                 </h2>
+
+                <p className="text-lg text-darkgray mt-5 mb-16">
+                  This is optional. You can always add a description in your
+                  workspace settings.
+                </p>
 
                 <div className="input-wrapper w-full md:w-[600px]">
                   <textarea
