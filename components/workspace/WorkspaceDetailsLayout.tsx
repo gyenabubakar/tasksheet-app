@@ -95,33 +95,19 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
         <div className="nav flex flex-col md:flex-row justify-between items-center pt-12">
           <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
             <Link href={`/app/workspaces/${workspaceID}`}>
-              <a
-                className={`tab flex-grow text-center px-3 sm:px-5 md:px-8 py-2 rounded-[12px] ${
-                  isFoldersTab ? 'active' : ''
-                }`}
-              >
+              <a className={`tab ${isFoldersTab ? 'active' : ''}`}>
                 <span>Folders</span>
               </a>
             </Link>
 
             <Link href={`/app/workspaces/${workspaceID}/members`}>
-              <a
-                className={`tab flex-grow text-center px-3 sm:px-5 md:px-8 py-2 rounded-[12px] ${
-                  isMembersTab ? 'active' : ''
-                }`}
-              >
-                Members
-              </a>
+              <a className={`tab ${isMembersTab ? 'active' : ''}`}>Members</a>
             </Link>
 
             <Link href={`/app/workspaces/${workspaceID}/requests`}>
-              <a
-                className={`tab flex-grow justify-center flex items-center px-3 sm:px-5 md:px-8 py-2 rounded-[12px] ${
-                  isRequestsTab ? 'active' : ''
-                }`}
-              >
+              <a className={`tab ${isRequestsTab ? 'active' : ''}`}>
                 <span>Join Requests</span>
-                <span className="important ml-2" />
+                <span className="important ml-2 inline-block" />
               </a>
             </Link>
           </div>

@@ -23,7 +23,7 @@ const AppLayout: React.FC = ({ children }) => {
   const isNotifsPage = /^\/app\/notifications(\/)?$/.test(router.route);
 
   return (
-    <div className="relative h-screen w-screen overflow-x-hidden">
+    <div className="app-layout relative h-screen w-screen overflow-x-hidden">
       <nav className="fixed w-full right-0 top-0 left-0 z-30">
         <Container className="flex justify-between items-center">
           <button className="lg:hidden logo w-[40px] h-[37px] relative">
