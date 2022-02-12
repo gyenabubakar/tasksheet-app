@@ -25,11 +25,11 @@ const LoggedInHomePage: PageWithLayout = () => {
             Howdy, <span className="text-main">Gyen Abubakar</span>!
           </h1>
 
-          <p className="mt-5 text-darkgray">
-            Access all your tasks in all workspaces right here.
+          <p className="mt-5 text-2xl text-darkgray">
+            Let&apos;s get some work done.
           </p>
 
-          <nav>
+          <nav className="flex justify-between mt-12">
             <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
               <div
                 className={`tab ${isTodoTab ? 'active' : ''}`}
@@ -54,12 +54,11 @@ const LoggedInHomePage: PageWithLayout = () => {
               </div>
             </div>
 
-            <div className="search mt-12">
+            <div className="search">
               <Input
-                id="password"
+                id="search-keyword"
                 type="text"
                 value={searchKeyword}
-                wrapperClass="mb-1.5"
                 icon={{
                   position: searchKeyword ? 'both' : 'left',
                   elements: [
@@ -94,6 +93,7 @@ const LoggedInHomePage: PageWithLayout = () => {
                   ],
                 }}
                 placeholder="Enter a strong password"
+                hideBr
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   setSearchKeyword(e.target.value);
                 }}

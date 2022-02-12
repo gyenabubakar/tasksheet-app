@@ -89,6 +89,14 @@ textarea::placeholder {
     @apply mr-7;
 }
 
+.tabs {
+    height: max-content;
+}
+
+.tabs * {
+    @apply select-none;
+}
+
 .tabs .tab {
     @apply flex-grow text-center px-3 sm:px-5 md:px-8 py-2 rounded-[12px] cursor-pointer;
 }

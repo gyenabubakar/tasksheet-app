@@ -9,6 +9,7 @@ interface InputProps extends ComponentProps<'input'> {
     position: 'left' | 'right' | 'both';
   };
   noErrors?: boolean;
+  hideBr?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -20,6 +21,7 @@ const Input: React.FC<InputProps> = ({
   icon,
   error,
   noErrors,
+  hideBr = false,
   ...restProps
 }) => {
   const iconSpacingClass = icon
@@ -45,7 +47,8 @@ const Input: React.FC<InputProps> = ({
           {label}
         </label>
       )}
-      <br />
+
+      {!hideBr && <br />}
 
       <div className="input-wrapper--inner w-full relative">
         <input
