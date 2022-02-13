@@ -10,6 +10,7 @@ import iconWorkspace from '~/assets/icons/task/workspace.svg';
 import iconFolder from '~/assets/icons/task/folder.svg';
 import Dropdown from '~/components/workspace/Dropdown';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
+import notify from '~/assets/ts/notify';
 
 interface Assignee extends DropdownItem {
   avatar: string;
@@ -304,7 +305,27 @@ const NewTaskPage: PageWithLayout = () => {
     },
   ];
 
-  function handleSelectFolder() {}
+  function handleSelectFolder() {
+    if (!workspace) {
+      notify('Workspace is required.', {
+        type: 'info',
+      });
+      return;
+    }
+
+    setShowFolderDropdown((prevState) => !prevState);
+  }
+
+  function handleSelectAssignees() {
+    if (!workspace) {
+      notify('Workspace is required.', {
+        type: 'info',
+      });
+      return;
+    }
+
+    setShowMembersDropdown((prevState) => !prevState);
+  }
 
   function onCreateNewTask(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -537,9 +558,7 @@ const NewTaskPage: PageWithLayout = () => {
                       id="assignees-dropdown-button"
                       type="button"
                       className="text-main w-8 h-8 rounded-full border border-main flex items-center justify-center text-xl ml-2 hover:bg-main hover:text-white"
-                      onClick={() =>
-                        setShowMembersDropdown((prevState) => !prevState)
-                      }
+                      onClick={() => handleSelectAssignees()}
                     >
                       +
                     </button>
