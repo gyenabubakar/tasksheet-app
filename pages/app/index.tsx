@@ -1,7 +1,10 @@
 import Head from 'next/head';
-import { PageWithLayout } from '~/assets/ts/types';
-import Input from '~/components/common/Input';
 import React, { ChangeEvent, useState } from 'react';
+import moment from 'moment';
+
+import { PageWithLayout, TaskType } from '~/assets/ts/types';
+import Input from '~/components/common/Input';
+import Task from '~/components/workspace/Task';
 
 type TabType = 'To do' | 'Done' | 'Overdue';
 
@@ -12,6 +15,114 @@ const LoggedInHomePage: PageWithLayout = () => {
   const isTodoTab = activeTab === 'To do';
   const isDoneTab = activeTab === 'Done';
   const isOverdueTab = activeTab === 'Overdue';
+
+  const tasks: TaskType[] = [
+    {
+      id: '1',
+      name: 'Build Navbar',
+      description:
+        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
+      checkLists: [
+        {
+          id: '1',
+          name: 'Make nav fill screen',
+          complete: false,
+        },
+      ],
+      dueDate: moment().add(5, 'days'),
+      members: [
+        ...(() => {
+          const members: any[] = [];
+
+          for (let i = 0; i < 5; i++) {
+            members.push({
+              id: i.toString(),
+              avatar:
+                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+              name: 'De Graft Arthur',
+            });
+          }
+
+          return members;
+        })(),
+      ],
+      priority: 'High',
+      folder: {
+        id: '1',
+        colour: '#14CC8A',
+      },
+      createdBy: {
+        name: 'Gyen Abubakar',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+      },
+    },
+    {
+      id: '2',
+      name: 'Improve Signup UX',
+      description:
+        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
+      checkLists: [],
+      dueDate: moment().add(10, 'hours'),
+      members: [
+        ...(() => {
+          const members: any[] = [];
+
+          for (let i = 0; i < 10; i++) {
+            members.push({
+              id: i.toString(),
+              avatar:
+                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+              name: 'De Graft Arthur',
+            });
+          }
+
+          return members;
+        })(),
+      ],
+      priority: 'Low',
+      folder: {
+        id: '1',
+        colour: '#5C68FF',
+      },
+      createdBy: {
+        name: 'Gyen Abubakar',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+      },
+    },
+    {
+      id: '3',
+      name: 'Redesign FAQs page',
+      description:
+        'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus!',
+      checkLists: [],
+      dueDate: moment().add(45, 'minutes'),
+      members: [
+        ...(() => {
+          const members: any[] = [];
+
+          for (let i = 0; i < 1; i++) {
+            members.push({
+              id: i.toString(),
+              avatar:
+                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+              name: 'De Graft Arthur',
+            });
+          }
+
+          return members;
+        })(),
+      ],
+      priority: 'Urgent',
+      folder: {
+        id: '1',
+        colour: '#AD0033',
+      },
+      createdBy: {
+        name: 'Gyen Abubakar',
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+      },
+    },
+  ];
 
   return (
     <>
@@ -100,6 +211,14 @@ const LoggedInHomePage: PageWithLayout = () => {
               />
             </div>
           </nav>
+
+          <div className="content">
+            <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {tasks.map((task) => (
+                <Task key={task.id} task={task} />
+              ))}
+            </div>
+          </div>
         </div>
       </main>
     </>

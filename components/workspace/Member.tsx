@@ -132,7 +132,7 @@ const Member: React.FC<MemberProps> = ({
             <div
               className="bar w-full h-2 rounded-full overflow-hidden relative opacity-25"
               style={{
-                backgroundColor: `rgba(${hexToRGB(colour)!.rgba()}, 0.8)`,
+                backgroundColor: `rgba(${hexToRGB(colour)!.rgb()}, 0.8)`,
               }}
             />
           </div>

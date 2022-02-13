@@ -1,13 +1,13 @@
 import React, { ComponentProps, FormEvent, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FolderType } from '~/assets/ts/types';
 import iconFolder from '~/assets/icons/workspace/folder.svg';
 import iconMoreOptions from '~/assets/icons/workspace/more-options.svg';
 import iconPencil from '~/assets/icons/workspace/pencil-gray.svg';
 import iconBin from '~/assets/icons/workspace/bin.svg';
 import hexToRGB from '~/assets/ts/hexToRGB';
-import Link from 'next/link';
-import Options from '../common/Options';
+import Options from '~/components/common/Options';
 
 interface FolderProps extends ComponentProps<'div'> {
   folder: FolderType;
@@ -123,7 +123,7 @@ const Folder: React.FC<FolderProps> = ({
               <div
                 className="bar w-full h-3 rounded-full overflow-hidden relative opacity-25"
                 style={{
-                  backgroundColor: `rgba(${hexToRGB(colour)!.rgba()}, 0.8)`,
+                  backgroundColor: `rgba(${hexToRGB(colour)!.rgb()}, 0.8)`,
                 }}
               />
             </div>

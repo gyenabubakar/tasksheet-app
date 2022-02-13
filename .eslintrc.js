@@ -19,6 +19,10 @@ module.exports = {
   },
   plugins: ['react', '@typescript-eslint'],
   rules: {
+    'no-plusplus': 0,
+    'no-continue': 0,
+    'no-shadow': 0,
+    '@typescript-eslint/no-shadow': ['error'],
     'react/jsx-filename-extension': [
       2,
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
