@@ -103,7 +103,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
             ))}
           </div>
         ) : (
-          <div className="empt-state flex flex-col justify-center items-center mt-24">
+          <div className="empty-state flex flex-col justify-center items-center mt-24">
             <div className="w-[247px] h-[241px] relative">
               <Image src={illustrationEmpty} />
             </div>

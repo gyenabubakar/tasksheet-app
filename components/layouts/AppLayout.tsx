@@ -78,7 +78,10 @@ const AppLayout: React.FC = ({ children }) => {
       {!floatingButtonBlacklistedPathnames.includes(router.pathname) && (
         <div className="w-full flex justify-end fixed bottom-5 lg:bottom-12">
           <Container className="flex justify-end">
-            <Button className="px-4 md:px-10 flex items-center rounded-full">
+            <Button
+              className="px-4 md:px-10 flex items-center rounded-full"
+              onClick={() => router.push(`/app/new-task`)}
+            >
               <Image src={iconPlus} width="23px" height="23px" />
               <span className="ml-5 hidden md:inline">Create Task</span>
             </Button>

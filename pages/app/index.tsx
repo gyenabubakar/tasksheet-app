@@ -1,127 +1,126 @@
 import Head from 'next/head';
 import React, { ChangeEvent, useState } from 'react';
-import moment from 'moment';
+// import moment from 'moment';
+import Image from 'next/image';
 
 import { PageWithLayout, TaskType } from '~/assets/ts/types';
 import Input from '~/components/common/Input';
 import Task from '~/components/workspace/Task';
+import illustrationEmpty from '~/assets/illustrations/empty.svg';
+import Button from '~/components/common/Button';
+import { useRouter } from 'next/router';
 
 type TabType = 'To do' | 'Done' | 'Overdue';
 
 const LoggedInHomePage: PageWithLayout = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('To do');
+  const router = useRouter();
 
   const isTodoTab = activeTab === 'To do';
   const isDoneTab = activeTab === 'Done';
   const isOverdueTab = activeTab === 'Overdue';
 
   const tasks: TaskType[] = [
-    {
-      id: '1',
-      name: 'Build Navbar',
-      description:
-        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
-      checkLists: [
-        {
-          id: '1',
-          name: 'Make nav fill screen',
-          complete: false,
-        },
-      ],
-      dueDate: moment().add(5, 'days'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-
-          for (let i = 0; i < 5; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-
-          return members;
-        })(),
-      ],
-      priority: 'High',
-      folder: {
-        id: '1',
-        colour: '#14CC8A',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-    {
-      id: '2',
-      name: 'Improve Signup UX',
-      description:
-        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
-      checkLists: [],
-      dueDate: moment().add(10, 'hours'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-
-          for (let i = 0; i < 10; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-
-          return members;
-        })(),
-      ],
-      priority: 'Low',
-      folder: {
-        id: '1',
-        colour: '#5C68FF',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-    {
-      id: '3',
-      name: 'Redesign FAQs page',
-      description:
-        'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus!',
-      checkLists: [],
-      dueDate: moment().add(45, 'minutes'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-
-          for (let i = 0; i < 1; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-
-          return members;
-        })(),
-      ],
-      priority: 'Urgent',
-      folder: {
-        id: '1',
-        colour: '#AD0033',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
+    // {
+    //   id: '1',
+    //   name: 'Build Navbar',
+    //   description:
+    //     ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
+    //   checkLists: [
+    //     {
+    //       id: '1',
+    //       name: 'Make nav fill screen',
+    //       complete: false,
+    //     },
+    //   ],
+    //   dueDate: moment().add(5, 'days'),
+    //   members: [
+    //     ...(() => {
+    //       const members: any[] = [];
+    //       for (let i = 0; i < 5; i++) {
+    //         members.push({
+    //           id: i.toString(),
+    //           avatar:
+    //             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+    //           name: 'De Graft Arthur',
+    //         });
+    //       }
+    //       return members;
+    //     })(),
+    //   ],
+    //   priority: 'High',
+    //   folder: {
+    //     id: '1',
+    //     colour: '#14CC8A',
+    //   },
+    //   createdBy: {
+    //     name: 'Gyen Abubakar',
+    //     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+    //   },
+    // },
+    // {
+    //   id: '2',
+    //   name: 'Improve Signup UX',
+    //   description:
+    //     ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
+    //   checkLists: [],
+    //   dueDate: moment().add(10, 'hours'),
+    //   members: [
+    //     ...(() => {
+    //       const members: any[] = [];
+    //       for (let i = 0; i < 10; i++) {
+    //         members.push({
+    //           id: i.toString(),
+    //           avatar:
+    //             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+    //           name: 'De Graft Arthur',
+    //         });
+    //       }
+    //       return members;
+    //     })(),
+    //   ],
+    //   priority: 'Low',
+    //   folder: {
+    //     id: '1',
+    //     colour: '#5C68FF',
+    //   },
+    //   createdBy: {
+    //     name: 'Gyen Abubakar',
+    //     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+    //   },
+    // },
+    // {
+    //   id: '3',
+    //   name: 'Redesign FAQs page',
+    //   description:
+    //     'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus!',
+    //   checkLists: [],
+    //   dueDate: moment().add(45, 'minutes'),
+    //   members: [
+    //     ...(() => {
+    //       const members: any[] = [];
+    //       for (let i = 0; i < 1; i++) {
+    //         members.push({
+    //           id: i.toString(),
+    //           avatar:
+    //             'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+    //           name: 'De Graft Arthur',
+    //         });
+    //       }
+    //       return members;
+    //     })(),
+    //   ],
+    //   priority: 'Urgent',
+    //   folder: {
+    //     id: '1',
+    //     colour: '#AD0033',
+    //   },
+    //   createdBy: {
+    //     name: 'Gyen Abubakar',
+    //     avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+    //   },
+    // },
   ];
 
   return (
@@ -132,15 +131,15 @@ const LoggedInHomePage: PageWithLayout = () => {
 
       <main className="page-app-home">
         <div className="heading">
-          <h1 className="text-[36px] font-bold">
+          <h1 className="text-3xl md:text-[36px] font-bold">
             Howdy, <span className="text-main">Gyen Abubakar</span>!
           </h1>
 
-          <p className="mt-5 text-2xl text-darkgray">
+          <p className="mt-5 text-xl md:text-2xl text-darkgray">
             Let&apos;s get some work done.
           </p>
 
-          <nav className="flex justify-between mt-12">
+          <nav className="flex flex-col md:flex-row justify-between mt-12">
             <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
               <div
                 className={`tab ${isTodoTab ? 'active' : ''}`}
@@ -165,11 +164,12 @@ const LoggedInHomePage: PageWithLayout = () => {
               </div>
             </div>
 
-            <div className="search">
+            <div className="search mt-3">
               <Input
                 id="search-keyword"
                 type="text"
                 value={searchKeyword}
+                wrapperClass="mx-auto md:mx-0"
                 icon={{
                   position: searchKeyword ? 'both' : 'left',
                   elements: [
@@ -203,7 +203,7 @@ const LoggedInHomePage: PageWithLayout = () => {
                     ),
                   ],
                 }}
-                placeholder="Enter a strong password"
+                placeholder="Search your tasks"
                 hideBr
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   setSearchKeyword(e.target.value);
@@ -213,11 +213,32 @@ const LoggedInHomePage: PageWithLayout = () => {
           </nav>
 
           <div className="content">
-            <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {tasks.map((task) => (
-                <Task key={task.id} task={task} />
-              ))}
-            </div>
+            {tasks.length ? (
+              <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {tasks.map((task) => (
+                  <Task key={task.id} task={task} />
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state flex flex-col justify-center items-center mt-24">
+                <div className="w-[247px] h-[241px] relative">
+                  <Image src={illustrationEmpty} />
+                </div>
+
+                <h3 className="font-bold text-[24px] mt-10">
+                  There are no tasks in this category.
+                </h3>
+
+                <div className="mt-10">
+                  <Button
+                    paddingClasses="px-8 py-6"
+                    onClick={() => router.push(`/app/new-task`)}
+                  >
+                    Create New Task
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
