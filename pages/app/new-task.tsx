@@ -50,67 +50,199 @@ const NewTaskPage: PageWithLayout = () => {
   const members: Assignee[] = [
     {
       id: '1',
-      value: 'De Graft Arthur',
       searchable: 'De Graft Arthur',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
     },
     {
       id: '2',
-      value: 'Gyen Abubakar',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Gyen Abubakar',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '3',
-      value: 'Felix Amoako',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Felix Amoako',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '4',
-      value: 'James Otabie',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'James Otabie',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '5',
-      value: 'Bismark Biney',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '6',
-      value: 'Bismark Biney',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '7',
-      value: 'Bismark Biney',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '8',
-      value: 'Bismark Biney',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '9',
-      value: 'Bismark Biney',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '10',
-      value: 'Bismark Biney',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
     {
       id: '11',
-      value: 'Bismark Biney',
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+            <Image
+              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
+              alt="De Graft Arthur"
+              layout="fill"
+            />
+          </div>
+
+          <span>De Graft Arthur</span>
+        </div>
+      ),
       searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
@@ -126,7 +258,7 @@ const NewTaskPage: PageWithLayout = () => {
       dueDate,
       assignees,
       checklist,
-      workspaceID: workspace,
+      workspace,
       folderID,
     };
 
