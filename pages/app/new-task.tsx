@@ -1,17 +1,22 @@
 import Head from 'next/head';
 import React, { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
+import ReactTooltip from 'react-tooltip';
 
 import { DropdownItem, PageWithLayout, TaskPriority } from '~/assets/ts/types';
 import Navigation from '~/components/common/Navigation';
 import iconPeople from '~/assets/icons/task/people.svg';
 import iconWorkspace from '~/assets/icons/task/workspace.svg';
+import iconFolder from '~/assets/icons/task/folder.svg';
 import Dropdown from '~/components/workspace/Dropdown';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
-import ReactTooltip from 'react-tooltip';
 
 interface Assignee extends DropdownItem {
   avatar: string;
+}
+
+interface Folder extends DropdownItem {
+  colour: string;
 }
 
 const NewTaskPage: PageWithLayout = () => {
@@ -20,13 +25,14 @@ const NewTaskPage: PageWithLayout = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority | null>(null);
-  const [dueDate, setDueDate] = useState<number | null>(null);
   const [assignees, setAssignees] = useState<Assignee[]>([]);
-  const [checklist, setChecklist] = useState<string[]>([]);
   const [workspace, setWorkspace] = useState<Assignee | null>(null);
-  const [folderID, setFolderID] = useState<string | null>(null);
+  const [folder, setFolder] = useState<Folder | null>(null);
+  const [checklist, setChecklist] = useState<string[]>([]);
+  const [dueDate, setDueDate] = useState<number | null>(null);
 
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
+  const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
 
   const nameIsValid = name ? name.length >= 2 && name.length < 120 : null;
@@ -250,6 +256,56 @@ const NewTaskPage: PageWithLayout = () => {
     },
   ];
 
+  const folders: Folder[] = [
+    {
+      id: '1',
+      searchable: 'Mobile Apps',
+      colour: '#5C68FF',
+      value: (
+        <div className="flex items-center">
+          <div
+            className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
+            style={{ backgroundColor: '#5C68FF' }}
+          />
+
+          <span>Mobile Apps</span>
+        </div>
+      ),
+    },
+    {
+      id: '2',
+      searchable: '3D Animations',
+      colour: '#14CC8A',
+      value: (
+        <div className="flex items-center">
+          <div
+            className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
+            style={{ backgroundColor: '#14CC8A' }}
+          />
+
+          <span>3D Animations</span>
+        </div>
+      ),
+    },
+    {
+      id: '3',
+      searchable: 'Blog Articles',
+      colour: '#e11d48',
+      value: (
+        <div className="flex items-center">
+          <div
+            className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
+            style={{ backgroundColor: '#e11d48' }}
+          />
+
+          <span>Blog Articles</span>
+        </div>
+      ),
+    },
+  ];
+
+  function handleSelectFolder() {}
+
   function onCreateNewTask(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -261,7 +317,7 @@ const NewTaskPage: PageWithLayout = () => {
       assignees,
       checklist,
       workspace,
-      folderID,
+      folderID: folder,
     };
 
     // eslint-disable-next-line no-console
@@ -291,7 +347,7 @@ const NewTaskPage: PageWithLayout = () => {
                 minLength={1}
                 required
                 autoComplete="off"
-                className="bg-transparent border-0 text-3xl outline-0 font-bold w-full my-3 block"
+                className="bg-transparent border-0 text-xl md:text-3xl outline-0 font-bold w-full my-3 block"
                 onChange={(e) => setName(e.target.value)}
               />
 
@@ -347,7 +403,7 @@ const NewTaskPage: PageWithLayout = () => {
                         setShowWorkspaceDropdown((prevState) => !prevState)
                       }
                     >
-                      Select workspace
+                      Select
                     </button>
                   )}
                 </div>
@@ -360,6 +416,59 @@ const NewTaskPage: PageWithLayout = () => {
                     className="absolute left-[0px] top-[30px]"
                     onSelect={(item) => setWorkspace(item)}
                     onClose={() => setShowWorkspaceDropdown(false)}
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="folder-wrapper relative">
+              <div className="folder grid grid-cols-7 lg:grid-cols-5 mb-5">
+                <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
+                  <div className="icon flex items-center relative h-5 w-5 lg:h-7 lg:w-7">
+                    <Image src={iconFolder} layout="fill" priority />
+                  </div>
+
+                  <span className="text-darkgray md:text-xl font-medium ml-3">
+                    Folder
+                  </span>
+                </div>
+
+                <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
+                  {folder && (
+                    <div className="flex items-center">
+                      <span>{folder.searchable}</span>
+                      <button
+                        className="text-2xl text-red-500 font-bold ml-3"
+                        onClick={() => {
+                          setFolder(null);
+                          setShowFolderDropdown(true);
+                        }}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  )}
+
+                  {!folder && (
+                    <button
+                      id="workspaces-dropdown-button"
+                      type="button"
+                      className="text-main hover:text-darkmain"
+                      onClick={() => handleSelectFolder()}
+                    >
+                      Select
+                    </button>
+                  )}
+                </div>
+
+                {showFolderDropdown && (
+                  <Dropdown
+                    id="workspaces-dropdown"
+                    options={folders}
+                    value={folder}
+                    className="absolute left-[0px] top-[30px]"
+                    onSelect={(item) => setFolder(item)}
+                    onClose={() => setShowFolderDropdown(false)}
                   />
                 )}
               </div>
