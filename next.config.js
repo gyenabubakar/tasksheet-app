@@ -5,6 +5,7 @@ const nextConfig = {
     domains: ['images.unsplash.com'],
     formats: ['image/avif', 'image/webp'],
   },
+  cssModules: true,
 };
 
 module.exports = nextConfig;

@@ -12,7 +12,7 @@ import { useRouter } from 'next/router';
 
 type TabType = 'To do' | 'Done' | 'Overdue';
 
-const LoggedInHomePage: PageWithLayout = () => {
+const TasksPage: PageWithLayout = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('To do');
   const router = useRouter();
@@ -126,7 +126,7 @@ const LoggedInHomePage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Home · TaskSheet</title>
+        <title>Your Tasks · TaskSheet</title>
       </Head>
 
       <main className="page-app-home">
@@ -246,6 +246,6 @@ const LoggedInHomePage: PageWithLayout = () => {
   );
 };
 
-LoggedInHomePage.layout = 'app';
+TasksPage.layout = 'app';
 
-export default LoggedInHomePage;
+export default TasksPage;

@@ -19,6 +19,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <title>TaskSheet</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="icon" type="image/svg" href="/images/logo.svg" />
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="/linearicons/css/linearicons.css"
+        />
       </Head>
 
       <NextNProgress
