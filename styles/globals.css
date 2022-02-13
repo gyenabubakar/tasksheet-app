@@ -179,11 +179,11 @@ textarea::placeholder {
 .page-new-task form .name input:focus + label,
 .page-new-task form .name input:valid + label {
   transform: translateY(-40px);
-  @apply font-medium text-xl text-darkgray cursor-default;
+  @apply font-medium text-base md:text-xl text-darkgray cursor-default;
 }
 
 .dropdown {
-  @apply bg-white max-h-[350px] w-full sm:w-11/12 sm:mx-auto md:mx-0 md:min-w-[450px] md:max-w-max rounded-lg shadow-xl shadow-faintmain overflow-y-auto;
+  @apply bg-white max-h-[250px] md:max-h-[350px] w-full sm:w-11/12 sm:mx-auto md:mx-0 md:min-w-[450px] md:max-w-max rounded-lg shadow-xl shadow-faintmain overflow-y-auto;
   animation: ShowOptions 0.3s ease forwards;
 }
 

@@ -42,10 +42,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        target.id !== `#${id}-button` &&
-        !document.querySelector(`#${id}-button`)!.contains(target)
-      ) {
+      if (!document.querySelector(`#${id}`)?.contains(target)) {
         onClose();
       }
     };

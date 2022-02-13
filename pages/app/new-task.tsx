@@ -29,6 +29,8 @@ const NewTaskPage: PageWithLayout = () => {
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
 
+  const nameIsValid = name ? name.length >= 2 && name.length < 120 : null;
+
   const workspaces: DropdownItem[] = [
     {
       id: 1,
@@ -288,6 +290,7 @@ const NewTaskPage: PageWithLayout = () => {
                 id="task-name"
                 minLength={1}
                 required
+                autoComplete="off"
                 className="bg-transparent border-0 text-3xl outline-0 font-bold w-full my-3 block"
                 onChange={(e) => setName(e.target.value)}
               />
@@ -299,58 +302,62 @@ const NewTaskPage: PageWithLayout = () => {
                 Enter task name...
               </label>
             </div>
-            <small className="text-red font-medium text-red-500">
-              Name must be between 2 and 120 characters long.
-            </small>
+            {nameIsValid === false && (
+              <small className="text-red font-medium text-red-500">
+                Name must be between 2 and 120 characters long.
+              </small>
+            )}
           </div>
 
-          <div className="details mt-5">
-            <div className="workspace grid grid-cols-5 mb-5">
-              <div className="flex items-center">
-                <div className="icon flex items-center relative h-7 w-7">
-                  <Image src={iconWorkspace} layout="fill" priority />
+          <div className="details mt-10">
+            <div className="workspace-wrapper relative">
+              <div className="workspace grid grid-cols-7 lg:grid-cols-5 mb-5">
+                <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
+                  <div className="icon flex items-center relative h-5 w-5 lg:h-7 lg:w-7">
+                    <Image src={iconWorkspace} layout="fill" priority />
+                  </div>
+
+                  <span className="text-darkgray md:text-xl font-medium ml-3">
+                    Workspace
+                  </span>
                 </div>
 
-                <span className="text-darkgray text-xl font-medium ml-3">
-                  Workspace
-                </span>
-              </div>
+                <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
+                  {workspace && (
+                    <div className="flex items-center">
+                      <span>{workspace.searchable}</span>
+                      <button
+                        className="text-2xl text-red-500 font-bold ml-3"
+                        onClick={() => {
+                          setWorkspace(null);
+                          setShowWorkspaceDropdown(true);
+                        }}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  )}
 
-              <div className="ml-10 relative">
-                {workspace && (
-                  <div className="flex items-center">
-                    <span>{workspace.searchable}</span>
+                  {!workspace && (
                     <button
-                      className="text-2xl text-red-500 font-bold ml-3"
-                      onClick={() => {
-                        setWorkspace(null);
-                        setShowWorkspaceDropdown(true);
-                      }}
+                      id="workspaces-dropdown-button"
+                      type="button"
+                      className="text-main hover:text-darkmain"
+                      onClick={() =>
+                        setShowWorkspaceDropdown((prevState) => !prevState)
+                      }
                     >
-                      &times;
+                      Select workspace
                     </button>
-                  </div>
-                )}
-
-                {!workspace && (
-                  <button
-                    id="workspaces-dropdown-button"
-                    type="button"
-                    className="text-main hover:text-darkmain"
-                    onClick={() =>
-                      setShowWorkspaceDropdown((prevState) => !prevState)
-                    }
-                  >
-                    Select workspace
-                  </button>
-                )}
+                  )}
+                </div>
 
                 {showWorkspaceDropdown && (
                   <Dropdown
                     id="workspaces-dropdown"
                     options={workspaces}
                     value={workspace}
-                    className="absolute -left-[45vw] md:left-auto"
+                    className="absolute left-[0px] top-[30px]"
                     onSelect={(item) => setWorkspace(item)}
                     onClose={() => setShowWorkspaceDropdown(false)}
                   />
@@ -358,87 +365,89 @@ const NewTaskPage: PageWithLayout = () => {
               </div>
             </div>
 
-            <div className="assignees grid grid-cols-5">
-              <div className="flex items-center">
-                <div className="icon relative h-7 w-7">
-                  <Image src={iconPeople} layout="fill" priority />
-                </div>
-
-                <span className="text-darkgray text-xl font-medium ml-3">
-                  Assign to
-                </span>
-              </div>
-
-              <div className="ml-10 col-start-2 col-end-6 relative">
-                <div className="flex items-center">
-                  <div className="flex -space-x-2 overflow-hidden">
-                    {assignees.slice(0, 6).map((assignee, index) => (
-                      <div key={assignee.id} className="flex items-center">
-                        <div
-                          data-tip
-                          data-for={`assignee-${assignee.id}`}
-                          key={assignee.id}
-                          className="h-8 w-8 rounded-full ring-2 ring-white inline-block overflow-hidden relative"
-                        >
-                          <Image
-                            src={assignee.avatar}
-                            alt={assignee.searchable}
-                            layout="fill"
-                          />
-
-                          {assignees.length > 6 && index === 5 && (
-                            <div
-                              className="overlay absolute h-full w-full bg-black opacity-70 text-white text-sm font-medium flex items-center justify-center cursor-pointer"
-                              onClick={() =>
-                                setShowMembersDropdown(
-                                  (prevState) => !prevState,
-                                )
-                              }
-                            >
-                              +{assignees.length - 5}
-                            </div>
-                          )}
-                        </div>
-
-                        {isMounted && (
-                          <ReactTooltip
-                            id={`assignee-${assignee.id}`}
-                            place="top"
-                            type="dark"
-                            effect="solid"
-                          >
-                            {index === 5
-                              ? `${assignees.length - 5} more`
-                              : assignee.searchable}
-                          </ReactTooltip>
-                        )}
-                      </div>
-                    ))}
+            <div className="assignees-wrapper relative">
+              <div className="assignees grid grid-cols-7 lg:grid-cols-5">
+                <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
+                  <div className="icon relative h-5 w-5 lg:h-7 lg:w-7">
+                    <Image src={iconPeople} layout="fill" priority />
                   </div>
 
-                  <button
-                    id="assignees-dropdown-button"
-                    type="button"
-                    className="text-main w-8 h-8 rounded-full border border-main flex items-center justify-center text-xl ml-2 hover:bg-main hover:text-white"
-                    onClick={() =>
-                      setShowMembersDropdown((prevState) => !prevState)
-                    }
-                  >
-                    +
-                  </button>
+                  <span className="text-darkgray lg:text-xl font-medium ml-3">
+                    Assign to
+                  </span>
                 </div>
 
-                {showMembersDropdown && (
-                  <DropdownMultiple
-                    id="assignees-dropdown"
-                    options={members}
-                    value={assignees}
-                    className="absolute mt-3 -left-[45vw] md:left-auto"
-                    onSelect={(items) => setAssignees(items)}
-                    onClose={() => setShowMembersDropdown(false)}
-                  />
-                )}
+                <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
+                  <div className="flex items-center">
+                    <div className="flex -space-x-2 overflow-hidden">
+                      {assignees.slice(0, 6).map((assignee, index) => (
+                        <div key={assignee.id} className="flex items-center">
+                          <div
+                            data-tip
+                            data-for={`assignee-${assignee.id}`}
+                            key={assignee.id}
+                            className="h-8 w-8 rounded-full ring-2 ring-white inline-block overflow-hidden relative"
+                          >
+                            <Image
+                              src={assignee.avatar}
+                              alt={assignee.searchable}
+                              layout="fill"
+                            />
+
+                            {assignees.length > 6 && index === 5 && (
+                              <div
+                                className="overlay absolute h-full w-full bg-black opacity-70 text-white text-sm font-medium flex items-center justify-center cursor-pointer"
+                                onClick={() =>
+                                  setShowMembersDropdown(
+                                    (prevState) => !prevState,
+                                  )
+                                }
+                              >
+                                +{assignees.length - 5}
+                              </div>
+                            )}
+                          </div>
+
+                          {isMounted && (
+                            <ReactTooltip
+                              id={`assignee-${assignee.id}`}
+                              place="top"
+                              type="dark"
+                              effect="solid"
+                            >
+                              {index === 5
+                                ? `${assignees.length - 5} more`
+                                : assignee.searchable}
+                            </ReactTooltip>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      id="assignees-dropdown-button"
+                      type="button"
+                      className="text-main w-8 h-8 rounded-full border border-main flex items-center justify-center text-xl ml-2 hover:bg-main hover:text-white"
+                      onClick={() =>
+                        setShowMembersDropdown((prevState) => !prevState)
+                      }
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
               </div>
+
+              {showMembersDropdown && (
+                <DropdownMultiple
+                  id="assignees-dropdown"
+                  options={members}
+                  value={assignees}
+                  className="absolute mt-3 left-0 top-[30px]"
+                  onSelect={(items) => setAssignees(items)}
+                  onClose={() => setShowMembersDropdown(false)}
+                />
+              )}
             </div>
           </div>
         </form>

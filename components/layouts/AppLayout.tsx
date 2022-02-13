@@ -82,7 +82,7 @@ const AppLayout: React.FC = ({ children }) => {
               className="px-4 md:px-10 flex items-center rounded-full"
               onClick={() => router.push(`/app/new-task`)}
             >
-              <Image src={iconPlus} width="23px" height="23px" />
+              <Image src={iconPlus} width="23px" height="23px" priority />
               <span className="ml-5 hidden md:inline">Create Task</span>
             </Button>
           </Container>

@@ -225,7 +225,7 @@ const TasksPage: PageWithLayout = () => {
                   <Image src={illustrationEmpty} />
                 </div>
 
-                <h3 className="font-bold text-[24px] mt-10">
+                <h3 className="font-bold text-[24px] text-center mt-10">
                   There are no tasks in this category.
                 </h3>
 
