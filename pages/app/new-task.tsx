@@ -1,16 +1,19 @@
 import Head from 'next/head';
-import React, { FormEvent, useEffect, useState } from 'react';
+import React, { FormEvent, forwardRef, Ref, useEffect, useState } from 'react';
 import Image from 'next/image';
 import ReactTooltip from 'react-tooltip';
+import DatePicker from 'react-datepicker';
 
 import { DropdownItem, PageWithLayout, TaskPriority } from '~/assets/ts/types';
 import Navigation from '~/components/common/Navigation';
 import iconPeople from '~/assets/icons/task/people.svg';
 import iconWorkspace from '~/assets/icons/task/workspace.svg';
 import iconFolder from '~/assets/icons/task/folder.svg';
+import iconCalendar from '~/assets/icons/task/calendar.svg';
 import Dropdown from '~/components/workspace/Dropdown';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import notify from '~/assets/ts/notify';
+import moment from 'moment';
 
 interface Assignee extends DropdownItem {
   avatar: string;
@@ -19,6 +22,24 @@ interface Assignee extends DropdownItem {
 interface Folder extends DropdownItem {
   colour: string;
 }
+
+type DatePickerInputProps = {
+  value?: Date | null;
+  onClick?: (e: FormEvent<HTMLButtonElement>) => void;
+};
+
+const DatePickerInput = forwardRef(
+  ({ value, onClick }: DatePickerInputProps, ref: Ref<HTMLButtonElement>) => (
+    <button
+      type="button"
+      ref={ref}
+      onClick={onClick}
+      className="text-main font-medium hover:text-darkmain"
+    >
+      {value}
+    </button>
+  ),
+);
 
 const NewTaskPage: PageWithLayout = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -31,6 +52,8 @@ const NewTaskPage: PageWithLayout = () => {
   const [folder, setFolder] = useState<Folder | null>(null);
   const [checklist, setChecklist] = useState<string[]>([]);
   const [dueDate, setDueDate] = useState<number | null>(null);
+
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
@@ -349,6 +372,10 @@ const NewTaskPage: PageWithLayout = () => {
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    setDueDate(selectedDate?.getTime() || null);
+  }, [selectedDate]);
+
   return (
     <>
       <Head>
@@ -496,7 +523,7 @@ const NewTaskPage: PageWithLayout = () => {
             </div>
 
             <div className="assignees-wrapper relative">
-              <div className="assignees grid grid-cols-7 lg:grid-cols-5">
+              <div className="assignees grid grid-cols-7 lg:grid-cols-5 mb-5">
                 <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
                   <div className="icon relative h-5 w-5 lg:h-7 lg:w-7">
                     <Image src={iconPeople} layout="fill" priority />
@@ -576,6 +603,36 @@ const NewTaskPage: PageWithLayout = () => {
                   onClose={() => setShowMembersDropdown(false)}
                 />
               )}
+            </div>
+
+            <div className="duedate-wrapper relative">
+              <div className="duedate grid grid-cols-7 lg:grid-cols-5 mb-5">
+                <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
+                  <div className="icon flex items-center relative h-5 w-5 lg:h-7 lg:w-7">
+                    <Image src={iconCalendar} layout="fill" priority />
+                  </div>
+
+                  <span className="text-darkgray md:text-xl font-medium ml-3">
+                    Due Date
+                  </span>
+                </div>
+
+                <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={(date) => {
+                      setSelectedDate(date);
+                    }}
+                    timeFormat="hh:mm aa"
+                    dateFormat="MMM d, yyyy @ h:mm aa"
+                    minDate={new Date()}
+                    filterTime={(date) => date.getTime() > new Date().getTime()}
+                    customInput={<DatePickerInput value={selectedDate} />}
+                    showTimeSelect
+                    showYearDropdown
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </form>

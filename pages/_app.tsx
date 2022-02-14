@@ -1,6 +1,7 @@
 import React from 'react';
 import type { AppProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
+import 'react-datepicker/dist/react-datepicker.css';
 
 import '~/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
