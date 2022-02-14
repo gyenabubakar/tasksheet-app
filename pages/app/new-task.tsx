@@ -23,6 +23,8 @@ interface Folder extends DropdownItem {
   colour: string;
 }
 
+type TabType = 'Description' | 'Checklist';
+
 type DatePickerInputProps = {
   value?: Date | null;
   onClick?: (e: FormEvent<HTMLButtonElement>) => void;
@@ -43,6 +45,7 @@ const DatePickerInput = forwardRef(
 
 const NewTaskPage: PageWithLayout = () => {
   const [isMounted, setIsMounted] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('Description');
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -58,6 +61,9 @@ const NewTaskPage: PageWithLayout = () => {
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
+
+  const isDescriptionTab = activeTab === 'Description';
+  const isChecklistTab = activeTab === 'Checklist';
 
   const nameIsValid = name ? name.length >= 2 && name.length < 120 : null;
 
@@ -631,6 +637,26 @@ const NewTaskPage: PageWithLayout = () => {
                     showTimeSelect
                     showYearDropdown
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="task-explainer mt-16">
+            <div className="flex justify-between">
+              <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
+                <div
+                  className={`tab ${isDescriptionTab ? 'active' : ''}`}
+                  onClick={() => setActiveTab('Description')}
+                >
+                  Description
+                </div>
+
+                <div
+                  className={`tab ${isChecklistTab ? 'active' : ''}`}
+                  onClick={() => setActiveTab('Checklist')}
+                >
+                  Checklist
                 </div>
               </div>
             </div>

@@ -10,6 +10,7 @@ import Button from '~/components/common/Button';
 import Container from '~/components/common/Container';
 
 const floatingButtonBlacklistedPathnames = [
+  '/app/new-task',
   '/app/workspaces/new',
   '/app/workspaces/[workspaceID]/invite',
   '/app/workspaces/[workspaceID]/settings',
