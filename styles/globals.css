@@ -15,7 +15,7 @@
 }
 
 * {
-  box-sizing: border-box;
+  /* box-sizing: border-box; */
   transition: all 0.3s ease;
 }
 
@@ -204,4 +204,8 @@ textarea::placeholder {
   .react-datepicker__time-container {
     @apply absolute -left-24 border-2 border-gray-300 rounded-lg overflow-hidden;
   }
+}
+
+.codex-editor {
+  z-index: unset;
 }

@@ -3,6 +3,7 @@ import React, { FormEvent, forwardRef, Ref, useEffect, useState } from 'react';
 import Image from 'next/image';
 import ReactTooltip from 'react-tooltip';
 import DatePicker from 'react-datepicker';
+import dynamic from 'next/dynamic';
 
 import { DropdownItem, PageWithLayout, TaskPriority } from '~/assets/ts/types';
 import Navigation from '~/components/common/Navigation';
@@ -13,7 +14,14 @@ import iconCalendar from '~/assets/icons/task/calendar.svg';
 import Dropdown from '~/components/workspace/Dropdown';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import notify from '~/assets/ts/notify';
-import moment from 'moment';
+// import TaskDescriptionEditor from '~/components/workspace/TaskDescriptionEditor';
+
+const TaskDescriptionEditor = dynamic(
+  () => import('~/components/workspace/TaskDescriptionEditor'),
+  {
+    ssr: false,
+  },
+);
 
 interface Assignee extends DropdownItem {
   avatar: string;
@@ -643,7 +651,7 @@ const NewTaskPage: PageWithLayout = () => {
           </div>
 
           <div className="task-explainer mt-16">
-            <div className="flex justify-between">
+            <div className="explainer-nav flex justify-between">
               <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
                 <div
                   className={`tab ${isDescriptionTab ? 'active' : ''}`}
@@ -659,6 +667,19 @@ const NewTaskPage: PageWithLayout = () => {
                   Checklist
                 </div>
               </div>
+            </div>
+
+            <div className="explainer-content">
+              {isDescriptionTab && (
+                <div className="mt-16">
+                  <TaskDescriptionEditor
+                    value={description}
+                    onChange={(newDesc) => {
+                      setDescription(JSON.stringify(newDesc));
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </form>

@@ -1,3 +1,6 @@
+/* eslint-disable import/no-extraneous-dependencies */
+const typographyPlugin = require('@tailwindcss/typography');
+
 module.exports = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx}',
@@ -21,5 +24,5 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [typographyPlugin],
 };
