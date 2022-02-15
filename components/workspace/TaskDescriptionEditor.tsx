@@ -93,7 +93,7 @@ const TaskDescriptionEditor: React.FC<EditorProps> = ({ onChange, value }) => {
         },
 
         async onChange() {
-          await saveEditorBlocks(editor);
+          // await saveEditorBlocks(editor);
         },
       });
 

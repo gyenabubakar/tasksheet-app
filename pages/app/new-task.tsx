@@ -5,12 +5,18 @@ import ReactTooltip from 'react-tooltip';
 import DatePicker from 'react-datepicker';
 import dynamic from 'next/dynamic';
 
-import { DropdownItem, PageWithLayout, TaskPriority } from '~/assets/ts/types';
+import {
+  DropdownItem,
+  PageWithLayout,
+  TaskPriority,
+  TaskPriorityColour,
+} from '~/assets/ts/types';
 import Navigation from '~/components/common/Navigation';
 import iconPeople from '~/assets/icons/task/people.svg';
 import iconWorkspace from '~/assets/icons/task/workspace.svg';
 import iconFolder from '~/assets/icons/task/folder.svg';
 import iconCalendar from '~/assets/icons/task/calendar.svg';
+import iconFlag from '~/assets/icons/task/flag.svg';
 import Dropdown from '~/components/workspace/Dropdown';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import notify from '~/assets/ts/notify';
@@ -29,6 +35,11 @@ interface Assignee extends DropdownItem {
 
 interface Folder extends DropdownItem {
   colour: string;
+}
+
+interface PriorityDropdownItem extends DropdownItem {
+  id: TaskPriority;
+  value: TaskPriority;
 }
 
 type TabType = 'Description' | 'Checklist';
@@ -57,7 +68,7 @@ const NewTaskPage: PageWithLayout = () => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<TaskPriority | null>(null);
+  const [priority, setPriority] = useState<PriorityDropdownItem | null>(null);
   const [assignees, setAssignees] = useState<Assignee[]>([]);
   const [workspace, setWorkspace] = useState<Assignee | null>(null);
   const [folder, setFolder] = useState<Folder | null>(null);
@@ -69,6 +80,7 @@ const NewTaskPage: PageWithLayout = () => {
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
+  const [showPriorityDropdow, setShowPriorityDropdow] = useState(false);
 
   const isDescriptionTab = activeTab === 'Description';
   const isChecklistTab = activeTab === 'Checklist';
@@ -90,6 +102,25 @@ const NewTaskPage: PageWithLayout = () => {
       id: 3,
       value: 'Open Source',
       searchable: 'Open Source',
+    },
+  ];
+
+  const priorities: DropdownItem[] = [
+    {
+      id: TaskPriority.Low,
+      value: TaskPriority.Low,
+    },
+    {
+      id: TaskPriority.Normal,
+      value: TaskPriority.Normal,
+    },
+    {
+      id: TaskPriority.High,
+      value: TaskPriority.High,
+    },
+    {
+      id: TaskPriority.Urgent,
+      value: TaskPriority.Urgent,
     },
   ];
 
@@ -146,150 +177,6 @@ const NewTaskPage: PageWithLayout = () => {
         </div>
       ),
       searchable: 'Felix Amoako',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '4',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'James Otabie',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '5',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Bismark Biney',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '6',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Bismark Biney',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '7',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Bismark Biney',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '8',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Bismark Biney',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '9',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Bismark Biney',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '10',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Bismark Biney',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '11',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Bismark Biney',
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
     },
   ];
@@ -646,6 +533,66 @@ const NewTaskPage: PageWithLayout = () => {
                     showYearDropdown
                   />
                 </div>
+              </div>
+            </div>
+
+            <div className="folder-wrapper relative">
+              <div className="folder grid grid-cols-7 lg:grid-cols-5 mb-5">
+                <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
+                  <div className="icon flex items-center relative h-5 w-5 lg:h-7 lg:w-7">
+                    <Image src={iconFlag} layout="fill" priority />
+                  </div>
+
+                  <span className="text-darkgray md:text-xl font-medium ml-3">
+                    Priority
+                  </span>
+                </div>
+
+                <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
+                  {priority && (
+                    <div className="flex items-center">
+                      <span
+                        style={{ color: TaskPriorityColour[priority.value] }}
+                      >
+                        {priority.value}
+                      </span>
+                      <button
+                        className="text-2xl text-red-500 font-bold ml-3"
+                        onClick={() => {
+                          setPriority(null);
+                          setShowPriorityDropdow(true);
+                        }}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  )}
+
+                  {!priority && (
+                    <button
+                      id="priorities-dropdown-button"
+                      type="button"
+                      className="text-main hover:text-darkmain"
+                      onClick={() =>
+                        setShowPriorityDropdow((prevState) => !prevState)
+                      }
+                    >
+                      Select
+                    </button>
+                  )}
+                </div>
+
+                {showPriorityDropdow && (
+                  <Dropdown
+                    id="priorities-dropdown"
+                    options={priorities}
+                    value={priority}
+                    className="absolute left-[0px] top-[30px]"
+                    showSearchField={false}
+                    onSelect={(item) => setPriority(item)}
+                    onClose={() => setShowPriorityDropdow(false)}
+                  />
+                )}
               </div>
             </div>
           </div>

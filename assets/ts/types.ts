@@ -102,5 +102,5 @@ export enum TaskPriorityColour {
 export interface DropdownItem {
   id: any;
   value: React.ReactNode;
-  searchable: string;
+  searchable?: string;
 }
