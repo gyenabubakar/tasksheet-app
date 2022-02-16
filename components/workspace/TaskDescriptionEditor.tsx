@@ -10,7 +10,7 @@ import List from '@editorjs/list';
 import Warning from '@editorjs/warning';
 import Code from '@editorjs/code';
 import LinkTool from '@editorjs/link';
-import Image from '@editorjs/image';
+// import Image from '@editorjs/image';
 import Raw from '@editorjs/raw';
 import Header from '@editorjs/header';
 import Quote from '@editorjs/quote';
@@ -32,7 +32,7 @@ const tools = {
   list: { class: List, inlineToolbar: true, shortcut: 'CMD+SHIFT+L' },
   code: { class: Code, shortcut: 'CMD+SHIFT+C' },
   linkTool: LinkTool,
-  image: Image,
+  // image: Image,
   raw: Raw,
   header: {
     class: Header,

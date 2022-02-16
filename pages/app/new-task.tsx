@@ -1,5 +1,12 @@
 import Head from 'next/head';
-import React, { FormEvent, forwardRef, Ref, useEffect, useState } from 'react';
+import React, {
+  FormEvent,
+  forwardRef,
+  Ref,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Image from 'next/image';
 import ReactTooltip from 'react-tooltip';
 import DatePicker from 'react-datepicker';
@@ -20,6 +27,8 @@ import iconFlag from '~/assets/icons/task/flag.svg';
 import Dropdown from '~/components/workspace/Dropdown';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import notify from '~/assets/ts/notify';
+import Container from '~/components/common/Container';
+import Button from '~/components/common/Button';
 // import TaskDescriptionEditor from '~/components/workspace/TaskDescriptionEditor';
 
 const TaskDescriptionEditor = dynamic(
@@ -55,7 +64,7 @@ const DatePickerInput = forwardRef(
       type="button"
       ref={ref}
       onClick={onClick}
-      className="text-main font-medium hover:text-darkmain"
+      className="text-main text-sm md:text-base font-medium hover:text-darkmain"
     >
       {value}
     </button>
@@ -65,15 +74,15 @@ const DatePickerInput = forwardRef(
 const NewTaskPage: PageWithLayout = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('Description');
+  const [submitting, setSubmitting] = useState(false);
 
-  const [name, setName] = useState('');
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<PriorityDropdownItem | null>(null);
   const [assignees, setAssignees] = useState<Assignee[]>([]);
   const [workspace, setWorkspace] = useState<Assignee | null>(null);
   const [folder, setFolder] = useState<Folder | null>(null);
   const [checklist, setChecklist] = useState<string[]>([]);
-  const [dueDate, setDueDate] = useState<number | null>(null);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
@@ -82,10 +91,14 @@ const NewTaskPage: PageWithLayout = () => {
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
   const [showPriorityDropdow, setShowPriorityDropdow] = useState(false);
 
+  const dateRef = useRef<Date | null>(null);
+
   const isDescriptionTab = activeTab === 'Description';
   const isChecklistTab = activeTab === 'Checklist';
 
-  const nameIsValid = name ? name.length >= 2 && name.length < 120 : null;
+  const nameIsValid = title ? title.length >= 2 && title.length < 120 : null;
+  const workspaceIsValid = workspace !== null;
+  const folderIsValid = folder !== null;
 
   const workspaces: DropdownItem[] = [
     {
@@ -251,31 +264,50 @@ const NewTaskPage: PageWithLayout = () => {
     setShowMembersDropdown((prevState) => !prevState);
   }
 
-  function onCreateNewTask(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function onCreateNewTask() {
+    if (!nameIsValid) {
+      notify('Task title is required.', {
+        type: 'error',
+      });
+      return;
+    }
+
+    if (!workspaceIsValid) {
+      notify('Workspace is required.', {
+        type: 'error',
+      });
+      return;
+    }
+
+    if (!folderIsValid) {
+      notify('Folder is required.', {
+        type: 'error',
+      });
+      return;
+    }
 
     const form = {
-      name,
+      title,
       description,
-      priority,
-      dueDate,
-      assignees,
+      workspace: workspace?.id,
+      folder: folder?.id || null,
+      assignees: assignees.map((a) => a.id),
+      dueDate: dateRef.current?.toJSON() || null,
       checklist,
-      workspace,
-      folderID: folder,
+      priority: priority?.value || null,
     };
 
-    // eslint-disable-next-line no-console
-    console.log(form);
+    setSubmitting(true);
+    setTimeout(() => {
+      // eslint-disable-next-line no-console
+      console.log(form);
+      setSubmitting(false);
+    }, 2000);
   }
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    setDueDate(selectedDate?.getTime() || null);
-  }, [selectedDate]);
 
   return (
     <>
@@ -286,7 +318,7 @@ const NewTaskPage: PageWithLayout = () => {
       <Navigation />
 
       <main className="page-new-task">
-        <form onSubmit={onCreateNewTask}>
+        <form onSubmit={(e) => e.preventDefault()}>
           <div className="name">
             <br />
             <div className="input-container relative">
@@ -297,14 +329,14 @@ const NewTaskPage: PageWithLayout = () => {
                 required
                 autoComplete="off"
                 className="bg-transparent border-0 text-xl md:text-3xl outline-0 font-bold w-full my-3 block"
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => setTitle(e.target.value)}
               />
 
               <label
                 htmlFor="task-name"
                 className="text-3xl font-bold absolute cursor-text"
               >
-                Enter task name...
+                Enter task title...
               </label>
             </div>
             {nameIsValid === false && (
@@ -523,6 +555,7 @@ const NewTaskPage: PageWithLayout = () => {
                     selected={selectedDate}
                     onChange={(date) => {
                       setSelectedDate(date);
+                      dateRef.current = date;
                     }}
                     timeFormat="hh:mm aa"
                     dateFormat="MMM d, yyyy @ h:mm aa"
@@ -631,6 +664,25 @@ const NewTaskPage: PageWithLayout = () => {
           </div>
         </form>
       </main>
+
+      <div className="fixed bottom-[15px] md:bottom-[50px] left-0 w-screen z-30">
+        <Container className="flex justify-end">
+          {/* <button
+            className="bg-main text-white font-medium px-8 py-3 rounded-xl flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={onCreateNewTask}
+          >
+            Save task
+          </button> */}
+
+          <Button
+            loading={submitting}
+            paddingClasses="px-8 py-3"
+            onClick={() => onCreateNewTask()}
+          >
+            {submitting ? 'Creating task...' : 'Create task'}
+          </Button>
+        </Container>
+      </div>
     </>
   );
 };
