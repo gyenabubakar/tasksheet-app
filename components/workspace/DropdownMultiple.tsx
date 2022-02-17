@@ -24,7 +24,7 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
   const [keyword, setKeyword] = useState('');
 
   const filteredOptions = options.filter((option) =>
-    new RegExp(`${keyword}`, 'ig').test(option.searchable),
+    new RegExp(`${keyword}`, 'ig').test(option.searchable || ''),
   );
 
   function isSelected(item: DropdownItem) {
