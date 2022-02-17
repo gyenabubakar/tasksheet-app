@@ -22,7 +22,8 @@ import SimpleImage from '@editorjs/simple-image';
 
 interface EditorProps {
   value?: string;
-  onChange: (newValue: any) => void;
+  readOnly?: boolean;
+  onChange?: (newValue: any) => void;
 }
 
 const tools = {
@@ -58,7 +59,11 @@ const tools = {
   warning: Warning,
 };
 
-const TaskDescriptionEditor: React.FC<EditorProps> = ({ onChange, value }) => {
+const TaskDescriptionEditor: React.FC<EditorProps> = ({
+  onChange,
+  value,
+  readOnly = false,
+}) => {
   const [isMounted, setIsMounted] = useState(false);
   const [editorInstance, setEditorInstance] = useState(null);
 
@@ -67,14 +72,16 @@ const TaskDescriptionEditor: React.FC<EditorProps> = ({ onChange, value }) => {
   }, []);
 
   async function saveEditorBlocks(editor) {
-    const result = await editor?.save();
-    if (onChange) onChange(result.blocks);
+    if (!readOnly) {
+      const result = await editor?.save();
+      if (onChange) onChange(result.blocks);
+    }
   }
 
   useEffect(() => {
     if (isMounted) {
       const editor = new EditorJS({
-        readOnly: false,
+        readOnly,
         holder: 'tasksheet-task-editor',
         inlineToolbar: true,
         tools: {
