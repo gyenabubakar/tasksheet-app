@@ -51,6 +51,12 @@ interface PriorityDropdownItem extends DropdownItem {
   value: TaskPriority;
 }
 
+interface ChecklistItem {
+  key: string | number;
+  description: string;
+  isDone: boolean;
+}
+
 type TabType = 'Description' | 'Checklist';
 
 type DatePickerInputProps = {
@@ -82,7 +88,7 @@ const NewTaskPage: PageWithLayout = () => {
   const [assignees, setAssignees] = useState<Assignee[]>([]);
   const [workspace, setWorkspace] = useState<Assignee | null>(null);
   const [folder, setFolder] = useState<Folder | null>(null);
-  const [checklist, setChecklist] = useState<string[]>([]);
+  const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
 
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
@@ -265,44 +271,57 @@ const NewTaskPage: PageWithLayout = () => {
   }
 
   function onCreateNewTask() {
-    if (!nameIsValid) {
-      notify('Task title is required.', {
-        type: 'error',
-      });
-      return;
+    if (!submitting) {
+      if (!nameIsValid) {
+        notify('Task title is required.', {
+          type: 'error',
+        });
+        return;
+      }
+
+      if (!workspaceIsValid) {
+        notify('Workspace is required.', {
+          type: 'error',
+        });
+        return;
+      }
+
+      if (!folderIsValid) {
+        notify('Folder is required.', {
+          type: 'error',
+        });
+        return;
+      }
+
+      const unfinishedTodoItem = checklist.find((item) => !item.description);
+      if (checklist.length && unfinishedTodoItem) {
+        notify('Remove empty to-dos from checklist.', {
+          type: 'error',
+        });
+        return;
+      }
+
+      const form = {
+        title,
+        description,
+        workspace: workspace?.id,
+        folder: folder?.id || null,
+        assignees: assignees.map((a) => a.id),
+        dueDate: dateRef.current?.toJSON() || null,
+        checklist: checklist.map(({ isDone, description: desc }) => ({
+          isDone,
+          description: desc,
+        })),
+        priority: priority?.value || null,
+      };
+
+      setSubmitting(true);
+      setTimeout(() => {
+        // eslint-disable-next-line no-console
+        console.log(form);
+        setSubmitting(false);
+      }, 2000);
     }
-
-    if (!workspaceIsValid) {
-      notify('Workspace is required.', {
-        type: 'error',
-      });
-      return;
-    }
-
-    if (!folderIsValid) {
-      notify('Folder is required.', {
-        type: 'error',
-      });
-      return;
-    }
-
-    const form = {
-      title,
-      description,
-      workspace: workspace?.id,
-      folder: folder?.id || null,
-      assignees: assignees.map((a) => a.id),
-      dueDate: dateRef.current?.toJSON() || null,
-      checklist,
-      priority: priority?.value || null,
-    };
-
-    setSubmitting(true);
-    setTimeout(() => {
-      // eslint-disable-next-line no-console
-      console.log(form);
-      setSubmitting(false);
-    }, 2000);
   }
 
   useEffect(() => {
@@ -336,7 +355,7 @@ const NewTaskPage: PageWithLayout = () => {
                 htmlFor="task-name"
                 className="text-3xl font-bold absolute cursor-text"
               >
-                Enter task title...
+                Task title...
               </label>
             </div>
             {nameIsValid === false && (
@@ -658,6 +677,97 @@ const NewTaskPage: PageWithLayout = () => {
                       setDescription(JSON.stringify(newDesc));
                     }}
                   />
+                </div>
+              )}
+
+              {isChecklistTab && (
+                <div className="checklist-tab">
+                  <ul>
+                    {checklist.map(
+                      (
+                        { key, isDone, description: clDescription },
+                        index,
+                        list,
+                      ) => (
+                        <li key={key} className="flex items-center mb-4">
+                          <input
+                            type="checkbox"
+                            checked={isDone}
+                            className="hidden"
+                            readOnly
+                          />
+                          <div
+                            className={`checkbox h-7 w-7 rounded-full flex items-center justify-center border ${
+                              isDone
+                                ? 'bg-main text-white border-main hover:border-main'
+                                : 'border-darkgray hover:border-main'
+                            }`}
+                            onClick={() => {
+                              const checklistCopy = [...list];
+                              checklistCopy.splice(index, 1, {
+                                key,
+                                description: clDescription,
+                                isDone: !isDone,
+                              });
+                              setChecklist(checklistCopy);
+                            }}
+                          >
+                            <i className="linearicons linearicons-check text-xs font-bold" />
+                          </div>
+
+                          <div className="flex-grow relative">
+                            <input
+                              type="text"
+                              value={clDescription}
+                              placeholder="Enter to do item title"
+                              className={`block w-full outline-none bg-transparent text-base md:text-lg text-darkgray ml-5 ${
+                                isDone ? 'line-through' : ''
+                              }`}
+                              onChange={(e) => {
+                                const checklistCopy = [...list];
+                                checklistCopy.splice(index, 1, {
+                                  key,
+                                  isDone,
+                                  description: e.target.value,
+                                });
+                                setChecklist(checklistCopy);
+                              }}
+                            />
+                            <button
+                              type="button"
+                              className="text-red-500 text-3xl font-bold absolute top-[-3px] right-0 hover:text-red-600"
+                              title="Remove"
+                              onClick={() => {
+                                const checklistCopy = [...list];
+                                checklistCopy.splice(index, 1);
+                                setChecklist(checklistCopy);
+                              }}
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        </li>
+                      ),
+                    )}
+                  </ul>
+
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      className="mt-12 px-5 py-2 rounded-lg text-main border-2 border-main"
+                      onClick={() => {
+                        const list = [...checklist];
+                        list.push({
+                          key: Date.now(),
+                          isDone: false,
+                          description: '',
+                        });
+                        setChecklist(list);
+                      }}
+                    >
+                      Add to do
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
