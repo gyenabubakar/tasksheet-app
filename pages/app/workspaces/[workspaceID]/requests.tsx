@@ -100,7 +100,7 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
         ) : (
           <div className="empt-state flex flex-col justify-center items-center mt-24">
             <div className="w-[247px] h-[241px] relative">
-              <Image src={illustrationEmpty} />
+              <Image src={illustrationEmpty} priority />
             </div>
 
             <h3 className="font-bold text-center text-[24px] mt-10">

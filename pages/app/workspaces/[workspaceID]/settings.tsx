@@ -131,30 +131,30 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
         <div className="content">
           <h1 className="text-[48px] font-bold">Settings</h1>
 
-          <div className="grid grid-cols-12 gap-10 mt-12">
-            <div className="tabs col-start-1 col-end-5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-12">
+            <div className="settings-tabs flex lg:block lg:col-start-1 lg:col-end-5">
               <div
-                className={`tab py-3 cursor-pointer ${
+                className={`settings-tab py-3 cursor-pointer ${
                   activeTab === 'general' ? 'active' : ''
                 }`}
                 onClick={() => switchTabs('general')}
               >
-                General settings
+                General
               </div>
               <div
-                className={`tab py-3 cursor-pointer ${
+                className={`settings-tab py-3 cursor-pointer ${
                   activeTab === 'join-requests' ? 'active' : ''
                 }`}
                 onClick={() => switchTabs('join-requests')}
               >
-                Join request settings
+                Join requests
               </div>
             </div>
 
-            <div className="tab-content col-start-5 col-end-12">
+            <div className="tab-content lg:col-start-5 lg:col-end-12">
               {activeTab === 'general' && (
                 <form autoComplete="off" onSubmit={handleUpdateWorkspace}>
-                  <h3 className="text-4xl font-medium mb-10">
+                  <h3 className="text-2xl text-center font-medium mb-10 md:text-4xl lg:text-left">
                     Update workspace info
                   </h3>
 
@@ -164,7 +164,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                     value={name}
                     label="Workspace name"
                     className="lg:text-lg lg:px-8 lg:py-5"
-                    wrapperClass="mb-1.5 md:w-[600px]"
+                    wrapperClass="mb-1.5 mx-auto lg:mx-0 lg:w-[600px]"
                     error={errors.name}
                     placeholder="e.g. React Projects"
                     onChange={(e: ChangeEvent<HTMLInputElement>) => {
@@ -172,7 +172,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                     }}
                   />
 
-                  <div className="input-wrapper w-full md:w-[600px]">
+                  <div className="input-wrapper max-w-[95%] mx-auto md:w-[450px] lg:mx-0 lg:w-[600px]">
                     <label
                       htmlFor="workspace-description"
                       className="font-medium inline-block mb-1 text-fakeblack"
@@ -210,13 +210,13 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                       </small>
                     </div>
 
-                    <div className="mt-16">
+                    <div className="mt-16 flex justify-center items-center">
                       <Button
                         type="submit"
                         disabled={!formIsValid || submitting}
                         loading={submitting}
                       >
-                        {submitting ? 'On it...' : 'Create Workspace'}
+                        {submitting ? 'Saving...' : 'Save details'}
                       </Button>
                     </div>
                   </div>
@@ -224,7 +224,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
               )}
 
               {activeTab === 'join-requests' && (
-                <div className="join-requests flex justify-between items-center">
+                <div className="join-requests border-b pb-5 flex justify-between items-center">
                   <p className="text-lg">Pause receiving join requests.</p>
 
                   <Switch

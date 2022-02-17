@@ -67,7 +67,7 @@ const WorkspacesHomePage: PageWithLayout = () => {
           </div>
         ) : (
           <div className="text-center mt-28">
-            <Image src={illustrationEmpty} />
+            <Image src={illustrationEmpty} priority />
 
             <h3 className="font-bold text-[24px] mt-10">
               You&apos;re not part of any workspace.

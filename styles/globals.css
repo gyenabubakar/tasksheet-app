@@ -209,3 +209,15 @@ textarea::placeholder {
 .codex-editor {
   z-index: unset;
 }
+
+.settings-tabs > .settings-tab {
+  @apply px-3 text-base md:text-lg md:px-5 border-b-[3px] border-b-secondarybg border-l-secondarybg lg:border-b-0 lg:border-l-4;
+}
+
+.settings-tabs > .settings-tab:hover {
+  @apply text-main border-b-main lg:border-l-main lg:border-b-secondarybg;
+}
+
+.settings-tabs > .settings-tab.active {
+  @apply text-main border-b-main lg:border-l-main lg:border-b-secondarybg bg-faintmain;
+}
