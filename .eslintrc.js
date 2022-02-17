@@ -22,6 +22,7 @@ module.exports = {
     'no-plusplus': 0,
     'no-continue': 0,
     'no-shadow': 0,
+    "arrow-body-style": 0,
     '@typescript-eslint/no-shadow': ['error'],
     '@next/next/no-css-tags': 0,
     'react/jsx-filename-extension': [

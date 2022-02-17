@@ -6,7 +6,8 @@ interface DropdownProps {
   options: DropdownItem[];
   className?: string;
   value: DropdownItem[];
-  onSelect: (item: any) => void;
+  readOnly?: boolean;
+  onSelect?: (item: any) => void;
   onClose: () => void;
 }
 
@@ -15,6 +16,7 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
   options,
   className = '',
   value,
+  readOnly = false,
   onSelect,
   onClose,
 }) => {
@@ -37,6 +39,8 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
   }
 
   function onSelectItem(item: DropdownItem) {
+    if (readOnly) return;
+
     const [selected, index] = isSelected(item);
 
     const itemsCopy = [...selectedItems];
@@ -52,7 +56,7 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
   }
 
   useEffect(() => {
-    onSelect(selectedItems);
+    onSelect?.(selectedItems);
   }, [selectedItems]);
 
   useEffect(() => {
@@ -112,7 +116,7 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
             >
               {item.value}
 
-              {isSelected(item)[0] && (
+              {isSelected(item)[0] && !readOnly && (
                 <i className="linearicons linearicons-check font-bold text-main" />
               )}
             </li>
