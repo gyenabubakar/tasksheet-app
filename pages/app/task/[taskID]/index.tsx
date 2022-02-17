@@ -142,20 +142,20 @@ const TaskDescriptionPage: PageWithLayout = () => {
       : calculateTimeLeft(moment(), moment(dueDate));
 
   function changeTodoStatus(todo: ChecklistItem, index: number) {
+    const checklistCopy = [...checklist];
+    checklistCopy.splice(index, 1, {
+      id: todo.id,
+      description: todo.description,
+      isDone: !todo.isDone,
+    });
+    setTask((prevTask) => ({
+      ...prevTask,
+      checklist: checklistCopy,
+    }));
+
     setTimeout(() => {
       // eslint-disable-next-line no-console
       console.log(todo);
-
-      const checklistCopy = [...checklist];
-      checklistCopy.splice(index, 1, {
-        id: todo.id,
-        description: todo.description,
-        isDone: !todo.isDone,
-      });
-      setTask((prevTask) => ({
-        ...prevTask,
-        checklist: checklistCopy,
-      }));
 
       notify(`To-do marked as ${!todo.isDone ? 'done' : 'undone'}!`, {
         type: 'success',
@@ -312,7 +312,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                   <span
                     data-tip
                     data-for="due-date"
-                    className={`${
+                    className={`text-sm md:text-base ${
                       timeLeft === 'Overdue' ? 'text-red-600' : ''
                     }`}
                   >
