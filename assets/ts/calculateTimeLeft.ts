@@ -5,8 +5,8 @@ function calculateTimeLeft(start: Moment, end: Moment) {
   const units: unitOfTime.Diff[] = ['days', 'hours', 'minutes'];
 
   for (let i = 0; i < units.length; i++) {
-    const unit = units[i];
-    const difference = end.diff(start, unit);
+    let unit: unitOfTime.Diff | string = units[i];
+    const difference = end.diff(start, unit as unitOfTime.Diff);
 
     if (difference === 0) {
       if (i === 2) {
@@ -17,7 +17,11 @@ function calculateTimeLeft(start: Moment, end: Moment) {
       continue;
     }
 
-    duration = `${difference} ${unit === 'minutes' ? 'mins' : unit}`;
+    unit = unit === 'minutes' ? 'mins' : unit;
+    const unitWithSingularForm =
+      difference === 1 ? unit.slice(0, unit.length - 1) : unit;
+
+    duration = `${difference} ${unitWithSingularForm}`;
     break;
   }
 
