@@ -6,6 +6,7 @@ import Link from 'next/link';
 import logo from '~/assets/images/logo.svg';
 import iconPlus from '~/assets/icons/nav/plus-white.svg';
 import iconMenu from '~/assets/icons/nav/menu.svg';
+import iconEdit from '~/assets/icons/task/edit.svg';
 import Button from '~/components/common/Button';
 import Container from '~/components/common/Container';
 
@@ -22,6 +23,24 @@ const AppLayout: React.FC = ({ children }) => {
   const isHomePage = /^\/app(\/)?$/.test(router.route);
   const isWorkspacesPage = /^\/app\/workspaces(\/)?$/.test(router.route);
   const isNotifsPage = /^\/app\/notifications(\/)?$/.test(router.route);
+
+  const pathIsBlacklisted = floatingButtonBlacklistedPathnames.includes(
+    router.pathname,
+  );
+
+  const isTaskDetailsPage = router.pathname === '/app/task/[taskID]';
+
+  function handleFloatingButtonClick() {
+    if (!pathIsBlacklisted) {
+      if (isTaskDetailsPage) {
+        const { taskID } = router.query;
+        router.push(`/app/task/${taskID}/edit`);
+        return;
+      }
+
+      router.push(`/app/new-task`);
+    }
+  }
 
   return (
     <div className="app-layout relative h-screen w-screen overflow-x-hidden">
@@ -76,15 +95,25 @@ const AppLayout: React.FC = ({ children }) => {
         {children}
       </Container>
 
-      {!floatingButtonBlacklistedPathnames.includes(router.pathname) && (
+      {!pathIsBlacklisted && (
         <div className="w-full flex justify-end fixed bottom-5 lg:bottom-12">
           <Container className="flex justify-end">
             <Button
               className="px-4 md:px-10 flex items-center rounded-full"
-              onClick={() => router.push(`/app/new-task`)}
+              onClick={() => handleFloatingButtonClick()}
             >
-              <Image src={iconPlus} width="23px" height="23px" priority />
-              <span className="ml-5 hidden md:inline">Create Task</span>
+              {router.pathname === '/app/task/[taskID]' && (
+                <Image src={iconEdit} width="23px" height="23px" priority />
+              )}
+              {router.pathname !== '/app/task/[taskID]' && (
+                <Image src={iconPlus} width="23px" height="23px" priority />
+              )}
+
+              <span className="ml-5 hidden md:inline">
+                {router.pathname === '/app/task/[taskID]'
+                  ? 'Edit task'
+                  : 'Create task'}
+              </span>
             </Button>
           </Container>
         </div>
