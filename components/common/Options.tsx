@@ -14,7 +14,7 @@ interface OptionProps extends ComponentProps<'div'> {
   show: boolean;
   setShow: Dispatch<SetStateAction<boolean>>;
   originID: string;
-  optionObject: { [key: string]: any };
+  optionObject?: { [key: string]: any };
   options: Option[];
 }
 
