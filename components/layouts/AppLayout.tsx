@@ -10,7 +10,7 @@ import iconEdit from '~/assets/icons/task/edit.svg';
 import Button from '~/components/common/Button';
 import Container from '~/components/common/Container';
 
-const floatingButtonBlacklistedPathnames = [
+const floatingButtonBlockedPaths = [
   '/app/new-task',
   '/app/workspaces/new',
   '/app/workspaces/[workspaceID]/invite',
@@ -24,14 +24,11 @@ const AppLayout: React.FC = ({ children }) => {
   const isWorkspacesPage = /^\/app\/workspaces(\/)?$/.test(router.route);
   const isNotifsPage = /^\/app\/notifications(\/)?$/.test(router.route);
 
-  const pathIsBlacklisted = floatingButtonBlacklistedPathnames.includes(
-    router.pathname,
-  );
-
+  const pathIsBlocked = floatingButtonBlockedPaths.includes(router.pathname);
   const isTaskDetailsPage = router.pathname === '/app/task/[taskID]';
 
   function handleFloatingButtonClick() {
-    if (!pathIsBlacklisted) {
+    if (!pathIsBlocked) {
       if (isTaskDetailsPage) {
         const { taskID } = router.query;
         router.push(`/app/task/${taskID}/edit`);
@@ -95,7 +92,7 @@ const AppLayout: React.FC = ({ children }) => {
         {children}
       </Container>
 
-      {!pathIsBlacklisted && (
+      {!pathIsBlocked && (
         <div className="w-full flex justify-end fixed bottom-5 lg:bottom-12">
           <Container className="flex justify-end">
             <Button
