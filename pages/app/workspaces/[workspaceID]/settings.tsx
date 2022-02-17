@@ -126,7 +126,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
       </Head>
 
       <main className="page-workspace-settings">
-        <Navigation />
+        <Navigation backUrl={`/app/workspaces/${workspaceID}`} />
 
         <div className="content">
           <h1 className="text-[48px] font-bold">Settings</h1>
