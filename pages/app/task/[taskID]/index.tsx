@@ -304,7 +304,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                   </div>
 
                   <span className="text-darkgray md:text-xl font-medium ml-3">
-                    Due Date
+                    Due date
                   </span>
                 </div>
 

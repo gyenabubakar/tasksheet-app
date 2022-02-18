@@ -29,7 +29,6 @@ import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import notify from '~/assets/ts/notify';
 import Container from '~/components/common/Container';
 import Button from '~/components/common/Button';
-// import TaskDescriptionEditor from '~/components/workspace/TaskDescriptionEditor';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -565,7 +564,7 @@ const NewTaskPage: PageWithLayout = () => {
                   </div>
 
                   <span className="text-darkgray md:text-xl font-medium ml-3">
-                    Due Date
+                    Due date
                   </span>
                 </div>
 
