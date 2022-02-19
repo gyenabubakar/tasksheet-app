@@ -126,6 +126,10 @@ textarea::placeholder {
 .options {
     @apply bg-white rounded-lg min-w-[200px] shadow-xl shadow-faintmain z-[2];
     box-shadow: 0 10px 15px rgba(92, 104, 255, 0.2);
+}
+
+.options,
+.user-options-wrapper {
     animation: ShowOptions 0.3s ease forwards;
 }
 

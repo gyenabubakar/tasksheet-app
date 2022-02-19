@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -9,6 +9,8 @@ import iconMenu from '~/assets/icons/nav/menu.svg';
 import iconEdit from '~/assets/icons/task/edit.svg';
 import Button from '~/components/common/Button';
 import Container from '~/components/common/Container';
+import iconUser from '~/assets/icons/nav/user.svg';
+import iconLogout from '~/assets/icons/nav/logout.svg';
 
 const floatingButtonBlockedPaths = [
   '/app/new-task',
@@ -20,6 +22,7 @@ const floatingButtonBlockedPaths = [
 ];
 
 const AppLayout: React.FC = ({ children }) => {
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const router = useRouter();
   const isHomePage = /^\/app(\/)?$/.test(router.route);
   const isWorkspacesPage = /^\/app\/workspaces(\/)?$/.test(router.route);
@@ -39,6 +42,33 @@ const AppLayout: React.FC = ({ children }) => {
       await router.push(`/app/new-task`);
     }
   }
+
+  function handleClickedOutsideUserMenu(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    const menu = document.querySelector(
+      '#user-options-wrapper',
+    ) as HTMLDivElement;
+
+    if (
+      target.id !== 'user-options-wrapper' &&
+      menu &&
+      !menu.contains(target)
+    ) {
+      setShowUserMenu(false);
+    }
+  }
+
+  useEffect(() => {
+    if (showUserMenu) {
+      document.addEventListener('click', handleClickedOutsideUserMenu);
+    } else {
+      document.removeEventListener('click', handleClickedOutsideUserMenu);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickedOutsideUserMenu);
+    };
+  }, [showUserMenu]);
 
   return (
     <div className="app-layout relative h-screen w-screen overflow-x-hidden">
@@ -87,8 +117,41 @@ const AppLayout: React.FC = ({ children }) => {
             </Link>
           </div>
 
-          <div className="flex">
-            <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-main cursor-pointer my-3 lg:my-0" />
+          <div className="flex relative">
+            <div
+              className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-main cursor-pointer my-3 lg:my-0"
+              onClick={() => setShowUserMenu((prevState) => !prevState)}
+            />
+
+            {showUserMenu && (
+              <div
+                id="user-options-wrapper"
+                className="user-options-wrapper absolute bg-white rounded-small min-w-[300px] right-0 top-14 cursor-default overflow-hidden shadow-2xl shadow-faintmain"
+              >
+                <div className="px-5 py-3">
+                  <p className="text-main font-bold">Gyen Abubakar</p>
+                  <p className="text-darkgray font-medium text-sm">
+                    indehyde@gmail.com
+                  </p>
+                </div>
+
+                <ul className="">
+                  <li className="px-5 py-2.5 cursor-pointer hover:bg-faintmain flex items-center">
+                    <Image src={iconUser} />
+                    <span className="font-medium text-darkgray inline-block ml-3 text-base">
+                      Profile settings
+                    </span>
+                  </li>
+
+                  <li className="px-5 py-2.5 cursor-pointer hover:bg-faintmain flex items-center">
+                    <Image src={iconLogout} />
+                    <span className="font-medium text-darkgray inline-block ml-3 text-red-500 text-base">
+                      Log out
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
         </Container>
       </nav>
