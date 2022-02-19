@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 
@@ -45,10 +45,22 @@ const UserProfileSettingsPage: PageWithLayout = () => {
 
   function onUploadAvatar() {
     if (!uploading && selectedFile && newAvatar) {
+      if (selectedFile.size / 1024 > 300) {
+        notify('Maximum file size is 300KB.', {
+          type: 'error',
+        });
+        fileInputRef.current!.value = '';
+        return;
+      }
+
       setUploading(true);
       setTimeout(() => {
         setSelectedFile(null);
         fileInputRef.current!.value = '';
+
+        // eslint-disable-next-line no-console
+        console.log(selectedFile);
+
         notify('New avatar uploaded!', {
           type: 'success',
         });
@@ -56,10 +68,6 @@ const UserProfileSettingsPage: PageWithLayout = () => {
       }, 2000);
     }
   }
-
-  useEffect(() => {
-    console.log(selectedFile);
-  }, [selectedFile]);
 
   return (
     <>
@@ -95,11 +103,7 @@ const UserProfileSettingsPage: PageWithLayout = () => {
 
           <div className="tab-content lg:col-start-5 lg:col-end-12">
             <div>
-              <h2 className="text-3xl text-darkgray font-medium mb-8">
-                Edit your personal info
-              </h2>
-
-              <div className="avatar-wrapper w-[max-content] relative mx-auto">
+              <div className="avatar-wrapper w-[max-content] relative mx-auto mt-12">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -107,7 +111,17 @@ const UserProfileSettingsPage: PageWithLayout = () => {
                   accept="image/jpeg, image/png"
                   className="hidden"
                   onChange={(e) => {
-                    setSelectedFile(e.target.files?.[0] || null);
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size / 1024 > 300) {
+                        notify('Maximum file size is 300KB.', {
+                          type: 'error',
+                        });
+                        fileInputRef.current!.value = '';
+                        return;
+                      }
+                      setSelectedFile(file || null);
+                    }
                   }}
                 />
 
