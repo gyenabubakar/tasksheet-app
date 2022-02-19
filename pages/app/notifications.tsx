@@ -75,7 +75,7 @@ const NotificationsPage: PageWithLayout = () => {
           </h1>
 
           <button
-            className="show-notifications-options relative"
+            className="show-notifications-options relative px-3 py-5 rounded-full hover:bg-faintmain"
             onClick={() => setShowOptions((prevState) => !prevState)}
           >
             <svg
@@ -93,7 +93,7 @@ const NotificationsPage: PageWithLayout = () => {
 
             {showOptions && (
               <Options
-                className="absolute top-5 right-0"
+                className="absolute top-10 right-0"
                 show={showOptions}
                 setShow={setShowOptions}
                 originID="show-notifications-options"

@@ -23,20 +23,20 @@ const AppLayout: React.FC = ({ children }) => {
   const router = useRouter();
   const isHomePage = /^\/app(\/)?$/.test(router.route);
   const isWorkspacesPage = /^\/app\/workspaces(\/)?$/.test(router.route);
-  const isNotifsPage = /^\/app\/notifications(\/)?$/.test(router.route);
+  const isNotificationsPage = /^\/app\/notifications(\/)?$/.test(router.route);
 
   const pathIsBlocked = floatingButtonBlockedPaths.includes(router.pathname);
   const isTaskDetailsPage = router.pathname === '/app/task/[taskID]';
 
-  function handleFloatingButtonClick() {
+  async function handleFloatingButtonClick() {
     if (!pathIsBlocked) {
       if (isTaskDetailsPage) {
         const { taskID } = router.query;
-        router.push(`/app/task/${taskID}/edit`);
+        await router.push(`/app/task/${taskID}/edit`);
         return;
       }
 
-      router.push(`/app/new-task`);
+      await router.push(`/app/new-task`);
     }
   }
 
@@ -77,7 +77,11 @@ const AppLayout: React.FC = ({ children }) => {
             </Link>
 
             <Link href="/app/notifications">
-              <a className={`link-item ${isNotifsPage ? 'exact-active' : ''}`}>
+              <a
+                className={`link-item ${
+                  isNotificationsPage ? 'exact-active' : ''
+                }`}
+              >
                 Notifications
               </a>
             </Link>
