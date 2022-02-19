@@ -74,16 +74,16 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
     onUpdatePauseJoinRequests(!pauseJoinRequests);
   }
 
-  function switchTabs(tab: TabType) {
+  async function switchTabs(tab: TabType) {
     setActiveTab(tab);
     if (tab !== 'general') {
-      router.push(
+      await router.push(
         `/app/workspaces/${workspaceID}/settings?tab=${tab}`,
         undefined,
         { shallow: true },
       );
     } else {
-      router.push(`/app/workspaces/${workspaceID}/settings`, undefined, {
+      await router.push(`/app/workspaces/${workspaceID}/settings`, undefined, {
         shallow: true,
       });
     }
