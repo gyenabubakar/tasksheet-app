@@ -24,7 +24,7 @@ const Button: React.FC<Props> = ({
     <button
       type={type}
       disabled={disabled}
-      className={`bg-main text-white font-medium ${paddingClasses} flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
+      className={`bg-main border-2 border-main text-white font-medium ${paddingClasses} flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
         disabled ? '' : 'hover:bg-darkmain'
       } ${roundedClassName}`}
       {...props}

@@ -2,13 +2,13 @@ import Head from 'next/head';
 import React, { ChangeEvent, useState } from 'react';
 import moment from 'moment';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 
 import { PageWithLayout, TaskType } from '~/assets/ts/types';
 import Input from '~/components/common/Input';
 import Task from '~/components/workspace/Task';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
-import { useRouter } from 'next/router';
 
 type TabType = 'To do' | 'Done' | 'Overdue';
 
@@ -164,7 +164,7 @@ const TasksPage: PageWithLayout = () => {
               </div>
             </div>
 
-            <div className="search mt-3">
+            <div className="search mt-3 md:mt-0 md:flex justify-end">
               <Input
                 id="search-keyword"
                 type="text"
