@@ -169,7 +169,7 @@ const TasksPage: PageWithLayout = () => {
                 id="search-keyword"
                 type="text"
                 value={searchKeyword}
-                wrapperClass="mx-auto md:mx-0"
+                wrapperClass="mx-auto md:mx-0 md:w-[350px] lg:w-[450px]"
                 icon={{
                   position: searchKeyword ? 'both' : 'left',
                   elements: [
