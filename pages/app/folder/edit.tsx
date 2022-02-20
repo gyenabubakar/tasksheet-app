@@ -1,30 +1,27 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+
 import { PageWithLayout } from '~/assets/ts/types';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import Navigation from '~/components/common/Navigation';
 
-const FolderDetailsPage: PageWithLayout = () => {
+const Edit: PageWithLayout = () => {
   const router = useRouter();
   const { folderID } = router.query;
 
   return (
     <>
       <Head>
-        <title>
-          {folderID} | Workspace Name{pageTitleSuffix}
-        </title>
+        <title>Edit Folder Info{pageTitleSuffix}</title>
       </Head>
 
-      <Navigation />
+      <Navigation backUrl={`/app/folder/${folderID}`} />
 
       <main>
-        <h1>Folder - {router.query.folderID}</h1>
+        <h1>Edit folder info</h1>
       </main>
     </>
   );
 };
 
-FolderDetailsPage.layout = 'app';
-
-export default FolderDetailsPage;
+export default Edit;
