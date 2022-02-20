@@ -85,7 +85,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
           <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {folders.map((folder) => (
               <Folder
-                href={`/app/folders/${folder.id}`}
+                href={`/app/folder/${folder.id}`}
                 key={folder.id}
                 folder={folder}
                 onEdit={(f) => onEditFolder(f)}

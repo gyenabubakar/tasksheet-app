@@ -29,8 +29,6 @@ const Task: React.FC<TaskProps> = ({ task }) => {
 
   useEffect(() => {
     setIsMounted(true);
-
-    console.log(name, members.length - 3);
   }, []);
 
   return (

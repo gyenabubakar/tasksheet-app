@@ -5,7 +5,7 @@ import { PageWithLayout } from '~/assets/ts/types';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import Navigation from '~/components/common/Navigation';
 
-const Edit: PageWithLayout = () => {
+const EditFolderPage: PageWithLayout = () => {
   const router = useRouter();
   const { folderID } = router.query;
 
@@ -24,4 +24,6 @@ const Edit: PageWithLayout = () => {
   );
 };
 
-export default Edit;
+EditFolderPage.layout = 'app';
+
+export default EditFolderPage;
