@@ -183,7 +183,23 @@ const UserProfileSettingsPage: PageWithLayout = () => {
   }
 
   function handleChangePassword() {
-    console.log('handleChangePassword');
+    if (securityFormIsValid) {
+      setSubmittingSecurityForm(true);
+      setTimeout(() => {
+        const form = {
+          currentPassword,
+          newPassword,
+          confirmPassword,
+        };
+        // eslint-disable-next-line no-console
+        console.log(form);
+
+        notify('Password changed!', {
+          type: 'success',
+        });
+        setSubmittingSecurityForm(false);
+      }, 2000);
+    }
   }
 
   useEffect(() => {
@@ -368,7 +384,7 @@ const UserProfileSettingsPage: PageWithLayout = () => {
 
             {activeTab === 'security' && (
               <div className="user-security-settings-wrapper">
-                <h3 className="text-3xl font-medium text-darkgray text-center mb-8">
+                <h3 className="text-xl md:text-3xl font-medium text-darkgray text-center mb-8">
                   Change your password
                 </h3>
 
@@ -478,6 +494,7 @@ const UserProfileSettingsPage: PageWithLayout = () => {
                   <div className="flex justify-center mt-10">
                     <Button
                       type="submit"
+                      paddingClasses="px-10 py-3"
                       loading={submittingSecurityForm}
                       disabled={submittingSecurityForm || !securityFormIsValid}
                     >

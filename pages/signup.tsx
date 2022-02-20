@@ -16,6 +16,7 @@ import useFormValidation, {
   FormValidationErrors,
 } from '~/hooks/useFormValidation';
 import Button from '~/components/common/Button';
+import FormValidation from '~/assets/ts/form-validation';
 
 interface FormErrors extends FormValidationErrors {
   name: string | null;
@@ -32,7 +33,7 @@ const SignupPage: PageWithLayout = () => {
   const [passwordIsMasked, setPasswordIsMasked] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  const nameIsValid = !name ? null : /^[a-z\- ]{2,}$/.test(name);
+  const nameIsValid = !name ? null : FormValidation.isValidName(name);
   const emailIsValid = !email ? null : validator.isEmail(email);
   const passwordIsValid = !password
     ? null
