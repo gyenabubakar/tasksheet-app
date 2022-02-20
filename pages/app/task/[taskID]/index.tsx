@@ -431,7 +431,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
               )}
 
               {isChecklistTab && (
-                <div className="checklist-tab">
+                <div className="checklist-tab mt-10">
                   <ul>
                     {checklist.map(
                       ({ id, isDone, description: clDescription }, index) => (

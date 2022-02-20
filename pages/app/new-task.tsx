@@ -680,7 +680,7 @@ const NewTaskPage: PageWithLayout = () => {
               )}
 
               {isChecklistTab && (
-                <div className="checklist-tab">
+                <div className="checklist-tab mt-10">
                   <ul>
                     {checklist.map(
                       (
@@ -750,7 +750,7 @@ const NewTaskPage: PageWithLayout = () => {
                     )}
                   </ul>
 
-                  <div className="text-right">
+                  <div>
                     <button
                       type="button"
                       className="mt-12 px-5 py-2 rounded-lg text-main border-2 border-main"
