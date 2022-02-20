@@ -68,28 +68,25 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
             </h1>
 
             <p className="mt-5 text-darkgray md:text-center lg:text-left">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-              Dignissimos iusto quibusdam nam eaque enim eum officia quam
-              perspiciatis nisi impedit a commodi pariatur obcaecati dolores
-              facere, reprehenderit esse saepe doloremque?
+              All projects for my client, Montreal Labs.
             </p>
           </div>
 
-          <div className="cover-wrapper w-full mb-5 lg:mb-0 col-start-10 col-span-3">
-            <div className="cover w-full h-56 sm:h-72 md:w-8/12 md:h-72 md:mx-auto lg:mx-0 lg:w-72 lg:h-40 relative">
-              <Image
-                src="/images/macbook.jpeg"
-                layout="fill"
-                className="rounded-md"
-                priority
-              />
-            </div>
-            <div className="text-center">
-              <button className="my-2 font-medium text-main hover:text-darkmain">
-                Change
-              </button>
-            </div>
-          </div>
+          {/* <div className="cover-wrapper w-full mb-5 lg:mb-0 col-start-10 col-span-3"> */}
+          {/*   <div className="cover w-full h-56 sm:h-72 md:w-8/12 md:h-72 md:mx-auto lg:mx-0 lg:w-72 lg:h-40 relative"> */}
+          {/*     <Image */}
+          {/*       src="/images/macbook.jpeg" */}
+          {/*       layout="fill" */}
+          {/*       className="rounded-md" */}
+          {/*       priority */}
+          {/*     /> */}
+          {/*   </div> */}
+          {/*   <div className="text-center"> */}
+          {/*     <button className="my-2 font-medium text-main hover:text-darkmain"> */}
+          {/*       Change */}
+          {/*     </button> */}
+          {/*   </div> */}
+          {/* </div> */}
         </div>
 
         <div className="nav flex flex-col md:flex-row justify-between items-center pt-12">
