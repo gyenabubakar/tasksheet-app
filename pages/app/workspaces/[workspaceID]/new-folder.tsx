@@ -1,8 +1,6 @@
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 
 import { PageWithLayout } from '~/assets/ts/types';
-import iconArrowLeft from '~/assets/icons/arrow-left.svg';
 import Head from 'next/head';
 import Input from '~/components/common/Input';
 import { ChangeEvent, FormEvent, useState } from 'react';
@@ -12,6 +10,7 @@ import useFormValidation, {
 import Button from '~/components/common/Button';
 import { NewFolderInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
+import Navigation from '~/components/common/Navigation';
 
 interface NewFolderForm extends FormValidationErrors {
   title: string | null;
@@ -76,16 +75,9 @@ const NewFolderPage: PageWithLayout = () => {
         <title>Create New Folder - {workspaceID} · TaskSheet</title>
       </Head>
 
-      <main className="page-new-folder">
-        <div className="button-wrapper mb-10">
-          <button onClick={() => router.back()}>
-            <a>
-              <Image src={iconArrowLeft} width="19px" height="14px" />
-              <span className="inline-block ml-3 font-medium">Back</span>
-            </a>
-          </button>
-        </div>
+      <Navigation />
 
+      <main className="page-new-folder">
         <div className="content mt-16">
           <h1 className="text-4xl md:text-[36px] font-bold line-h-50">
             Create a project folder in the <br />

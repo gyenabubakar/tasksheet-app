@@ -22,6 +22,7 @@ const floatingButtonBlockedPaths = [
   '/app/workspaces/[workspaceID]/settings',
   '/app/workspaces/[workspaceID]/new-folder',
   '/app/invitation/[inviteID]',
+  '/app/folder/[folderID]/edit',
 ];
 
 const AppLayout: React.FC = ({ children }) => {
