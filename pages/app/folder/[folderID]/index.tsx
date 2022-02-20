@@ -139,13 +139,10 @@ const FolderDetailsPage: PageWithLayout = () => {
 
       <Navigation>
         <button
-          className="bg-red-100 text-sm px-3 py-1 rounded-md flex items-center"
+          className="text-sm px-3 py-1 rounded-md bg-faintmain font-medium flex items-center"
           onClick={() => router.push(`/app/folder/${folderID}/edit`)}
-          style={{
-            backgroundColor: `rgba(${hexToRGB(colour)!.rgb()}, 0.3)`,
-          }}
         >
-          <span className="font-medium ml-2">Edit folder</span>
+          Edit folder
         </button>
       </Navigation>
 
