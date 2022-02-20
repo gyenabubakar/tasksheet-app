@@ -215,7 +215,7 @@ textarea::placeholder {
 }
 
 .settings-tabs > .settings-tab {
-    @apply px-3 text-base md:text-lg md:px-5 border-b-[3px] border-b-secondarybg border-l-secondarybg lg:border-b-0 lg:border-l-4;
+    @apply px-3 text-sm sm:text-base md:text-lg md:px-5 border-b-[3px] border-b-secondarybg border-l-secondarybg lg:border-b-0 lg:border-l-4;
 }
 
 .settings-tabs > .settings-tab:hover {

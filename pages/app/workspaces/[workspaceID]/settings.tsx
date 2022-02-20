@@ -19,7 +19,7 @@ interface WorkspaceFormErrors extends FormValidationErrors {
   description: string | null;
 }
 
-type TabType = 'general' | 'join-requests';
+type TabType = 'general' | 'join-requests' | 'deactivate';
 
 const WorkspaceSettingsPage: PageWithLayout = () => {
   const [name, setName] = useState('');
@@ -151,6 +151,40 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
     });
   }
 
+  function handleDeleteWorkspace() {
+    // TODO: check if user is creator of workspace.
+    swal({
+      icon: 'warning',
+      title: 'Proceed to delete workspace?',
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'Delete!',
+      cancelButtonText: 'Cancel',
+      showLoaderOnConfirm: true,
+      preConfirm(confirmed: boolean): Promise<any> | null {
+        if (confirmed) {
+          return new Promise((resolve) => {
+            setTimeout(() => resolve(true), 2000);
+          });
+        }
+        return null;
+      },
+    }).then(async (results) => {
+      if (results.isConfirmed) {
+        await router.replace('/app/workspaces');
+
+        await swal({
+          icon: 'success',
+          title: (
+            <span>
+              <span className="text-main">Workspace Name</span> deleted!
+            </span>
+          ),
+        });
+      }
+    });
+  }
+
   useEffect(() => {
     if (!router.query.tab) {
       setActiveTab('general');
@@ -211,6 +245,14 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                 onClick={() => switchTabs('join-requests')}
               >
                 Join requests
+              </div>
+              <div
+                className={`settings-tab py-3 cursor-pointer ${
+                  activeTab === 'deactivate' ? 'active' : ''
+                }`}
+                onClick={() => switchTabs('deactivate')}
+              >
+                Deactivate
               </div>
             </div>
 
@@ -294,6 +336,28 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                     value={pauseJoinRequests}
                     onSwitch={() => togglePauseJoinRequests()}
                   />
+                </div>
+              )}
+
+              {activeTab === 'deactivate' && (
+                <div className="deactivation border-b pb-5">
+                  <h3 className="text-xl md:text-3xl font-medium">
+                    Delete workspace
+                  </h3>
+
+                  <p className="text-lg mt-3 text-darkgray">
+                    This will remove all folders and tasks in the workspace. You
+                    cannot revert this action.
+                  </p>
+
+                  <div className="text-left mt-3">
+                    <button
+                      className="px-10 py-2 rounded-lg text-white font-medium bg-red-500 hover:bg-red-700"
+                      onClick={handleDeleteWorkspace}
+                    >
+                      Delete Workspace
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
