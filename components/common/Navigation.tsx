@@ -8,15 +8,15 @@ interface Props {
   backUrl?: string;
 }
 
-const Navigation: React.FC<Props> = ({ backUrl }) => {
+const Navigation: React.FC<Props> = ({ backUrl, children }) => {
   const router = useRouter();
 
   return (
-    <div className="button-wrapper mb-10">
+    <div className="button-wrapper mb-10 flex items-center justify-between">
       <button
-        onClick={() => {
+        onClick={async () => {
           if (backUrl) {
-            router.push(backUrl);
+            await router.push(backUrl);
             return;
           }
           router.back();
@@ -27,6 +27,8 @@ const Navigation: React.FC<Props> = ({ backUrl }) => {
           <span className="inline-block ml-3 font-medium">Back </span>
         </a>
       </button>
+
+      {children}
     </div>
   );
 };
