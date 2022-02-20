@@ -257,7 +257,7 @@ const UserProfileSettingsPage: PageWithLayout = () => {
                   </div>
 
                   <button
-                    className="w-10 h-10 rounded-full bg-main absolute flex items-center justify-center shadow-lg left-[35%] bottom-[-15px] ring-2 ring-white"
+                    className="w-10 h-10 rounded-full bg-main absolute flex items-center justify-center shadow-lg left-[35%] bottom-[-15px] ring-2 ring-white focus:bg-darkmain"
                     onClick={() => onSelectFile()}
                   >
                     <svg
