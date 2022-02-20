@@ -61,7 +61,7 @@ const UserProfileSettingsPage: PageWithLayout = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordIsMasked, setPasswordIsMasked] = useState(false);
+  const [passwordIsMasked, setPasswordIsMasked] = useState(true);
   const [submittingSecurityForm, setSubmittingSecurityForm] = useState(false);
 
   const passwordIsValid = currentPassword ? currentPassword.length > 0 : null;
