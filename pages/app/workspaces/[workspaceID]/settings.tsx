@@ -34,7 +34,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
 
   const nameIsValid = name ? name.length >= 2 && name.length <= 100 : null;
   const descriptionIsValid = description.length <= 280;
-  const formIsValid = nameIsValid === true && descriptionIsValid === true;
+  const formIsValid = nameIsValid === true && descriptionIsValid;
 
   const { errors } = useFormValidation<WorkspaceFormErrors>(
     {
@@ -151,7 +151,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
               </div>
             </div>
 
-            <div className="tab-content lg:col-start-5 lg:col-end-12">
+            <div className="tab-content lg:col-start-5 lg:col-end-13">
               {activeTab === 'general' && (
                 <form autoComplete="off" onSubmit={handleUpdateWorkspace}>
                   <h3 className="text-2xl text-center font-medium mb-10 md:text-4xl lg:text-left">

@@ -14,36 +14,27 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
   const { workspaceID } = router.query;
 
   const folders: FolderType[] = [
-    // {
-    //   id: '1',
-    //   name: 'Mobile Apps',
-    //   colour: '#5C68FF',
-    //   category: {
-    //     id: '1',
-    //     name: 'Development',
-    //   },
-    //   tasks: { completed: 3, total: 8 },
-    // },
-    // {
-    //   id: '2',
-    //   name: '3D Animations',
-    //   colour: '#14CC8A',
-    //   category: {
-    //     id: '2',
-    //     name: 'Modelling, Colouring',
-    //   },
-    //   tasks: { completed: 9, total: 12 },
-    // },
-    // {
-    //   id: '3',
-    //   name: 'Blog Articles',
-    //   colour: '#e11d48',
-    //   category: {
-    //     id: '3',
-    //     name: 'Content Creation',
-    //   },
-    //   tasks: { completed: 3, total: 18 },
-    // },
+    {
+      id: '1',
+      name: 'Mobile Apps',
+      colour: '#5C68FF',
+      category: 'Development',
+      tasks: { completed: 3, total: 8 },
+    },
+    {
+      id: '2',
+      name: '3D Animations',
+      colour: '#14CC8A',
+      category: 'Modelling, Colouring',
+      tasks: { completed: 9, total: 12 },
+    },
+    {
+      id: '3',
+      name: 'Blog Articles',
+      colour: '#e11d48',
+      category: 'Content Creation',
+      tasks: { completed: 3, total: 18 },
+    },
   ];
 
   function onEditFolder(folder: FolderType) {

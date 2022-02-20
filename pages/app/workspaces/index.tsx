@@ -3,39 +3,39 @@ import Link from 'next/link';
 import React from 'react';
 import Image from 'next/image';
 
-import { WorkspaceCardInfo, PageWithLayout } from '~/assets/ts/types';
+import { PageWithLayout, WorkspaceCardInfo } from '~/assets/ts/types';
 import Workspace from '~/components/workspace/Workspace';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 
 const WorkspacesHomePage: PageWithLayout = () => {
   const workspaces: WorkspaceCardInfo[] = [
-    // {
-    //   id: '1',
-    //   name: 'React Projects',
-    //   description:
-    //     'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos quasi dicta, id iure pariatur, eveniet reprehenderit cupiditate voluptas ipsa aperiam nostrum voluptate reiciendis! Nisi incidunt consequuntur quae, minus cumque molestias!',
-    //   foldersCount: 5,
-    //   membersCount: 13,
-    //   tasksCount: 36,
-    // },
-    // {
-    //   id: '2',
-    //   name: 'Vue Front-ends',
-    //   description:
-    //     'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos quasi dicta, id iure pariatur, eveniet reprehenderit cupiditate voluptas ipsa aperiam nostrum voluptate reiciendis! Nisi incidunt consequuntur quae, minus cumque molestias!',
-    //   foldersCount: 2,
-    //   membersCount: 3,
-    //   tasksCount: 11,
-    // },
-    // {
-    //   id: '3',
-    //   name: 'Firebase Integration',
-    //   description:
-    //     'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos quasi dicta, id iure pariatur, eveniet reprehenderit cupiditate voluptas ipsa aperiam nostrum voluptate reiciendis! Nisi incidunt consequuntur quae, minus cumque molestias!',
-    //   foldersCount: 12,
-    //   membersCount: 34,
-    //   tasksCount: 101,
-    // },
+    {
+      id: '1',
+      name: 'React Projects',
+      description:
+        'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos quasi dicta, id iure pariatur, eveniet reprehenderit cupiditate voluptas ipsa aperiam nostrum voluptate reiciendis! Nisi incidunt consequuntur quae, minus cumque molestias!',
+      foldersCount: 5,
+      membersCount: 13,
+      tasksCount: 36,
+    },
+    {
+      id: '2',
+      name: 'Vue Front-ends',
+      description:
+        'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos quasi dicta, id iure pariatur, eveniet reprehenderit cupiditate voluptas ipsa aperiam nostrum voluptate reiciendis! Nisi incidunt consequuntur quae, minus cumque molestias!',
+      foldersCount: 2,
+      membersCount: 3,
+      tasksCount: 11,
+    },
+    {
+      id: '3',
+      name: 'Firebase Integration',
+      description:
+        'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eos quasi dicta, id iure pariatur, eveniet reprehenderit cupiditate voluptas ipsa aperiam nostrum voluptate reiciendis! Nisi incidunt consequuntur quae, minus cumque molestias!',
+      foldersCount: 12,
+      membersCount: 34,
+      tasksCount: 101,
+    },
   ];
 
   return (
