@@ -104,7 +104,7 @@ const AppLayout: React.FC = ({ children }) => {
       <nav className="fixed w-full right-0 top-0 left-0 z-30">
         <Container className="flex justify-between items-center">
           <div
-            className="mobile-menu-wrapper relative"
+            className="mobile-menu-wrapper block lg:hidden relative"
             id="mobile-menu-wrapper"
           >
             <button
