@@ -26,7 +26,7 @@ const TasksPage: PageWithLayout = () => {
       id: '1',
       name: 'Build Navbar',
       description:
-        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
+        "The current navigation bar we have still isn't responsive. Let's fix that.",
       checkLists: [
         {
           id: '1',
@@ -63,7 +63,7 @@ const TasksPage: PageWithLayout = () => {
       id: '2',
       name: 'Improve Signup UX',
       description:
-        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
+        'Our event monitoring records indicate that users spend averagely 3 minutes during sign up. Can we reduce the number of fields they have to fill before creating an account?',
       checkLists: [],
       dueDate: moment().add(10, 'hours'),
       members: [
@@ -93,8 +93,7 @@ const TasksPage: PageWithLayout = () => {
     {
       id: '3',
       name: 'Redesign FAQs page',
-      description:
-        'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus!',
+      description: "The FAQs page looks too archaic. It's time to update it!",
       checkLists: [],
       dueDate: moment().add(45, 'minutes'),
       members: [
@@ -216,7 +215,9 @@ const TasksPage: PageWithLayout = () => {
             {tasks.length ? (
               <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {tasks.map((task) => (
-                  <Task key={task.id} task={task} />
+                  <div key={task.id}>
+                    <Task task={task} />
+                  </div>
                 ))}
               </div>
             ) : (

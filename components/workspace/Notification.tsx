@@ -36,14 +36,14 @@ const NotificationCard: React.FC<Props> = ({ notification }) => {
           </div>
         </div>
 
-        <div className="notification-body">
-          <p className="text-base md:text-lg font-medium border-b pb-2 mb-1">
+        <div className="notification-body grow flex flex-col">
+          <p className="text-base md:text-lg font-medium border-b pb-2 mb-1 w-full">
             {message}
           </p>
 
-          <span className="text-sm md:text-base text-gray-400">
+          <div className="text-sm md:text-base text-gray-400 w-full">
             {moment(createdAt).fromNow()}
-          </span>
+          </div>
         </div>
       </a>
     </Link>

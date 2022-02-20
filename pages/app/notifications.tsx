@@ -16,7 +16,8 @@ const NotificationsPage: PageWithLayout = () => {
   const notifications: Notification[] = [
     {
       id: '1',
-      message: 'Congrats 🎉🥳! De Graft Arthur made you an admin.',
+      message:
+        'Congrats 🎉🥳! De Graft Arthur made you an admin of React Projects.',
       initiator: {
         avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
       },

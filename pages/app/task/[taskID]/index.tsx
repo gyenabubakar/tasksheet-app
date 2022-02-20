@@ -16,12 +16,14 @@ import iconWorkspace from '~/assets/icons/task/workspace.svg';
 import iconFolder from '~/assets/icons/task/folder.svg';
 import iconCalendar from '~/assets/icons/task/calendar.svg';
 import iconFlag from '~/assets/icons/task/flag.svg';
+import iconProgress from '~/assets/icons/task/progress.svg';
 import ReactTooltip from 'react-tooltip';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import dynamic from 'next/dynamic';
 import moment from 'moment';
 import Link from 'next/link';
 import calculateTimeLeft from '~/assets/ts/calculateTimeLeft';
+import hexToRGB from '~/assets/ts/hexToRGB';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -57,6 +59,7 @@ export interface TaskInfo {
   folder: {
     id: string;
     name: string;
+    colour: string;
   };
   assignees: Assignee[];
   checklist: ChecklistItem[];
@@ -98,6 +101,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
     folder: {
       id: '2',
       name: 'React Projects',
+      colour: '#14CC8A',
     },
     assignees: [
       {
@@ -196,7 +200,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
                 <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
                   <Link href={`/app/workspaces/${workspace.id}`}>
-                    <a className="text-main">{workspace.name}</a>
+                    <a style={{ color: folder.colour }}>{workspace.name}</a>
                   </Link>
                 </div>
               </div>
@@ -216,7 +220,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
                 <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
                   <Link href={`/app/folder/${folder.id}`}>
-                    <a className="text-main">{folder.name}</a>
+                    <a style={{ color: folder.colour }}>{folder.name}</a>
                   </Link>
                 </div>
               </div>
@@ -332,8 +336,8 @@ const TaskDescriptionPage: PageWithLayout = () => {
               </div>
             </div>
 
-            <div className="folder-wrapper relative">
-              <div className="folder grid grid-cols-7 lg:grid-cols-5 mb-5">
+            <div className="priority-wrapper relative">
+              <div className="priority grid grid-cols-7 lg:grid-cols-5 mb-5">
                 <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
                   <div className="icon flex items-center relative h-5 w-5 lg:h-7 lg:w-7">
                     <Image src={iconFlag} layout="fill" priority />
@@ -348,6 +352,53 @@ const TaskDescriptionPage: PageWithLayout = () => {
                   <span style={{ color: TaskPriorityColour[priority] }}>
                     {priority}
                   </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="progress-wrapper relative">
+              <div className="progress grid grid-cols-7 lg:grid-cols-5 mb-5">
+                <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
+                  <div className="icon flex items-center relative h-5 w-5 lg:h-7 lg:w-7">
+                    <Image src={iconProgress} layout="fill" priority />
+                  </div>
+
+                  <span className="text-darkgray md:text-xl font-medium ml-3">
+                    Progress
+                  </span>
+                </div>
+
+                <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
+                  <div className="flex items-center">
+                    <div className="progress-bar w-[200px] relative max-w-[200px]">
+                      <div
+                        className="point absolute w-4 h-4 rounded-full -top-1"
+                        style={{
+                          backgroundColor: folder.colour,
+                          left: `${80}%`,
+                        }}
+                      />
+
+                      <div
+                        className="bar-inner absolute h-full rounded-l-full"
+                        style={{
+                          width: `${80 + 0.3}%`,
+                          backgroundColor: folder.colour,
+                        }}
+                      />
+
+                      <div
+                        className="bar w-full h-2 rounded-full overflow-hidden relative opacity-25"
+                        style={{
+                          backgroundColor: `rgba(${hexToRGB(
+                            folder.colour,
+                          )!.rgb()}, 0.8)`,
+                        }}
+                      />
+                    </div>
+
+                    <span className="text-gray-600 ml-3">80%</span>
+                  </div>
                 </div>
               </div>
             </div>

@@ -33,7 +33,7 @@ const Task: React.FC<TaskProps> = ({ task }) => {
 
   return (
     <Link href={`/app/task/${id}`}>
-      <a className="task-card bg-white shadow-lg shadow-faintmain px-0 py-5 rounded-small hover:shadow-2xl">
+      <a className="task-card w-full block bg-white shadow-lg shadow-faintmain px-0 py-5 rounded-small hover:shadow-2xl">
         <div className="heading px-5 text-sm flex items-center justify-between">
           <div className="priority flex items-center">
             <svg

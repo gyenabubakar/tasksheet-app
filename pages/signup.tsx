@@ -101,7 +101,7 @@ const SignupPage: PageWithLayout = () => {
               <h1 className="text-[36px] font-bold text-center">Sign Up</h1>
               <p className="text-darkgray text-center mt-5">
                 Create an account and start managing your tasks
-                <br className="hidden md:block" /> the right way.
+                <br className="hidden md:block" /> the easy way.
               </p>
             </div>
 
