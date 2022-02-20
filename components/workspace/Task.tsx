@@ -29,6 +29,8 @@ const Task: React.FC<TaskProps> = ({ task }) => {
 
   useEffect(() => {
     setIsMounted(true);
+
+    console.log(name, members.length - 3);
   }, []);
 
   return (
@@ -118,8 +120,7 @@ const Task: React.FC<TaskProps> = ({ task }) => {
               <div key={member.id} className="flex items-center">
                 <div
                   data-tip
-                  data-for={`assignee-${member.id}`}
-                  key={member.id}
+                  data-for={`assignee-${member.id}-${id}`}
                   className="h-8 w-8 rounded-full ring-2 ring-white inline-block overflow-hidden relative"
                 >
                   <Image src={member.avatar} alt={member.name} layout="fill" />
@@ -133,7 +134,7 @@ const Task: React.FC<TaskProps> = ({ task }) => {
 
                 {isMounted && (
                   <ReactTooltip
-                    id={`assignee-${member.id}`}
+                    id={`assignee-${member.id}-${id}`}
                     place="top"
                     type="dark"
                     effect="solid"

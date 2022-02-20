@@ -19,7 +19,7 @@ const FolderDetailsPage: PageWithLayout = () => {
       <Navigation />
 
       <main>
-        <h1>Folder - {router.query.folderID}</h1>
+        <h1 className="text-4xl font-bold">React Projects</h1>
       </main>
     </>
   );
