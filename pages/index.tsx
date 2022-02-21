@@ -5,6 +5,9 @@ import Link from 'next/link';
 
 import Container from '~/components/common/Container';
 import logo from '~/assets/images/logo.svg';
+import iconOpenSource from '~/assets/icons/open-source.svg';
+import iconFree from '~/assets/icons/free.svg';
+import iconEasy from '~/assets/icons/easy.svg';
 
 const Home: NextPage = () => (
   <>
@@ -58,7 +61,7 @@ const Home: NextPage = () => (
                 <span className="text-main">software developers</span>.
               </h1>
 
-              <p className="text-white text-darkgray my-5 text-xl font-medium">
+              <p className="text-darkgray my-5 text-xl font-medium">
                 Manage everything from personal projects to freelance projects
                 with a simple, intuitive interface that gives you only the
                 features needed to get the job done.
@@ -84,6 +87,45 @@ const Home: NextPage = () => (
           </Container>
         </div>
       </header>
+
+      <section className="why-us py-16">
+        <Container>
+          <h2 className="text-base uppercase font-bold text-center text-darkgray">
+            Why TaskSheet?
+          </h2>
+
+          <div className="reasons mt-10 w-10/12 mx-auto grid grid-cols-3 gap-8">
+            <div className="reason text-center flex flex-col items-center">
+              <Image src={iconEasy} width="100px" height="100px" />
+              <p className="text-2xl font-bold my-5">Easy to use</p>
+              <span className="text-darkgray text-lg">
+                TaskSheet offers only the features you need to collaborate and
+                execute tasks with the simplest of UIs you&apos;d see in a
+                project management software.
+              </span>
+            </div>
+
+            <div className="reason text-center flex flex-col items-center">
+              <Image src={iconOpenSource} width="100px" height="100px" />
+              <p className="text-2xl font-bold my-5">It&apos;s open-sourced</p>
+              <span className="text-darkgray text-lg">
+                TaskSheet&apos;s source code is public to everyone. You&apos;re
+                free to contribute or use the code anyhow you deem fit.
+              </span>
+            </div>
+
+            <div className="reason text-center flex flex-col items-center">
+              <Image src={iconFree} width="100px" height="100px" />
+              <p className="text-2xl font-bold my-5">It&apos;s free, forever</p>
+              <span className="text-darkgray text-lg">
+                You can clone the code and host it yourself, but you don&apos;t
+                have to. With your support, TaskSheet can be hosted and be
+                completely free to use.
+              </span>
+            </div>
+          </div>
+        </Container>
+      </section>
     </main>
   </>
 );
