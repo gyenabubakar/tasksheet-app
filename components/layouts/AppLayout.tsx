@@ -13,7 +13,7 @@ import iconUser from '~/assets/icons/nav/user.svg';
 import iconLogout from '~/assets/icons/nav/logout.svg';
 import iconPeople from '~/assets/icons/nav/people.svg';
 import iconPeopleColoured from '~/assets/icons/nav/people-coloured.svg';
-import LogoutLoadingOverlay from '~/components/misc/LogoutLoadingOverlay';
+import LoadingOverlay from '~/components/misc/LoadingOverlay';
 
 const floatingButtonBlockedPaths = [
   '/app/new-task',
@@ -321,7 +321,7 @@ const AppLayout: React.FC = ({ children }) => {
         </div>
       )}
 
-      {logout && <LogoutLoadingOverlay />}
+      {logout && <LoadingOverlay loadingText="Logging out..." />}
     </div>
   );
 };

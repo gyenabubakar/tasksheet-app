@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-function LogoutLoadingOverlay() {
+interface Props {
+  loadingText: string;
+}
+
+function LoadingOverlay({ loadingText }: Props) {
   const router = useRouter();
 
   useEffect(() => {
@@ -32,10 +36,10 @@ function LogoutLoadingOverlay() {
       </svg>
 
       <h1 className="text-3xl font-bold text-center text-gray-600 mt-10">
-        Logging out...
+        {loadingText}
       </h1>
     </div>
   );
 }
 
-export default LogoutLoadingOverlay;
+export default LoadingOverlay;

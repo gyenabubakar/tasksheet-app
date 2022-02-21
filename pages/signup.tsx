@@ -9,7 +9,6 @@ import iconUser from '~/assets/icons/user.svg';
 import iconEmail from '~/assets/icons/email.svg';
 import iconLock from '~/assets/icons/lock.svg';
 import Checkbox from '~/components/common/Checkbox';
-import { SignupInfo } from '~/_serverless/lib/types';
 import { PageWithLayout } from '~/assets/ts/types';
 import Container from '~/components/common/Container';
 import useFormValidation, {
@@ -18,6 +17,11 @@ import useFormValidation, {
 import Button from '~/components/common/Button';
 import FormValidation from '~/assets/ts/form-validation';
 
+interface SignupInfo {
+  name: string;
+  email: string;
+  password: string;
+}
 interface FormErrors extends FormValidationErrors {
   name: string | null;
   email: string | null;
