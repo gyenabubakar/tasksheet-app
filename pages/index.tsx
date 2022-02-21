@@ -23,8 +23,8 @@ const Home: NextPage = () => (
 
     <main className="landing-page">
       <header className="bg-white pb-24 pt-10">
-        <nav>
-          <Container className="flex items-center justify-between">
+        <nav className="sticky top-0 left-0 right-0 bg-white z-10">
+          <Container className="flex items-center justify-between py-5">
             <Link href="/">
               <a className="flex logo-wrapper items-center justify-center">
                 <div className="logo w-[40px] h-[37px] relative">
