@@ -2,6 +2,14 @@ import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
 import validator from 'validator';
+import {
+  getAuth,
+  updateProfile,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signOut,
+  AuthErrorCodes,
+} from 'firebase/auth';
 
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Input from '~/components/common/Input';
@@ -16,12 +24,10 @@ import useFormValidation, {
 } from '~/hooks/useFormValidation';
 import Button from '~/components/common/Button';
 import FormValidation from '~/assets/ts/form-validation';
+import { useRouter } from 'next/router';
+import swal from '~/assets/ts/sweetalert';
+import { spans } from 'next/dist/build/webpack/plugins/profiling-plugin';
 
-interface SignupInfo {
-  name: string;
-  email: string;
-  password: string;
-}
 interface FormErrors extends FormValidationErrors {
   name: string | null;
   email: string | null;
@@ -29,10 +35,13 @@ interface FormErrors extends FormValidationErrors {
 }
 
 const SignupPage: PageWithLayout = () => {
+  const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agreedToPolicy, setAgreedToPolicy] = useState(true);
+
+  const [generalError, setGeneralError] = useState<string | null>(null);
 
   const [passwordIsMasked, setPasswordIsMasked] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -48,8 +57,7 @@ const SignupPage: PageWithLayout = () => {
         minSymbols: 1,
         minUppercase: 1,
       });
-  const formIsValid =
-    !!nameIsValid && !!emailIsValid && !!passwordIsValid && agreedToPolicy;
+  const formIsValid = !!nameIsValid && !!emailIsValid && !!passwordIsValid;
 
   const { errors } = useFormValidation<FormErrors>(
     {
@@ -65,22 +73,43 @@ const SignupPage: PageWithLayout = () => {
     ],
   );
 
-  function handleSignup(e: FormEvent<HTMLFormElement>) {
+  async function handleSignup(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (formIsValid && !submitting) {
-      const form: SignupInfo = {
-        name,
-        email,
-        password,
-      };
+      const auth = getAuth();
+      setGeneralError(null);
 
-      setSubmitting(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
-      }, 3000);
+      try {
+        setSubmitting(true);
+        const userCred = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+        await updateProfile(userCred.user, { displayName: name.trim() });
+        await sendEmailVerification(userCred.user, {
+          url: `http://${window.location.host}/login`,
+        });
+        await signOut(auth);
+        await router.push('/login').then(() => {
+          swal({
+            icon: 'success',
+            title: 'Account created successfully!',
+            html: `<span>
+                We sent a verification email to <span class="text-main font-medium">${email}</span>. <br /><br />
+                Click on the link in your inbox to verify your account.
+              </span>`,
+          });
+        });
+      } catch (error: any) {
+        if (error) {
+          if (error.message.includes(AuthErrorCodes.EMAIL_EXISTS)) {
+            setGeneralError('An account with this email already exists.');
+          }
+          setSubmitting(false);
+        }
+      }
     }
   }
 
@@ -194,7 +223,7 @@ const SignupPage: PageWithLayout = () => {
                 }}
               />
 
-              <div className="privacy-policy max-w-[95%] md:w-[450px] mx-auto">
+              <div className="privacy-policy hidden max-w-[95%] md:w-[450px] mx-auto">
                 <div className="flex">
                   <Checkbox
                     isChecked={agreedToPolicy}
@@ -220,6 +249,14 @@ const SignupPage: PageWithLayout = () => {
                       'You must read and accept our privacy policy.'}
                   </span>
                 </div>
+              </div>
+
+              <div className="text-center">
+                {generalError && (
+                  <span className="text-base font-medium text-red-500">
+                    {generalError}
+                  </span>
+                )}
               </div>
 
               <div className="flex justify-center mt-10">

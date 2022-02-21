@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { AppProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
 import 'react-datepicker/dist/react-datepicker.css';
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 import '~/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,10 +11,29 @@ import { PageWithLayout } from '~/assets/ts/types';
 import Head from 'next/head';
 import useLayout from '~/hooks/useLayout';
 import { ToastContainer } from 'react-toastify';
+import firebaseConfig from '~/assets/ts/firebaseConfig';
+import Cookies from 'js-cookie';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const PageComponent = Component as PageWithLayout;
   const Layout = useLayout(PageComponent.layout);
+
+  useEffect(() => {
+    const firebaseApp = initializeApp(firebaseConfig);
+
+    const auth = getAuth(firebaseApp);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        Cookies.set('accessToken', (user as any).accessToken);
+      } else {
+        Cookies.remove('accessToken');
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <>
