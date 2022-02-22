@@ -95,8 +95,9 @@ const NewWorkspacePage: PageWithLayout = () => {
             });
           });
         })
-        .catch((error) => {
+        .catch(() => {
           // const err = error as FirestoreError
+          setSubmitting(false);
           swal({
             icon: 'error',
             title: "Couldn't create workspace.",

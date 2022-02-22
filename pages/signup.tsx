@@ -10,6 +10,7 @@ import {
   signOut,
   AuthErrorCodes,
 } from 'firebase/auth';
+import { getFirestore, collection, setDoc, doc } from 'firebase/firestore';
 
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Input from '~/components/common/Input';
@@ -26,7 +27,6 @@ import Button from '~/components/common/Button';
 import FormValidation from '~/assets/ts/form-validation';
 import { useRouter } from 'next/router';
 import swal from '~/assets/ts/sweetalert';
-import { spans } from 'next/dist/build/webpack/plugins/profiling-plugin';
 
 interface FormErrors extends FormValidationErrors {
   name: string | null;
@@ -88,6 +88,16 @@ const SignupPage: PageWithLayout = () => {
           password,
         );
         await updateProfile(userCred.user, { displayName: name.trim() });
+
+        const db = getFirestore();
+        const { uid, email: currentUserEmail, photoURL } = userCred.user;
+        await setDoc(doc(db, 'users', userCred.user.uid), {
+          displayName: name.trim(),
+          uid,
+          email: currentUserEmail,
+          photoURL,
+        });
+
         await sendEmailVerification(userCred.user, {
           url: `http://${window.location.host}/login`,
         });
@@ -97,7 +107,7 @@ const SignupPage: PageWithLayout = () => {
             icon: 'success',
             title: 'Account created successfully!',
             html: `<span>
-                We sent a verification email to <span class="text-main font-medium">${email}</span>. <br /><br />
+                We sent a verification email to <span class="text-main font-medium">${email}</span>.<br /><br />
                 Click on the link in your inbox to verify your account.
               </span>`,
           });
