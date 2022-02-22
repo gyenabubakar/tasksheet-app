@@ -11,7 +11,7 @@ import useFormValidation, {
 import Input from '~/components/common/Input';
 import Button from '~/components/common/Button';
 import iconWhiteArrowRight from '~/assets/icons/workspace/arrow-right-white.svg';
-import { WorkspaceInfo } from '~/_serverless/lib/types';
+// import { WorkspaceInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
 
 interface NewWorkspaceFormErrors extends FormValidationErrors {
@@ -45,9 +45,9 @@ const NewWorkspacePage: PageWithLayout = () => {
     ],
   );
 
-  function handleNextStage(e: FormEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
+  function handleNextStage(e?: FormEvent<HTMLButtonElement>) {
+    e?.preventDefault();
+    e?.stopPropagation();
 
     if (nameIsValid) {
       setStage('description');
@@ -58,7 +58,7 @@ const NewWorkspacePage: PageWithLayout = () => {
     e.preventDefault();
 
     if (formIsValid) {
-      const form: WorkspaceInfo = {
+      const form = {
         name,
         description,
       };
@@ -140,6 +140,11 @@ const NewWorkspacePage: PageWithLayout = () => {
                   placeholder="e.g. React Projects"
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     setName(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && nameIsValid) {
+                      handleNextStage();
+                    }
                   }}
                 />
 
