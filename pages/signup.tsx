@@ -106,6 +106,12 @@ const SignupPage: PageWithLayout = () => {
         if (error) {
           if (error.message.includes(AuthErrorCodes.EMAIL_EXISTS)) {
             setGeneralError('An account with this email already exists.');
+          } else if (
+            error.message.includes(AuthErrorCodes.NETWORK_REQUEST_FAILED)
+          ) {
+            setGeneralError(
+              "Couldn't make request. Check your connection and try again.",
+            );
           }
           setSubmitting(false);
         }
