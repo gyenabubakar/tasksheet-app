@@ -145,7 +145,6 @@ const LoginPage: PageWithLayout = () => {
         <Container>
           <form
             onSubmit={handleLogin}
-            autoComplete="off"
             className="signup-form width-max-content mx-auto bg-white pt-10 pb-16 md:p-16 mb-20 rounded-large"
           >
             <div className="form-head mb-10">
