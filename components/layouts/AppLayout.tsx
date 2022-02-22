@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { getAuth, signOut } from 'firebase/auth';
 
 import logo from '~/assets/images/logo.svg';
 import iconPlus from '~/assets/icons/nav/plus-white.svg';
@@ -38,6 +39,12 @@ const AppLayout: React.FC = ({ children }) => {
 
   const pathIsBlocked = floatingButtonBlockedPaths.includes(router.pathname);
   const isTaskDetailsPage = router.pathname === '/app/task/[taskID]';
+
+  async function handleLogout() {
+    const auth = getAuth();
+    await signOut(auth);
+    await router.push('/login');
+  }
 
   async function handleFloatingButtonClick() {
     if (!pathIsBlocked) {
@@ -321,7 +328,12 @@ const AppLayout: React.FC = ({ children }) => {
         </div>
       )}
 
-      {logout && <LoadingOverlay loadingText="Logging out..." />}
+      {logout && (
+        <LoadingOverlay
+          loadingText="Logging out..."
+          performTask={async () => handleLogout()}
+        />
+      )}
     </div>
   );
 };

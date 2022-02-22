@@ -1,17 +1,13 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 
 interface Props {
   loadingText: string;
+  performTask?: () => Promise<any>;
 }
 
-function LoadingOverlay({ loadingText }: Props) {
-  const router = useRouter();
-
+function LoadingOverlay({ loadingText, performTask }: Props) {
   useEffect(() => {
-    setTimeout(async () => {
-      await router.push('/');
-    }, 3000);
+    performTask?.();
   }, []);
 
   return (
