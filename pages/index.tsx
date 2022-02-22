@@ -88,7 +88,7 @@ const Home: NextPage = () => (
         </div>
       </header>
 
-      <section className="why-us py-16">
+      <section className="why-us py-20">
         <Container>
           <h2 className="text-base uppercase font-bold text-center text-darkgray">
             Why TaskSheet?
@@ -124,6 +124,23 @@ const Home: NextPage = () => (
               </span>
             </div>
           </div>
+        </Container>
+      </section>
+
+      <section className="workspaces bg-white py-20">
+        <Container className="grid grid-cols-2 gap-10">
+          <div className="description">
+            <h2 className="text-3xl font-bold">
+              Create and manage workspaces.
+            </h2>
+
+            <p className="text-xl font-medium text-darkgray">
+              Workspaces are the parent containers for related projects. You can
+              create a new workspace in 4 easy steps. The last one is even
+              optional.
+            </p>
+          </div>
+          <div className="image" />
         </Container>
       </section>
     </main>
