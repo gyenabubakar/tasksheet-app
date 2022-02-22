@@ -14,6 +14,7 @@ import cookies from '~/assets/ts/cookies';
 import LoadingOverlay from '~/components/misc/LoadingOverlay';
 import UserContextProvider from '~/context/UserContextProvider';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
+import SplashScreen from '~/components/misc/SplashScreen';
 
 interface WithUserCtxProps {
   user: User | null;
@@ -42,7 +43,7 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
         </UserContextProvider>
       );
     }
-    return <LoadingOverlay loadingText="Loading TaskSheet" />;
+    return <SplashScreen loadingText="TaskSheet" />;
   }
 
   return commonChildren;

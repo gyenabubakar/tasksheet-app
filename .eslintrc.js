@@ -27,6 +27,7 @@ module.exports = {
     '@next/next/no-css-tags': 0,
     'react/prop-types': 0,
     'prefer-promise-reject-errors': 0,
+    '@typescript-eslint/no-unused-vars': "warn",
     'react/jsx-filename-extension': [
       2,
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
@@ -38,7 +39,6 @@ module.exports = {
     'react/react-in-jsx-scope': 0,
     'react/function-component-definition': 0,
     'jsx-a11y/anchor-is-valid': 0,
-    '@typescript-eslint/no-unused-vars': 'error',
     'no-unused-vars': 0,
     'jsx-a11y/no-noninteractive-element-interactions': 0,
     'jsx-a11y/click-events-have-key-events': 0,

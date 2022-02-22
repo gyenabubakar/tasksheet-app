@@ -23,6 +23,8 @@ export interface WorkspacesModel {
 export interface Workspace extends WorkspacesModel {
   // this should be evaluated and added when fetching. Don't store this in the DB
   hasNewJoinRequests: boolean;
+  isAdmin: boolean;
+  isOwner: boolean;
 }
 
 export enum NotificationType {

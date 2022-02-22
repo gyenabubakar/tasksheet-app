@@ -9,10 +9,13 @@ import useFormValidation, {
   FormValidationErrors,
 } from '~/hooks/useFormValidation';
 import Button from '~/components/common/Button';
-import { WorkspaceInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
 import Switch from '~/components/common/Switch';
 import swal from '~/assets/ts/sweetalert';
+import useWorkspace from '~/hooks/useWorkspace';
+import Image from 'next/image';
+import illustrationNotFound from '~/assets/illustrations/not-found.svg';
+import Loading from '~/components/common/Loading';
 
 interface WorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -22,12 +25,18 @@ interface WorkspaceFormErrors extends FormValidationErrors {
 type TabType = 'general' | 'join-requests' | 'deactivate';
 
 const WorkspaceSettingsPage: PageWithLayout = () => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const { error, workspace } = useWorkspace();
+
+  const [name, setName] = useState(() => (workspace ? workspace.name : ''));
+  const [description, setDescription] = useState(() =>
+    workspace ? workspace.description : '',
+  );
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('general');
 
-  const [pauseJoinRequests, setPauseJoinRequests] = useState(false);
+  const [pauseJoinRequests, setPauseJoinRequests] = useState(() =>
+    workspace ? workspace.settings.joinRequests.pauseRequests : false,
+  );
   const [togglingPauseRequests, setTogglingPauseRequests] = useState(false);
 
   const router = useRouter();
@@ -35,7 +44,10 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
 
   const nameIsValid = name ? name.length >= 2 && name.length <= 100 : null;
   const descriptionIsValid = description.length <= 280;
-  const formIsValid = nameIsValid === true && descriptionIsValid;
+  const formIsValid =
+    nameIsValid === true &&
+    descriptionIsValid &&
+    (name !== workspace?.name || description !== workspace.description);
 
   const { errors } = useFormValidation<WorkspaceFormErrors>(
     {
@@ -94,7 +106,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
     e.preventDefault();
 
     if (formIsValid) {
-      const form: WorkspaceInfo = {
+      const form = {
         name,
         description,
       };
@@ -228,140 +240,174 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
         <div className="content">
           <h1 className="text-[48px] font-bold">Settings</h1>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-12">
-            <div className="settings-tabs flex lg:block lg:col-start-1 lg:col-end-5">
-              <div
-                className={`settings-tab py-3 cursor-pointer ${
-                  activeTab === 'general' ? 'active' : ''
-                }`}
-                onClick={() => switchTabs('general')}
-              >
-                General
+          {!workspace && !error && (
+            <Loading loadingText="Loading workspace..." className="mt-12" />
+          )}
+
+          {error && !workspace && (
+            <div className="error mt-24">
+              <div className="w-10/12 h-32 relative mx-auto">
+                <Image src={illustrationNotFound} layout="fill" />
               </div>
-              <div
-                className={`settings-tab py-3 cursor-pointer ${
-                  activeTab === 'join-requests' ? 'active' : ''
-                }`}
-                onClick={() => switchTabs('join-requests')}
-              >
-                Join requests
-              </div>
-              <div
-                className={`settings-tab py-3 cursor-pointer ${
-                  activeTab === 'deactivate' ? 'active' : ''
-                }`}
-                onClick={() => switchTabs('deactivate')}
-              >
-                Deactivate
+
+              <div className="description mt-12">
+                {error.title && (
+                  <h1 className="text-xl md:text-2xl font-medium text-darkgray text-center">
+                    {error.title}
+                  </h1>
+                )}
+
+                {error.message && (
+                  <p className="text-gray-500 text-center mt-5 text-base md:text-lg">
+                    {error.message}
+                  </p>
+                )}
+
+                <div className="text-center mt-12">
+                  <button className="px-10 py-3 rounded-lg bg-main text-white font-medium text-sm">
+                    Go back
+                  </button>
+                </div>
               </div>
             </div>
+          )}
 
-            <div className="tab-content lg:col-start-5 lg:col-end-13">
-              {activeTab === 'general' && (
-                <form autoComplete="off" onSubmit={handleUpdateWorkspace}>
-                  <h3 className="text-2xl text-center font-medium mb-10 md:text-4xl lg:text-left">
-                    Update workspace info
-                  </h3>
+          {workspace && !error && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-12">
+              <div className="settings-tabs flex lg:block lg:col-start-1 lg:col-end-5">
+                <div
+                  className={`settings-tab py-3 cursor-pointer ${
+                    activeTab === 'general' ? 'active' : ''
+                  }`}
+                  onClick={() => switchTabs('general')}
+                >
+                  General
+                </div>
+                <div
+                  className={`settings-tab py-3 cursor-pointer ${
+                    activeTab === 'join-requests' ? 'active' : ''
+                  }`}
+                  onClick={() => switchTabs('join-requests')}
+                >
+                  Join requests
+                </div>
+                <div
+                  className={`settings-tab py-3 cursor-pointer ${
+                    activeTab === 'deactivate' ? 'active' : ''
+                  }`}
+                  onClick={() => switchTabs('deactivate')}
+                >
+                  Deactivate
+                </div>
+              </div>
 
-                  <Input
-                    id="folder-title"
-                    type="text"
-                    value={name}
-                    label="Workspace name"
-                    className="lg:text-lg lg:px-8 lg:py-5"
-                    wrapperClass="mb-1.5 mx-auto lg:mx-0 lg:w-[600px]"
-                    error={errors.name}
-                    placeholder="e.g. React Projects"
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                      setName(e.target.value);
-                    }}
-                  />
+              <div className="tab-content lg:col-start-5 lg:col-end-13">
+                {activeTab === 'general' && (
+                  <form autoComplete="off" onSubmit={handleUpdateWorkspace}>
+                    <h3 className="text-2xl text-center font-medium mb-10 md:text-4xl lg:text-left">
+                      Update workspace info
+                    </h3>
 
-                  <div className="input-wrapper max-w-[95%] mx-auto md:w-[450px] lg:mx-0 lg:w-[600px]">
-                    <label
-                      htmlFor="workspace-description"
-                      className="font-medium inline-block mb-1 text-fakeblack"
-                    >
-                      Description
-                    </label>
-
-                    <textarea
-                      id="workspace-description"
-                      className="px-5 py-3 border border-lightgray rounded-small outline-none w-full min-h-[200px]"
-                      maxLength={280}
-                      value={description}
-                      onChange={(e) => {
-                        setDescription(e.target.value);
+                    <Input
+                      id="folder-title"
+                      type="text"
+                      value={name}
+                      label="Workspace name"
+                      className="lg:text-lg lg:px-8 lg:py-5"
+                      wrapperClass="mb-1.5 mx-auto lg:mx-0 lg:w-[600px]"
+                      error={errors.name}
+                      placeholder="e.g. React Projects"
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                        setName(e.target.value);
                       }}
                     />
 
-                    <div className="flex justify-between items-center">
-                      {errors.description ? (
-                        <small className="text-red-600 font-medium">
-                          {errors.description}
+                    <div className="input-wrapper max-w-[95%] mx-auto md:w-[450px] lg:mx-0 lg:w-[600px]">
+                      <label
+                        htmlFor="workspace-description"
+                        className="font-medium inline-block mb-1 text-fakeblack"
+                      >
+                        Description
+                      </label>
+
+                      <textarea
+                        id="workspace-description"
+                        className="px-5 py-3 border border-lightgray rounded-small outline-none w-full min-h-[200px]"
+                        maxLength={280}
+                        value={description}
+                        onChange={(e) => {
+                          setDescription(e.target.value);
+                        }}
+                      />
+
+                      <div className="flex justify-between items-center">
+                        {errors.description ? (
+                          <small className="text-red-600 font-medium">
+                            {errors.description}
+                          </small>
+                        ) : (
+                          <br />
+                        )}
+
+                        <small
+                          className={
+                            description.length >= 280
+                              ? 'text-red-600'
+                              : 'text-darkgray'
+                          }
+                        >
+                          {description.length}/280
                         </small>
-                      ) : (
-                        <br />
-                      )}
+                      </div>
 
-                      <small
-                        className={
-                          description.length >= 280
-                            ? 'text-red-600'
-                            : 'text-darkgray'
-                        }
-                      >
-                        {description.length}/280
-                      </small>
+                      <div className="mt-16 flex justify-center items-center">
+                        <Button
+                          type="submit"
+                          disabled={!formIsValid || submitting}
+                          loading={submitting}
+                        >
+                          {submitting ? 'Saving...' : 'Save details'}
+                        </Button>
+                      </div>
                     </div>
+                  </form>
+                )}
 
-                    <div className="mt-16 flex justify-center items-center">
-                      <Button
-                        type="submit"
-                        disabled={!formIsValid || submitting}
-                        loading={submitting}
+                {activeTab === 'join-requests' && (
+                  <div className="join-requests border-b pb-5 flex justify-between items-center">
+                    <p className="text-lg">Pause receiving join requests.</p>
+
+                    <Switch
+                      value={pauseJoinRequests}
+                      onSwitch={() => togglePauseJoinRequests()}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'deactivate' && (
+                  <div className="deactivation border-b pb-5">
+                    <h3 className="text-xl md:text-3xl font-medium">
+                      Delete workspace
+                    </h3>
+
+                    <p className="text-lg mt-3 text-darkgray">
+                      This will remove all folders and tasks in the workspace.
+                      You cannot revert this action.
+                    </p>
+
+                    <div className="text-left mt-3">
+                      <button
+                        className="px-10 py-2 rounded-lg text-white font-medium bg-red-500 hover:bg-red-700"
+                        onClick={handleDeleteWorkspace}
                       >
-                        {submitting ? 'Saving...' : 'Save details'}
-                      </Button>
+                        Delete Workspace
+                      </button>
                     </div>
                   </div>
-                </form>
-              )}
-
-              {activeTab === 'join-requests' && (
-                <div className="join-requests border-b pb-5 flex justify-between items-center">
-                  <p className="text-lg">Pause receiving join requests.</p>
-
-                  <Switch
-                    value={pauseJoinRequests}
-                    onSwitch={() => togglePauseJoinRequests()}
-                  />
-                </div>
-              )}
-
-              {activeTab === 'deactivate' && (
-                <div className="deactivation border-b pb-5">
-                  <h3 className="text-xl md:text-3xl font-medium">
-                    Delete workspace
-                  </h3>
-
-                  <p className="text-lg mt-3 text-darkgray">
-                    This will remove all folders and tasks in the workspace. You
-                    cannot revert this action.
-                  </p>
-
-                  <div className="text-left mt-3">
-                    <button
-                      className="px-10 py-2 rounded-lg text-white font-medium bg-red-500 hover:bg-red-700"
-                      onClick={handleDeleteWorkspace}
-                    >
-                      Delete Workspace
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </>

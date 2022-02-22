@@ -1,11 +1,11 @@
 import { doc, FirestoreError, getDoc, getFirestore } from 'firebase/firestore';
 
-import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
+import { Workspace, WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
 
-export function getWorkspace(id: string) {
+export function getWorkspace(id: string, uid: string) {
   return () => {
-    return new Promise((resolve, reject) => {
+    return new Promise<Workspace>((resolve, reject) => {
       const app = getFirebaseApp();
       const db = getFirestore(app);
 
@@ -22,10 +22,14 @@ export function getWorkspace(id: string) {
             return;
           }
 
+          const data = docResponse.data() as WorkspacesModel;
           resolve({
             id: docResponse.id,
-            ...docResponse.data(),
-          } as WorkspacesModel);
+            ...data,
+            hasNewJoinRequests: false,
+            isAdmin: data.admins.includes(uid),
+            isOwner: data.createdBy === uid,
+          } as Workspace);
         })
         .catch((error) => {
           if (error) {

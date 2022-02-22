@@ -1,8 +1,6 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
-import Link from 'next/link';
-import useSWR from 'swr';
 
 import { FolderType, PageWithLayout } from '~/assets/ts/types';
 import WorkspaceDetailsHeader from '~/components/workspace/WorkspaceDetailsHeader';
@@ -10,20 +8,15 @@ import Folder from '~/components/workspace/Folder';
 import swal from '~/assets/ts/sweetalert';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
-import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
-import { getWorkspace } from '~/assets/fetchers/workspace';
+import { Workspace } from '~/assets/firebase/firebaseTypes';
 import Loading from '~/components/common/Loading';
 import illustrationNotFound from '~/assets/illustrations/not-found.svg';
+import useWorkspace from '~/hooks/useWorkspace';
+import pageTitleSuffix from '~/assets/pageTitleSuffix';
 
 const WorkspaceDetailsPage: PageWithLayout = () => {
   const router = useRouter();
-  const { workspaceID } = router.query;
-
-  const { error, data: workspace } = useSWR(
-    'get-workspace-details',
-    getWorkspace(workspaceID as string),
-  );
-  console.log(workspace, error);
+  const { error, workspace } = useWorkspace();
 
   const folders: FolderType[] = [
     {
@@ -87,14 +80,18 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
   return (
     <>
       <Head>
-        <title>Folders | {router.query.workspaceID} · TaskSheet</title>
+        <title>
+          {workspace && `${workspace.name} | `}
+          Folders
+          {pageTitleSuffix}
+        </title>
       </Head>
 
       {!workspace && !error && (
         <Loading loadingText="Loading workspace..." className="mt-12" />
       )}
 
-      {error && (
+      {error && !workspace && (
         <div className="error mt-24">
           <div className="w-10/12 h-32 relative mx-auto">
             <Image src={illustrationNotFound} layout="fill" />
@@ -122,9 +119,9 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
         </div>
       )}
 
-      {workspace && (
+      {workspace && !error && (
         <>
-          <WorkspaceDetailsHeader workspace={workspace as WorkspacesModel} />
+          <WorkspaceDetailsHeader workspace={workspace as Workspace} />
 
           <main className="page-workspace-folders mt-8">
             <p className="text-darkgray font-medium">
@@ -157,7 +154,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
                   <Button
                     paddingClasses="px-8 py-6"
                     onClick={() =>
-                      router.push(`/app/workspaces/${workspaceID}/new-folder`)
+                      router.push(`/app/workspaces/${workspace.id}/new-folder`)
                     }
                   >
                     Create New Folder

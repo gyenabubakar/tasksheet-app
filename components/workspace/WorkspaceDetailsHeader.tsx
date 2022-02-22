@@ -11,10 +11,10 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import swal from '~/assets/ts/sweetalert';
 import Navigation from '~/components/common/Navigation';
-import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
+import { Workspace } from '~/assets/firebase/firebaseTypes';
 
 interface Props {
-  workspace: WorkspacesModel;
+  workspace: Workspace;
 }
 
 const WorkspaceDetailsHeader: React.FC<Props> = ({ workspace }) => {
@@ -26,6 +26,7 @@ const WorkspaceDetailsHeader: React.FC<Props> = ({ workspace }) => {
 
   const isFoldersTab = pathname === '/app/workspaces/[workspaceID]';
   const isMembersTab = pathname === '/app/workspaces/[workspaceID]/members';
+
   // const isRequestsTab = pathname === '/app/workspaces/[workspaceID]/requests';
 
   async function handleShareLink() {
@@ -109,16 +110,18 @@ const WorkspaceDetailsHeader: React.FC<Props> = ({ workspace }) => {
           </div>
 
           <div className="workspace-actions-wrapper my-5">
-            <button
-              data-tip
-              data-for="add-folder"
-              onClick={() =>
-                router.push(`/app/workspaces/${workspace.id}/new-folder`)
-              }
-            >
-              <Image src={iconFolderAdd} priority />
-            </button>
-            {isMounted && (
+            {(workspace.isAdmin || workspace.isOwner) && (
+              <button
+                data-tip
+                data-for="add-folder"
+                onClick={() =>
+                  router.push(`/app/workspaces/${workspace.id}/new-folder`)
+                }
+              >
+                <Image src={iconFolderAdd} priority />
+              </button>
+            )}
+            {isMounted && (workspace.isAdmin || workspace.isOwner) && (
               <ReactTooltip
                 id="add-folder"
                 place="bottom"
@@ -129,16 +132,18 @@ const WorkspaceDetailsHeader: React.FC<Props> = ({ workspace }) => {
               </ReactTooltip>
             )}
 
-            <button
-              data-tip
-              data-for="add-member"
-              onClick={() =>
-                router.push(`/app/workspaces/${workspace.id}/invite`)
-              }
-            >
-              <Image src={iconAddUser} width="30px" height="28px" priority />
-            </button>
-            {isMounted && (
+            {(workspace.isAdmin || workspace.isOwner) && (
+              <button
+                data-tip
+                data-for="add-member"
+                onClick={() =>
+                  router.push(`/app/workspaces/${workspace.id}/invite`)
+                }
+              >
+                <Image src={iconAddUser} width="30px" height="28px" priority />
+              </button>
+            )}
+            {isMounted && (workspace.isAdmin || workspace.isOwner) && (
               <ReactTooltip
                 id="add-member"
                 place="bottom"
