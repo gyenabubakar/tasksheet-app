@@ -1,6 +1,12 @@
 import Head from 'next/head';
 import Image from 'next/image';
-import { getFirestore, addDoc, collection } from 'firebase/firestore';
+import {
+  getFirestore,
+  addDoc,
+  collection,
+  serverTimestamp,
+  FirestoreError,
+} from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
@@ -12,9 +18,9 @@ import useFormValidation, {
 import Input from '~/components/common/Input';
 import Button from '~/components/common/Button';
 import iconWhiteArrowRight from '~/assets/icons/workspace/arrow-right-white.svg';
-// import { WorkspaceInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
-import { WorkspaceCollectionModel } from '~/assets/firebase/firebaseTypes';
+import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
+import useUser from '~/hooks/useUser';
 
 interface NewWorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -28,7 +34,7 @@ const NewWorkspacePage: PageWithLayout = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const router = useRouter();
-  // const { workspaceID } = router.query;
+  const { user } = useUser();
 
   const nameIsValid = name ? name.length >= 2 && name.length <= 100 : null;
   const descriptionIsValid = description.length <= 280;
@@ -56,37 +62,36 @@ const NewWorkspacePage: PageWithLayout = () => {
     }
   }
 
-  function handleCreateWorkspace(e: FormEvent<HTMLFormElement>) {
+  async function handleCreateWorkspace(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (formIsValid) {
-      const form = {
+      setSubmitting(true);
+      const db = getFirestore();
+      const workspaceCollRef = collection(db, 'workspaces');
+
+      const workspace: WorkspacesModel = {
         name,
         description,
+        createdBy: user.uid,
+        admins: [],
+        members: [],
+        settings: {
+          joinRequests: {
+            pauseRequests: true,
+          },
+        },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       };
 
-      try {
-        const db = getFirestore();
-        const workspaceCollRef = collection(db, 'workspaces');
-        addDoc(workspaceCollRef, {
-          name,
-          description,
-          // createdBy:
-        } as WorkspaceCollectionModel);
-      } catch (error: any) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
-
-      setSubmitting(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
+      const doc = await addDoc(workspaceCollRef, workspace);
+      setSubmitting(false);
+      router.push(`/app/workspaces/${doc.id}`).then(() => {
         notify('Workspace created!', {
           type: 'success',
         });
-      }, 3000);
+      });
     }
   }
 
