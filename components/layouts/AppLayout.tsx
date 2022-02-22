@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { getAuth, signOut } from 'firebase/auth';
 
 import logo from '~/assets/images/logo.svg';
 import iconPlus from '~/assets/icons/nav/plus-white.svg';
@@ -13,7 +14,8 @@ import iconUser from '~/assets/icons/nav/user.svg';
 import iconLogout from '~/assets/icons/nav/logout.svg';
 import iconPeople from '~/assets/icons/nav/people.svg';
 import iconPeopleColoured from '~/assets/icons/nav/people-coloured.svg';
-import LogoutLoadingOverlay from '~/components/misc/LogoutLoadingOverlay';
+import LoadingOverlay from '~/components/misc/LoadingOverlay';
+import cookies from '~/assets/ts/cookies';
 
 const floatingButtonBlockedPaths = [
   '/app/new-task',
@@ -38,6 +40,13 @@ const AppLayout: React.FC = ({ children }) => {
 
   const pathIsBlocked = floatingButtonBlockedPaths.includes(router.pathname);
   const isTaskDetailsPage = router.pathname === '/app/task/[taskID]';
+
+  async function handleLogout() {
+    const auth = getAuth();
+    cookies.removeAll();
+    await signOut(auth);
+    await router.push('/login');
+  }
 
   async function handleFloatingButtonClick() {
     if (!pathIsBlocked) {
@@ -321,7 +330,12 @@ const AppLayout: React.FC = ({ children }) => {
         </div>
       )}
 
-      {logout && <LogoutLoadingOverlay />}
+      {logout && (
+        <LoadingOverlay
+          loadingText="Logging out..."
+          performTask={async () => handleLogout()}
+        />
+      )}
     </div>
   );
 };

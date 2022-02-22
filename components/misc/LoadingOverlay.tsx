@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 
-function LogoutLoadingOverlay() {
-  const router = useRouter();
+interface Props {
+  loadingText: string;
+  performTask?: () => Promise<any>;
+}
 
+function LoadingOverlay({ loadingText, performTask }: Props) {
   useEffect(() => {
-    setTimeout(async () => {
-      await router.push('/');
-    }, 3000);
+    performTask?.();
   }, []);
 
   return (
@@ -32,10 +32,10 @@ function LogoutLoadingOverlay() {
       </svg>
 
       <h1 className="text-3xl font-bold text-center text-gray-600 mt-10">
-        Logging out...
+        {loadingText}
       </h1>
     </div>
   );
 }
 
-export default LogoutLoadingOverlay;
+export default LoadingOverlay;

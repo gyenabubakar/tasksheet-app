@@ -1,5 +1,12 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import {
+  getFirestore,
+  addDoc,
+  collection,
+  serverTimestamp,
+  // FirestoreError,
+} from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
@@ -11,8 +18,10 @@ import useFormValidation, {
 import Input from '~/components/common/Input';
 import Button from '~/components/common/Button';
 import iconWhiteArrowRight from '~/assets/icons/workspace/arrow-right-white.svg';
-import { WorkspaceInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
+import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
+import useUser from '~/hooks/useUser';
+import swal from '~/assets/ts/sweetalert';
 
 interface NewWorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -26,7 +35,7 @@ const NewWorkspacePage: PageWithLayout = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const router = useRouter();
-  // const { workspaceID } = router.query;
+  const { user } = useUser();
 
   const nameIsValid = name ? name.length >= 2 && name.length <= 100 : null;
   const descriptionIsValid = description.length <= 280;
@@ -45,33 +54,56 @@ const NewWorkspacePage: PageWithLayout = () => {
     ],
   );
 
-  function handleNextStage(e: FormEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
+  function handleNextStage(e?: FormEvent<HTMLButtonElement>) {
+    e?.preventDefault();
+    e?.stopPropagation();
 
     if (nameIsValid) {
       setStage('description');
     }
   }
 
-  function handleCreateWorkspace(e: FormEvent<HTMLFormElement>) {
+  async function handleCreateWorkspace(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (formIsValid) {
-      const form: WorkspaceInfo = {
+      setSubmitting(true);
+      const db = getFirestore();
+      const workspaceCollRef = collection(db, 'workspaces');
+
+      const workspace: WorkspacesModel = {
         name,
         description,
+        createdBy: user.uid,
+        admins: [],
+        members: [],
+        settings: {
+          joinRequests: {
+            pauseRequests: true,
+          },
+        },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       };
 
-      setSubmitting(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
-        notify('Workspace created!', {
-          type: 'success',
+      addDoc(workspaceCollRef, workspace)
+        .then((doc) => {
+          setSubmitting(false);
+          router.push(`/app/workspaces/${doc.id}`).then(() => {
+            notify('Workspace created!', {
+              type: 'success',
+            });
+          });
+        })
+        .catch(() => {
+          // const err = error as FirestoreError
+          setSubmitting(false);
+          swal({
+            icon: 'error',
+            title: "Couldn't create workspace.",
+            text: 'Try again later.',
+          });
         });
-      }, 3000);
     }
   }
 
@@ -140,6 +172,11 @@ const NewWorkspacePage: PageWithLayout = () => {
                   placeholder="e.g. React Projects"
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     setName(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && nameIsValid) {
+                      handleNextStage();
+                    }
                   }}
                 />
 

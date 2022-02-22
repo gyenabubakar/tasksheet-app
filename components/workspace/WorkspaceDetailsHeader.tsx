@@ -2,16 +2,22 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import ReactTooltip from 'react-tooltip';
 
-import iconArrowLeft from '~/assets/icons/arrow-left.svg';
+// import iconArrowLeft from '~/assets/icons/arrow-left.svg';
+// import iconShare from '~/assets/icons/workspace/share-orange.svg';
 import iconFolderAdd from '~/assets/icons/workspace/folder-add.svg';
 import iconAddUser from '~/assets/icons/workspace/add-user.svg';
-import iconShare from '~/assets/icons/workspace/share-orange.svg';
 import iconSettings from '~/assets/icons/workspace/cog.svg';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import swal from '~/assets/ts/sweetalert';
+import Navigation from '~/components/common/Navigation';
+import { Workspace } from '~/assets/firebase/firebaseTypes';
 
-const WorkspaceDetailsLayout: React.FC = ({ children }) => {
+interface Props {
+  workspace: Workspace;
+}
+
+const WorkspaceDetailsHeader: React.FC<Props> = ({ workspace }) => {
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
 
@@ -20,7 +26,8 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
 
   const isFoldersTab = pathname === '/app/workspaces/[workspaceID]';
   const isMembersTab = pathname === '/app/workspaces/[workspaceID]/members';
-  const isRequestsTab = pathname === '/app/workspaces/[workspaceID]/requests';
+
+  // const isRequestsTab = pathname === '/app/workspaces/[workspaceID]/requests';
 
   async function handleShareLink() {
     await swal({
@@ -51,24 +58,17 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
 
   return (
     <>
-      <div className="workspace-heading">
-        <div className="button-wrapper mb-10">
-          <button onClick={() => router.back()}>
-            <a>
-              <Image src={iconArrowLeft} width="19px" height="14px" priority />
-              <span className="inline-block ml-3 font-medium">Back</span>
-            </a>
-          </button>
-        </div>
+      <Navigation />
 
+      <div className="workspace-heading">
         <div className="workspace-info flex flex-col-reverse justify-between items-center lg:justify-start lg:items-start lg:grid grid-cols-12">
           <div className="div col-span-8">
             <h1 className="font-bold text-3xl md:text-[48px] md:text-center lg:text-left">
-              Montreal Projects
+              {workspace.name}
             </h1>
 
             <p className="mt-5 text-darkgray md:text-center lg:text-left">
-              All projects for my client, Montreal Labs.
+              {workspace.description}
             </p>
           </div>
 
@@ -101,25 +101,27 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
               <a className={`tab ${isMembersTab ? 'active' : ''}`}>Members</a>
             </Link>
 
-            <Link href={`/app/workspaces/${workspaceID}/requests`}>
-              <a className={`tab ${isRequestsTab ? 'active' : ''}`}>
-                <span>Join Requests</span>
-                <span className="important ml-2 inline-block" />
-              </a>
-            </Link>
+            {/* <Link href={`/app/workspaces/${workspaceID}/requests`}> */}
+            {/*   <a className={`tab ${isRequestsTab ? 'active' : ''}`}> */}
+            {/*     <span>Join Requests</span> */}
+            {/*     <span className="important ml-2 inline-block" /> */}
+            {/*   </a> */}
+            {/* </Link> */}
           </div>
 
           <div className="workspace-actions-wrapper my-5">
-            <button
-              data-tip
-              data-for="add-folder"
-              onClick={() =>
-                router.push(`/app/workspaces/${workspaceID}/new-folder`)
-              }
-            >
-              <Image src={iconFolderAdd} priority />
-            </button>
-            {isMounted && (
+            {(workspace.isAdmin || workspace.isOwner) && (
+              <button
+                data-tip
+                data-for="add-folder"
+                onClick={() =>
+                  router.push(`/app/workspaces/${workspace.id}/new-folder`)
+                }
+              >
+                <Image src={iconFolderAdd} priority />
+              </button>
+            )}
+            {isMounted && (workspace.isAdmin || workspace.isOwner) && (
               <ReactTooltip
                 id="add-folder"
                 place="bottom"
@@ -130,16 +132,18 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
               </ReactTooltip>
             )}
 
-            <button
-              data-tip
-              data-for="add-member"
-              onClick={() =>
-                router.push(`/app/workspaces/${workspaceID}/invite`)
-              }
-            >
-              <Image src={iconAddUser} width="30px" height="28px" priority />
-            </button>
-            {isMounted && (
+            {(workspace.isAdmin || workspace.isOwner) && (
+              <button
+                data-tip
+                data-for="add-member"
+                onClick={() =>
+                  router.push(`/app/workspaces/${workspace.id}/invite`)
+                }
+              >
+                <Image src={iconAddUser} width="30px" height="28px" priority />
+              </button>
+            )}
+            {isMounted && (workspace.isAdmin || workspace.isOwner) && (
               <ReactTooltip
                 id="add-member"
                 place="bottom"
@@ -150,25 +154,25 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
               </ReactTooltip>
             )}
 
-            <button data-tip data-for="share-link" onClick={handleShareLink}>
-              <Image src={iconShare} width="28px" height="28px" priority />
-            </button>
-            {isMounted && (
-              <ReactTooltip
-                id="share-link"
-                place="bottom"
-                type="dark"
-                effect="solid"
-              >
-                Share link
-              </ReactTooltip>
-            )}
+            {/* <button data-tip data-for="share-link" onClick={handleShareLink}> */}
+            {/*   <Image src={iconShare} width="28px" height="28px" priority /> */}
+            {/* </button> */}
+            {/* {isMounted && ( */}
+            {/*   <ReactTooltip */}
+            {/*     id="share-link" */}
+            {/*     place="bottom" */}
+            {/*     type="dark" */}
+            {/*     effect="solid" */}
+            {/*   > */}
+            {/*     Share link */}
+            {/*   </ReactTooltip> */}
+            {/* )} */}
 
             <button
               data-tip
               data-for="delete-workspace"
               onClick={() =>
-                router.push(`/app/workspaces/${workspaceID}/settings`)
+                router.push(`/app/workspaces/${workspace.id}/settings`)
               }
             >
               <Image src={iconSettings} width="28px" height="28px" priority />
@@ -186,10 +190,8 @@ const WorkspaceDetailsLayout: React.FC = ({ children }) => {
           </div>
         </div>
       </div>
-
-      {children}
     </>
   );
 };
 
-export default WorkspaceDetailsLayout;
+export default WorkspaceDetailsHeader;

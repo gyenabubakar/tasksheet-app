@@ -7,7 +7,7 @@ import React from 'react';
 export type AppLayout = 'auth' | 'app';
 export type SecondaryLayout = 'workspace-info';
 
-export type PageWithLayout = NextPage & {
+export type PageWithLayout<T = {}> = NextPage<T> & {
   layout?: AppLayout;
   SecondaryLayout?: React.FC;
 };

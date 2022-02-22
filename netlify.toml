@@ -1,7 +1,7 @@
 # example netlify.toml
 [build]
   command = "npm run lint -- --fix && npm run build"
-  functions = "_serverless/api"
+  functions = "netlify/functions"
   publish = ".next"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
