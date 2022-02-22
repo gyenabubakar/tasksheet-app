@@ -24,7 +24,7 @@ import useWorkspace from '~/hooks/useWorkspace';
 import illustrationNotFound from '~/assets/illustrations/not-found.svg';
 import Loading from '~/components/common/Loading';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
-import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
+import useUser from '~/hooks/useUser';
 
 interface WorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -34,6 +34,7 @@ interface WorkspaceFormErrors extends FormValidationErrors {
 type TabType = 'general' | 'join-requests' | 'deactivate';
 
 const WorkspaceSettingsPage: PageWithLayout = () => {
+  const { user } = useUser();
   const { error, workspace } = useWorkspace();
 
   const [name, setName] = useState('');
@@ -163,29 +164,54 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
         confirmButtonText: 'Leave workspace!',
         cancelButtonText: 'No, cancel',
         showLoaderOnConfirm: true,
-        preConfirm(confirmed: boolean): Promise<any> | null {
+        preConfirm(confirmed: boolean) {
           if (confirmed) {
-            return new Promise((resolve) => {
-              setTimeout(() => resolve(true), 2000);
-            });
+            let admins = [...workspace!.admins];
+            const members = [...workspace!.members];
+            const memberIndex = members.findIndex(
+              (memberUID) => memberUID === user.uid,
+            );
+            if (memberIndex !== -1) {
+              members.splice(memberIndex, 1);
+              if (workspace?.isAdmin) {
+                admins = admins.filter((adminUID) => adminUID !== user.uid);
+              }
+
+              const db = getFirestore();
+              const workspaceRef = doc(db, 'workspaces', workspace!.id!);
+              return updateDoc(workspaceRef, {
+                admins,
+                members,
+                updatedAt: serverTimestamp(),
+              });
+            }
           }
           return null;
         },
-      }).then(async (results) => {
-        if (results.isConfirmed) {
-          await router.replace('/app/workspaces');
+      })
+        .then(async (results) => {
+          if (results.isConfirmed) {
+            await router.replace('/app/workspaces');
 
+            await swal({
+              icon: 'success',
+              title: (
+                <span>
+                  You&apos;re no longer a member of{' '}
+                  <span className="text-main">{workspace?.name}</span>.
+                </span>
+              ),
+            });
+          }
+        })
+        .catch(async (err) => {
           await swal({
-            icon: 'success',
-            title: (
-              <span>
-                You&apos;re no longer a member of{' '}
-                <span className="text-main">Workspace Name</span>.
-              </span>
-            ),
+            icon: 'error',
+            title: "Couldn't leave workspace.",
+            text: `Request failed with error: ${(err as FirestoreError).code}`,
+            timer: 3000,
           });
-        }
-      });
+        });
     }
   }
 
