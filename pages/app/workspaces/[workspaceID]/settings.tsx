@@ -1,6 +1,14 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import Image from 'next/image';
+import {
+  getFirestore,
+  updateDoc,
+  doc,
+  FirestoreError,
+  serverTimestamp,
+} from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import Navigation from '~/components/common/Navigation';
@@ -13,9 +21,10 @@ import notify from '~/assets/ts/notify';
 import Switch from '~/components/common/Switch';
 import swal from '~/assets/ts/sweetalert';
 import useWorkspace from '~/hooks/useWorkspace';
-import Image from 'next/image';
 import illustrationNotFound from '~/assets/illustrations/not-found.svg';
 import Loading from '~/components/common/Loading';
+import pageTitleSuffix from '~/assets/pageTitleSuffix';
+import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 
 interface WorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -27,16 +36,12 @@ type TabType = 'general' | 'join-requests' | 'deactivate';
 const WorkspaceSettingsPage: PageWithLayout = () => {
   const { error, workspace } = useWorkspace();
 
-  const [name, setName] = useState(() => (workspace ? workspace.name : ''));
-  const [description, setDescription] = useState(() =>
-    workspace ? workspace.description : '',
-  );
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('general');
 
-  const [pauseJoinRequests, setPauseJoinRequests] = useState(() =>
-    workspace ? workspace.settings.joinRequests.pauseRequests : false,
-  );
+  const [pauseJoinRequests, setPauseJoinRequests] = useState(true);
   const [togglingPauseRequests, setTogglingPauseRequests] = useState(false);
 
   const router = useRouter();
@@ -47,7 +52,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
   const formIsValid =
     nameIsValid === true &&
     descriptionIsValid &&
-    (name !== workspace?.name || description !== workspace.description);
+    (name !== workspace?.name || description !== workspace?.description);
 
   const { errors } = useFormValidation<WorkspaceFormErrors>(
     {
@@ -61,7 +66,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
     ],
   );
 
-  function onUpdatePauseJoinRequests(pause: boolean) {
+  async function onUpdatePauseJoinRequests(pause: boolean) {
     if (!togglingPauseRequests) {
       let message: string;
 
@@ -72,19 +77,38 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
       }
 
       setTogglingPauseRequests(true);
-      const id = setTimeout(() => {
+
+      const settings = { ...workspace!.settings };
+      settings.joinRequests.pauseRequests = pause;
+
+      try {
+        const db = getFirestore();
+        const workspaceRef = doc(db, 'workspaces', workspace!.id!);
+        await updateDoc(workspaceRef, {
+          settings,
+          updatedAt: serverTimestamp(),
+        });
         notify(message, {
           type: 'success',
         });
-        setTogglingPauseRequests(false);
-        clearTimeout(id);
-      }, 1000);
+      } catch (err) {
+        await swal({
+          icon: 'error',
+          title: "Couldn't update workspace.",
+          text: `Request failed with error: ${(err as FirestoreError).code}`,
+          timer: 3000,
+        });
+      }
+      setTogglingPauseRequests(false);
     }
   }
 
   function togglePauseJoinRequests() {
-    setPauseJoinRequests((prevState) => !prevState);
-    onUpdatePauseJoinRequests(!pauseJoinRequests);
+    setPauseJoinRequests((prevState) => {
+      const newState = !prevState;
+      onUpdatePauseJoinRequests(newState);
+      return newState;
+    });
   }
 
   async function switchTabs(tab: TabType) {
@@ -124,43 +148,45 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
   }
 
   function handleLeaveWorkspace() {
-    swal({
-      icon: 'warning',
-      title: (
-        <span>
-          Sure you want to leave{' '}
-          <span className="text-main">Workspace Name</span>?
-        </span>
-      ),
-      text: "You'll lose access to all tasks and folders in this workspace.",
-      showConfirmButton: true,
-      showCancelButton: true,
-      confirmButtonText: 'Leave workspace!',
-      cancelButtonText: 'No, cancel',
-      showLoaderOnConfirm: true,
-      preConfirm(confirmed: boolean): Promise<any> | null {
-        if (confirmed) {
-          return new Promise((resolve) => {
-            setTimeout(() => resolve(true), 2000);
+    if (!workspace?.isOwner) {
+      swal({
+        icon: 'warning',
+        title: (
+          <span>
+            Sure you want to leave{' '}
+            <span className="text-main">{workspace!.name}</span>?
+          </span>
+        ),
+        text: "You'll lose access to all tasks and folders in this workspace.",
+        showConfirmButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Leave workspace!',
+        cancelButtonText: 'No, cancel',
+        showLoaderOnConfirm: true,
+        preConfirm(confirmed: boolean): Promise<any> | null {
+          if (confirmed) {
+            return new Promise((resolve) => {
+              setTimeout(() => resolve(true), 2000);
+            });
+          }
+          return null;
+        },
+      }).then(async (results) => {
+        if (results.isConfirmed) {
+          await router.replace('/app/workspaces');
+
+          await swal({
+            icon: 'success',
+            title: (
+              <span>
+                You&apos;re no longer a member of{' '}
+                <span className="text-main">Workspace Name</span>.
+              </span>
+            ),
           });
         }
-        return null;
-      },
-    }).then(async (results) => {
-      if (results.isConfirmed) {
-        await router.replace('/app/workspaces');
-
-        await swal({
-          icon: 'success',
-          title: (
-            <span>
-              You&apos;re no longer a member of{' '}
-              <span className="text-main">Workspace Name</span>.
-            </span>
-          ),
-        });
-      }
-    });
+      });
+    }
   }
 
   function handleDeleteWorkspace() {
@@ -206,34 +232,48 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
     setActiveTab(router.query.tab as TabType);
   }, [router.query]);
 
+  useEffect(() => {
+    if (workspace) {
+      setName(workspace.name);
+      setDescription(workspace.description);
+      setPauseJoinRequests(workspace.settings.joinRequests.pauseRequests);
+    }
+  }, [workspace]);
+
   return (
     <>
       <Head>
-        <title>Settings | {workspaceID} · TaskSheet</title>
+        <title>
+          {workspace && `${workspace.name} | `}
+          Settings
+          {pageTitleSuffix}
+        </title>
       </Head>
 
       <Navigation backUrl={`/app/workspaces/${workspaceID}`}>
-        <button
-          className="bg-red-100 text-sm px-3 py-1 rounded-md flex items-center"
-          onClick={handleLeaveWorkspace}
-        >
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        {!workspace?.isOwner && (
+          <button
+            className="bg-red-100 text-sm px-3 py-1 rounded-md flex items-center"
+            onClick={handleLeaveWorkspace}
           >
-            <path
-              d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM13.5 10.75H8.31L10.03 12.47C10.32 12.76 10.32 13.24 10.03 13.53C9.88 13.68 9.69 13.75 9.5 13.75C9.31 13.75 9.12 13.68 8.97 13.53L5.97 10.53C5.68 10.24 5.68 9.76 5.97 9.47L8.97 6.47C9.26 6.18 9.74 6.18 10.03 6.47C10.32 6.76 10.32 7.24 10.03 7.53L8.31 9.25H13.5C13.91 9.25 14.25 9.59 14.25 10C14.25 10.41 13.91 10.75 13.5 10.75Z"
-              fill="rgb(239,68,68)"
-            />
-          </svg>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM13.5 10.75H8.31L10.03 12.47C10.32 12.76 10.32 13.24 10.03 13.53C9.88 13.68 9.69 13.75 9.5 13.75C9.31 13.75 9.12 13.68 8.97 13.53L5.97 10.53C5.68 10.24 5.68 9.76 5.97 9.47L8.97 6.47C9.26 6.18 9.74 6.18 10.03 6.47C10.32 6.76 10.32 7.24 10.03 7.53L8.31 9.25H13.5C13.91 9.25 14.25 9.59 14.25 10C14.25 10.41 13.91 10.75 13.5 10.75Z"
+                fill="rgb(239,68,68)"
+              />
+            </svg>
 
-          <span className="text-red-500 font-medium ml-2">
-            Leave <span className="hidden sm:inline">Workspace</span>
-          </span>
-        </button>
+            <span className="text-red-500 font-medium ml-2">
+              Leave <span className="hidden sm:inline">Workspace</span>
+            </span>
+          </button>
+        )}
       </Navigation>
 
       <main className="page-workspace-settings">
@@ -291,14 +331,20 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                 >
                   Join requests
                 </div>
-                <div
-                  className={`settings-tab py-3 cursor-pointer ${
-                    activeTab === 'deactivate' ? 'active' : ''
-                  }`}
-                  onClick={() => switchTabs('deactivate')}
-                >
-                  Deactivate
-                </div>
+                {workspace.isOwner && (
+                  <div
+                    className={`settings-tab py-3 cursor-pointer ${
+                      activeTab === 'deactivate' ? 'active' : ''
+                    }`}
+                    onClick={async () => {
+                      if (workspace.isOwner) {
+                        await switchTabs('deactivate');
+                      }
+                    }}
+                  >
+                    Deactivate
+                  </div>
+                )}
               </div>
 
               <div className="tab-content lg:col-start-5 lg:col-end-13">
