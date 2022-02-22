@@ -21,6 +21,7 @@ import iconWhiteArrowRight from '~/assets/icons/workspace/arrow-right-white.svg'
 import notify from '~/assets/ts/notify';
 import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 import useUser from '~/hooks/useUser';
+import swal from '~/assets/ts/sweetalert';
 
 interface NewWorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -85,13 +86,23 @@ const NewWorkspacePage: PageWithLayout = () => {
         updatedAt: serverTimestamp(),
       };
 
-      const doc = await addDoc(workspaceCollRef, workspace);
-      setSubmitting(false);
-      router.push(`/app/workspaces/${doc.id}`).then(() => {
-        notify('Workspace created!', {
-          type: 'success',
+      addDoc(workspaceCollRef, workspace)
+        .then((doc) => {
+          setSubmitting(false);
+          router.push(`/app/workspaces/${doc.id}`).then(() => {
+            notify('Workspace created!', {
+              type: 'success',
+            });
+          });
+        })
+        .catch((error) => {
+          // const err = error as FirestoreError
+          swal({
+            icon: 'error',
+            title: "Couldn't create workspace.",
+            text: 'Try again later.',
+          });
         });
-      });
     }
   }
 
