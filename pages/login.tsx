@@ -107,7 +107,13 @@ const LoginPage: PageWithLayout = () => {
           return;
         }
 
-        await router.replace('/app/');
+        const { query } = router;
+        if (!query.redirect) {
+          await router.replace('/app/');
+          return;
+        }
+
+        await router.replace(decodeURIComponent(query.redirect as string));
       } catch (error: any) {
         if (error) {
           if (error.message.includes(AuthErrorCodes.USER_DELETED)) {
