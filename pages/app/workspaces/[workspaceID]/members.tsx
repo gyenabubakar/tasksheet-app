@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 import { MemberType, PageWithLayout } from '~/assets/ts/types';
 import Member from '~/components/workspace/Member';
-import WorkspaceDetailsLayout from '~/components/workspace/WorkspaceDetailsLayout';
+import WorkspaceDetailsHeader from '~/components/workspace/WorkspaceDetailsHeader';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
 
@@ -111,6 +111,6 @@ const WorkspaceMembersPage: PageWithLayout = () => {
 
 WorkspaceMembersPage.layout = 'app';
 
-WorkspaceMembersPage.SecondaryLayout = WorkspaceDetailsLayout;
+WorkspaceMembersPage.SecondaryLayout = WorkspaceDetailsHeader;
 
 export default WorkspaceMembersPage;

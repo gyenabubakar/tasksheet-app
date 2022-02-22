@@ -42,6 +42,7 @@
     "react-tooltip": "^4.2.21",
     "sweetalert2": "^11.4.0",
     "sweetalert2-react-content": "^4.2.0",
+    "swr": "^1.2.2",
     "validator": "^13.7.0"
   },
   "devDependencies": {

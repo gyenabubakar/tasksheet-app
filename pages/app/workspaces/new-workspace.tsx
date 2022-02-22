@@ -5,7 +5,7 @@ import {
   addDoc,
   collection,
   serverTimestamp,
-  FirestoreError,
+  // FirestoreError,
 } from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';

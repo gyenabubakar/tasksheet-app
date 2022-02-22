@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 import { PageWithLayout, RequestType } from '~/assets/ts/types';
 import Request from '~/components/workspace/Request';
-import WorkspaceDetailsLayout from '~/components/workspace/WorkspaceDetailsLayout';
+import WorkspaceDetailsHeader from '~/components/workspace/WorkspaceDetailsHeader';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
 import iconShare from '~/assets/icons/workspace/share.svg';
@@ -132,6 +132,6 @@ const WorkspaceRequestsPage: PageWithLayout = () => {
 
 WorkspaceRequestsPage.layout = 'app';
 
-WorkspaceRequestsPage.SecondaryLayout = WorkspaceDetailsLayout;
+WorkspaceRequestsPage.SecondaryLayout = WorkspaceDetailsHeader;
 
 export default WorkspaceRequestsPage;

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import type { AppProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
 import 'react-datepicker/dist/react-datepicker.css';
-import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
@@ -11,10 +10,10 @@ import '~/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { PageWithLayout } from '~/assets/ts/types';
 import useLayout from '~/hooks/useLayout';
-import firebaseConfig from '~/assets/firebase/firebaseConfig';
 import cookies from '~/assets/ts/cookies';
 import LoadingOverlay from '~/components/misc/LoadingOverlay';
 import UserContextProvider from '~/context/UserContextProvider';
+import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
 
 interface WithUserCtxProps {
   user: User | null;
@@ -31,13 +30,7 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
 }) => {
   const commonChildren = (
     <Layout>
-      {PageComponent.SecondaryLayout ? (
-        <PageComponent.SecondaryLayout>
-          <PageComponent {...pageProps} />
-        </PageComponent.SecondaryLayout>
-      ) : (
-        <PageComponent {...pageProps} />
-      )}
+      <PageComponent {...pageProps} />
     </Layout>
   );
 
@@ -62,9 +55,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const firebaseApp = initializeApp(firebaseConfig);
+    const app = getFirebaseApp();
+    const auth = getAuth(app);
 
-    const auth = getAuth(firebaseApp);
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         cookies.set('accessToken', (currentUser as any).accessToken);

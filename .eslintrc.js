@@ -22,9 +22,11 @@ module.exports = {
     'no-plusplus': 0,
     'no-continue': 0,
     'no-shadow': 0,
-    "arrow-body-style": 0,
+    'arrow-body-style': 0,
     '@typescript-eslint/no-shadow': ['error'],
     '@next/next/no-css-tags': 0,
+    'react/prop-types': 0,
+    'prefer-promise-reject-errors': 0,
     'react/jsx-filename-extension': [
       2,
       { extensions: ['.js', '.jsx', '.ts', '.tsx'] },

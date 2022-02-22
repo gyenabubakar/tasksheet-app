@@ -105,7 +105,7 @@ const Folder: React.FC<FolderProps> = ({
 
             <div className="progress-bar relative">
               <div
-                className="point absolute w-6 h-6 rounded-full -top-1.5"
+                className="point absolute w-6 h-6 rounded-full -top-1.5 -left-1"
                 style={{
                   backgroundColor: colour,
                   left: `${completedTasksPercent}%`,
