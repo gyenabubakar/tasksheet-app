@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Image from 'next/image';
+import { getFirestore, addDoc, collection } from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import iconArrowLeft from '~/assets/icons/arrow-left.svg';
@@ -13,6 +14,7 @@ import Button from '~/components/common/Button';
 import iconWhiteArrowRight from '~/assets/icons/workspace/arrow-right-white.svg';
 // import { WorkspaceInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
+import { WorkspaceCollectionModel } from '~/assets/firebase/firebaseTypes';
 
 interface NewWorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -62,6 +64,19 @@ const NewWorkspacePage: PageWithLayout = () => {
         name,
         description,
       };
+
+      try {
+        const db = getFirestore();
+        const workspaceCollRef = collection(db, 'workspaces');
+        addDoc(workspaceCollRef, {
+          name,
+          description,
+          // createdBy:
+        } as WorkspaceCollectionModel);
+      } catch (error: any) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
 
       setSubmitting(true);
       setTimeout(() => {

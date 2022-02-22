@@ -1,33 +1,77 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { AppProps } from 'next/app';
 import NextNProgress from 'nextjs-progressbar';
 import 'react-datepicker/dist/react-datepicker.css';
 import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import Head from 'next/head';
+import { ToastContainer } from 'react-toastify';
 
 import '~/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
 import { PageWithLayout } from '~/assets/ts/types';
-import Head from 'next/head';
 import useLayout from '~/hooks/useLayout';
-import { ToastContainer } from 'react-toastify';
-import firebaseConfig from '~/assets/ts/firebaseConfig';
+import firebaseConfig from '~/assets/firebase/firebaseConfig';
 import cookies from '~/assets/ts/cookies';
+import LoadingOverlay from '~/components/misc/LoadingOverlay';
+import UserContextProvider from '~/context/UserContextProvider';
+
+interface WithUserCtxProps {
+  user: User | null;
+  PageComponent: PageWithLayout;
+  pageProps: any;
+  Layout: React.FC<{}>;
+}
+
+const WithUserContext: React.FC<WithUserCtxProps> = ({
+  user,
+  PageComponent,
+  pageProps,
+  Layout,
+}) => {
+  const commonChildren = (
+    <Layout>
+      {PageComponent.SecondaryLayout ? (
+        <PageComponent.SecondaryLayout>
+          <PageComponent {...pageProps} />
+        </PageComponent.SecondaryLayout>
+      ) : (
+        <PageComponent {...pageProps} />
+      )}
+    </Layout>
+  );
+
+  if (PageComponent.layout === 'app') {
+    if (user) {
+      return (
+        <UserContextProvider initialVue={user}>
+          {commonChildren}
+        </UserContextProvider>
+      );
+    }
+    return <LoadingOverlay loadingText="Loading TaskSheet" />;
+  }
+
+  return commonChildren;
+};
 
 function MyApp({ Component, pageProps }: AppProps) {
   const PageComponent = Component as PageWithLayout;
   const Layout = useLayout(PageComponent.layout);
 
+  const [user, setUser] = useState<User | null>(null);
+
   useEffect(() => {
     const firebaseApp = initializeApp(firebaseConfig);
 
     const auth = getAuth(firebaseApp);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        cookies.set('accessToken', (user as any).accessToken);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        cookies.set('accessToken', (currentUser as any).accessToken);
       } else {
         cookies.remove('accessToken');
       }
+      setUser(currentUser);
     });
 
     return () => {
@@ -56,15 +100,12 @@ function MyApp({ Component, pageProps }: AppProps) {
         showOnShallow
       />
 
-      <Layout>
-        {PageComponent.SecondaryLayout ? (
-          <PageComponent.SecondaryLayout>
-            <PageComponent {...pageProps} />
-          </PageComponent.SecondaryLayout>
-        ) : (
-          <PageComponent {...pageProps} />
-        )}
-      </Layout>
+      <WithUserContext
+        user={user}
+        PageComponent={PageComponent}
+        pageProps={pageProps}
+        Layout={Layout}
+      />
 
       <ToastContainer />
     </>
