@@ -12,7 +12,7 @@ import Head from 'next/head';
 import useLayout from '~/hooks/useLayout';
 import { ToastContainer } from 'react-toastify';
 import firebaseConfig from '~/assets/ts/firebaseConfig';
-import Cookies from 'js-cookie';
+import cookies from '~/assets/ts/cookies';
 
 function MyApp({ Component, pageProps }: AppProps) {
   const PageComponent = Component as PageWithLayout;
@@ -24,9 +24,9 @@ function MyApp({ Component, pageProps }: AppProps) {
     const auth = getAuth(firebaseApp);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        Cookies.set('accessToken', (user as any).accessToken);
+        cookies.set('accessToken', (user as any).accessToken);
       } else {
-        Cookies.remove('accessToken');
+        cookies.remove('accessToken');
       }
     });
 

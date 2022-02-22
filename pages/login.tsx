@@ -109,7 +109,7 @@ const LoginPage: PageWithLayout = () => {
 
         const { query } = router;
         if (!query.redirect) {
-          await router.replace('/app/');
+          await router.push('/app/');
           return;
         }
 

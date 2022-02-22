@@ -15,6 +15,7 @@ import iconLogout from '~/assets/icons/nav/logout.svg';
 import iconPeople from '~/assets/icons/nav/people.svg';
 import iconPeopleColoured from '~/assets/icons/nav/people-coloured.svg';
 import LoadingOverlay from '~/components/misc/LoadingOverlay';
+import cookies from '~/assets/ts/cookies';
 
 const floatingButtonBlockedPaths = [
   '/app/new-task',
@@ -42,6 +43,7 @@ const AppLayout: React.FC = ({ children }) => {
 
   async function handleLogout() {
     const auth = getAuth();
+    cookies.removeAll();
     await signOut(auth);
     await router.push('/login');
   }
