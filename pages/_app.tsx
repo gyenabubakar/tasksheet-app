@@ -5,6 +5,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
+import { useRouter } from 'next/router';
 
 import '~/styles/globals.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -29,6 +30,7 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
   pageProps,
   Layout,
 }) => {
+  const router = useRouter();
   const commonChildren = (
     <Layout>
       <PageComponent {...pageProps} />
@@ -43,6 +45,12 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
         </UserContextProvider>
       );
     }
+    const accessToken = cookies.get('accessToken');
+    if (!accessToken) {
+      router.push('/login');
+      return <LoadingOverlay loadingText="Logging out..." />;
+    }
+
     return <SplashScreen loadingText="TaskSheet" />;
   }
 

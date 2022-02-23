@@ -245,7 +245,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
             icon: 'success',
             title: (
               <span>
-                <span className="text-main">{workspace.name}</span> deleted!
+                Deleted workspace, <span className="text-main">{workspace.name}</span>!
               </span>
             ),
           });
