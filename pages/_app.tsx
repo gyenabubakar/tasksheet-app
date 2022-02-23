@@ -12,7 +12,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { PageWithLayout } from '~/assets/ts/types';
 import useLayout from '~/hooks/useLayout';
 import cookies from '~/assets/ts/cookies';
-import LoadingOverlay from '~/components/misc/LoadingOverlay';
 import UserContextProvider from '~/context/UserContextProvider';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
 import SplashScreen from '~/components/misc/SplashScreen';
@@ -31,11 +30,19 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
   Layout,
 }) => {
   const router = useRouter();
+
   const commonChildren = (
     <Layout>
       <PageComponent {...pageProps} />
     </Layout>
   );
+
+  useEffect(() => {
+    const accessToken = cookies.get('accessToken');
+    if (!accessToken && !user) {
+      router.push(`/login?redirect=${router.route}`);
+    }
+  }, [user]);
 
   if (PageComponent.layout === 'app') {
     if (user) {
@@ -44,11 +51,6 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
           {commonChildren}
         </UserContextProvider>
       );
-    }
-    const accessToken = cookies.get('accessToken');
-    if (!accessToken) {
-      router.push('/login');
-      return <LoadingOverlay loadingText="Logging out..." />;
     }
 
     return <SplashScreen loadingText="TaskSheet" />;
