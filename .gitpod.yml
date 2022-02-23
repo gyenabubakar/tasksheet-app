@@ -5,7 +5,7 @@
 tasks:
   - name: Dev Server
     before: npm install && clear
-    init: npm npm run dev
-    # command: npm run dev
+    # init: npm npm run dev
+    command: npm run dev
   - name: Git
     init: git status -s
