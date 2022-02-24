@@ -26,7 +26,7 @@ export function getWorkspace(id: string, uid: string) {
           resolve({
             id: docResponse.id,
             ...data,
-            hasNewJoinRequests: false,
+            hasNewJoinRequests: false, // TODO: hasNewJoinRequests
             isAdmin: data.admins.includes(uid),
             isOwner: data.createdBy === uid,
           } as Workspace);
