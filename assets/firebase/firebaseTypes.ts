@@ -1,13 +1,18 @@
 import { FieldValue } from 'firebase/firestore';
 
+interface WithTime {
+  createdAt: FieldValue;
+  updatedAt: FieldValue;
+}
+
 export interface WorkspaceSettings {
   joinRequests: {
     pauseRequests: boolean;
   };
 }
 
-// type for modifying the `workspaces` collection
-export interface WorkspacesModel {
+// for modifying the `workspaces` collection
+export interface WorkspacesModel extends WithTime {
   id?: string;
   name: string;
   description: string;
@@ -15,11 +20,9 @@ export interface WorkspacesModel {
   members: string[]; // array of UIDs of members
   admins: string[]; // array of UIDs of members who're admins
   settings: WorkspaceSettings;
-  createdAt: FieldValue;
-  updatedAt: FieldValue;
 }
 
-// type for data returned when fetching workspaces from the `workspaces` collection
+// for presenting workspace data for the front-end
 export interface Workspace extends WorkspacesModel {
   // this should be evaluated and added when fetching. Don't store this in the DB
   hasNewJoinRequests: boolean;
@@ -85,4 +88,19 @@ export interface NotificationsModel {
   from: string; // UID of user who caused notification to happen
   type: NotificationType;
   meta: any;
+}
+
+// for modifying the `folders` collection
+export interface FolderModel extends WithTime {
+  id?: string;
+  title: string;
+  category: string;
+  colour: string;
+  workspaceID: string;
+  createdBy: string;
+}
+
+// for presenting workspace data for the front-end
+export interface Folder extends FolderModel {
+  tasks: any[];
 }

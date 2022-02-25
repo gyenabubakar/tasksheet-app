@@ -5,6 +5,7 @@ import {
   addDoc,
   collection,
   serverTimestamp,
+  FirestoreError,
   // FirestoreError,
 } from 'firebase/firestore';
 
@@ -22,6 +23,8 @@ import notify from '~/assets/ts/notify';
 import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 import useUser from '~/hooks/useUser';
 import swal from '~/assets/ts/sweetalert';
+import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
+import alertDBError from '~/assets/firebase/alertDBError';
 
 interface NewWorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -95,13 +98,9 @@ const NewWorkspacePage: PageWithLayout = () => {
             });
           });
         })
-        .catch(() => {
-          // const err = error as FirestoreError
-          setSubmitting(false);
-          swal({
-            icon: 'error',
-            title: "Couldn't create workspace.",
-            text: 'Try again later.',
+        .catch((error) => {
+          alertDBError(error, "Couldn't create workspace.").then(() => {
+            setSubmitting(false);
           });
         });
     }

@@ -2,6 +2,7 @@ import { doc, FirestoreError, getDoc, getFirestore } from 'firebase/firestore';
 
 import { Workspace, WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
+import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 
 export function getWorkspace(id: string, uid: string) {
   return () => {
@@ -33,19 +34,10 @@ export function getWorkspace(id: string, uid: string) {
         })
         .catch((error) => {
           if (error) {
-            const errorCopy = error as FirestoreError;
-
-            const errBody = {
+            reject({
               title: "Couldn't get workspace info.",
-              message: `Error: ${errorCopy.code}`,
-            };
-
-            if (errorCopy.code === 'unavailable') {
-              errBody.message =
-                "You're offline. Make sure you're on a stable Internet connection and try again.";
-            }
-
-            reject(errBody);
+              message: getDBErrorMessage(error),
+            });
           }
         });
     });
