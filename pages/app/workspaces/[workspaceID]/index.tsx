@@ -13,6 +13,7 @@ import Loading from '~/components/common/Loading';
 import illustrationNotFound from '~/assets/illustrations/not-found.svg';
 import useWorkspace from '~/hooks/useWorkspace';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
+import ErrorFallback from '~/components/common/ErrorFallback';
 
 const WorkspaceDetailsPage: PageWithLayout = () => {
   const router = useRouter();
@@ -92,31 +93,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
       )}
 
       {error && !workspace && (
-        <div className="error mt-24">
-          <div className="w-10/12 h-32 relative mx-auto">
-            <Image src={illustrationNotFound} layout="fill" />
-          </div>
-
-          <div className="description mt-12">
-            {error.title && (
-              <h1 className="text-xl md:text-2xl font-medium text-darkgray text-center">
-                {error.title}
-              </h1>
-            )}
-
-            {error.message && (
-              <p className="text-gray-500 text-center mt-5 text-base md:text-lg">
-                {error.message}
-              </p>
-            )}
-
-            <div className="text-center mt-12">
-              <button className="px-10 py-3 rounded-lg bg-main text-white font-medium text-sm">
-                Go back
-              </button>
-            </div>
-          </div>
-        </div>
+        <ErrorFallback title={error.title} message={error.message} />
       )}
 
       {workspace && !error && (

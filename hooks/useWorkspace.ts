@@ -1,6 +1,7 @@
-import useUser from '~/hooks/useUser';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
+
+import useUser from '~/hooks/useUser';
 import { getWorkspace } from '~/assets/fetchers/workspace';
 
 function useWorkspace() {

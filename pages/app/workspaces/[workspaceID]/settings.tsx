@@ -1,7 +1,6 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import Image from 'next/image';
 import {
   getFirestore,
   updateDoc,
@@ -22,10 +21,10 @@ import notify from '~/assets/ts/notify';
 import Switch from '~/components/common/Switch';
 import swal from '~/assets/ts/sweetalert';
 import useWorkspace from '~/hooks/useWorkspace';
-import illustrationNotFound from '~/assets/illustrations/not-found.svg';
 import Loading from '~/components/common/Loading';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import useUser from '~/hooks/useUser';
+import ErrorFallback from '~/components/common/ErrorFallback';
 
 interface WorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -245,7 +244,8 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
             icon: 'success',
             title: (
               <span>
-                Deleted workspace, <span className="text-main">{workspace.name}</span>!
+                Deleted workspace,{' '}
+                <span className="text-main">{workspace.name}</span>!
               </span>
             ),
           });
@@ -315,31 +315,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
           )}
 
           {error && !workspace && (
-            <div className="error mt-24">
-              <div className="w-10/12 h-32 relative mx-auto">
-                <Image src={illustrationNotFound} layout="fill" />
-              </div>
-
-              <div className="description mt-12">
-                {error.title && (
-                  <h1 className="text-xl md:text-2xl font-medium text-darkgray text-center">
-                    {error.title}
-                  </h1>
-                )}
-
-                {error.message && (
-                  <p className="text-gray-500 text-center mt-5 text-base md:text-lg">
-                    {error.message}
-                  </p>
-                )}
-
-                <div className="text-center mt-12">
-                  <button className="px-10 py-3 rounded-lg bg-main text-white font-medium text-sm">
-                    Go back
-                  </button>
-                </div>
-              </div>
-            </div>
+            <ErrorFallback title={error.title} message={error.message} />
           )}
 
           {workspace && !error && (
