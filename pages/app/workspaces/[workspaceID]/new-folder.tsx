@@ -1,16 +1,27 @@
 import { useRouter } from 'next/router';
+import {
+  getFirestore,
+  serverTimestamp,
+  addDoc,
+  collection,
+} from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import Head from 'next/head';
 import Input from '~/components/common/Input';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import useFormValidation, {
   FormValidationErrors,
 } from '~/hooks/useFormValidation';
 import Button from '~/components/common/Button';
-import { NewFolderInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
 import Navigation from '~/components/common/Navigation';
+import useWorkspace from '~/hooks/useWorkspace';
+import Loading from '~/components/common/Loading';
+import ErrorFallback from '~/components/common/ErrorFallback';
+import { FolderModel } from '~/assets/firebase/firebaseTypes';
+import useUser from '~/hooks/useUser';
+import alertDBError from '~/assets/firebase/alertDBError';
 
 interface NewFolderForm extends FormValidationErrors {
   title: string | null;
@@ -20,6 +31,9 @@ interface NewFolderForm extends FormValidationErrors {
 const colours = ['#5C68FF', '#FF9F1A', '#3F8CFF', '#EB5A46', '#14CC8A'];
 
 const NewFolderPage: PageWithLayout = () => {
+  const { error: workspaceError, workspace } = useWorkspace();
+  const { user } = useUser();
+
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [colour, setColour] = useState('');
@@ -47,27 +61,39 @@ const NewFolderPage: PageWithLayout = () => {
     ],
   );
 
-  function handleCreateFolder(e: FormEvent<HTMLFormElement>) {
+  async function handleCreateFolder(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (formIsValid && !submitting) {
-      const form: NewFolderInfo = {
-        title,
-        category,
-        colour,
-      };
-
-      setSubmitting(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
+    if (formIsValid && workspace && !submitting) {
+      try {
+        setSubmitting(true);
+        const db = getFirestore();
+        const foldersCollRef = collection(db, 'folders');
+        const folderResponse = await addDoc(foldersCollRef, {
+          title,
+          category,
+          colour,
+          workspaceID: workspace.id,
+          createdBy: user.uid,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        } as FolderModel);
         notify('Folder created!', {
           type: 'success',
         });
-      }, 3000);
+        setSubmitting(false);
+        await router.replace(`/app/folder/${folderResponse.id}`);
+      } catch (error: any) {
+        alertDBError(error, "Couldn't create workspace.").then(() => {
+          setSubmitting(false);
+        });
+      }
     }
   }
+
+  useEffect(() => {
+    console.log(workspace);
+  }, [workspace]);
 
   return (
     <>
@@ -77,73 +103,82 @@ const NewFolderPage: PageWithLayout = () => {
 
       <Navigation />
 
-      <main className="page-new-folder">
-        <div className="content mt-16">
-          <h1 className="text-4xl md:text-[36px] font-bold line-h-50">
-            Create a project folder in the <br />
-            <span className="text-main">Montreal Projects</span> workspace.
-          </h1>
+      {!workspace && !workspaceError && (
+        <Loading loadingText="Getting workspace info..." className="mt-12" />
+      )}
 
-          <p className="text-lg text-darkgray my-5">
-            Folders are used to organise your tasks in a workspace.
-          </p>
+      {workspaceError && !workspace && (
+        <ErrorFallback
+          title={workspaceError.title}
+          message={workspaceError.message}
+        />
+      )}
 
-          <form
-            className="mt-16"
-            onSubmit={handleCreateFolder}
-            autoComplete="off"
-          >
-            <Input
-              id="folder-title"
-              type="text"
-              value={title}
-              label="Title"
-              wrapperClass="mb-1.5"
-              error={errors.title}
-              placeholder="Enter folder title"
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setTitle(e.target.value);
-              }}
-            />
-            <Input
-              id="folder-category"
-              type="text"
-              value={category}
-              label="Category"
-              wrapperClass="mb-1.5"
-              error={errors.category}
-              placeholder="Enter folder category"
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setCategory(e.target.value);
-              }}
-            />
+      {workspace && !workspaceError && (
+        <main className="page-new-folder">
+          <div className="content mt-16">
+            <h1 className="text-4xl md:text-[36px] font-bold line-h-50">
+              Create a project folder in the <br />
+              <span className="text-main">{workspace.name}</span> workspace.
+            </h1>
 
-            <div className="colours-wrapper flex">
-              {colours.map((colr) => (
-                <div
-                  key={colr}
-                  className="colour w-10 h-10 rounded-full cursor-pointer transform hover:scale-110 border-[3px]"
-                  onClick={() => setColour(colr)}
-                  style={{
-                    backgroundColor: colr,
-                    borderColor: colour === colr ? '#121212' : '#F5F5F5',
-                  }}
-                />
-              ))}
-            </div>
+            <p className="text-lg text-darkgray my-5">
+              Folders are used to organise your tasks in a workspace.
+            </p>
 
-            <div className="mt-16">
-              <Button
-                type="submit"
-                loading={submitting}
-                disabled={submitting || !formIsValid}
-              >
-                {submitting ? 'Hang on...' : 'Create Folder'}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </main>
+            <form className="mt-16" onSubmit={handleCreateFolder}>
+              <Input
+                id="folder-title"
+                type="text"
+                value={title}
+                label="Title"
+                wrapperClass="mb-1.5"
+                error={errors.title}
+                placeholder="Enter folder title"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setTitle(e.target.value);
+                }}
+              />
+              <Input
+                id="folder-category"
+                type="text"
+                value={category}
+                label="Category"
+                wrapperClass="mb-1.5"
+                error={errors.category}
+                placeholder="Enter folder category"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setCategory(e.target.value);
+                }}
+              />
+
+              <div className="colours-wrapper flex">
+                {colours.map((colr) => (
+                  <div
+                    key={colr}
+                    className="colour w-10 h-10 rounded-full cursor-pointer transform hover:scale-110 border-[3px]"
+                    onClick={() => setColour(colr)}
+                    style={{
+                      backgroundColor: colr,
+                      borderColor: colour === colr ? '#121212' : '#F5F5F5',
+                    }}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-16">
+                <Button
+                  type="submit"
+                  loading={submitting}
+                  disabled={submitting || !formIsValid}
+                >
+                  {submitting ? 'Hang on...' : 'Create Folder'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </main>
+      )}
     </>
   );
 };
