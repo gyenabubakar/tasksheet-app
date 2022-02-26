@@ -165,6 +165,9 @@ const AppLayout: React.FC = ({ children }) => {
               className="lg:hidden logo w-[40px] h-[37px] relative"
               onClick={() => setShowMobileMenu((prevState) => !prevState)}
             >
+              {hasUnreadNotifs && (
+                <div className="w-3.5 h-3.5 rounded-full bg-red-500 absolute right-[-2px] top-[3px] z-[5]" />
+              )}
               <Image src={iconMenu} layout="fill" alt="Menu" />
             </button>
 
