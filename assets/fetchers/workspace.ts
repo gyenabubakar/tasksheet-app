@@ -32,6 +32,14 @@ export function getWorkspace(id: string, uid: string) {
           }
 
           const data = docResponse.data() as WorkspacesModel;
+
+          if (data.createdBy !== uid && !data.members.includes(uid)) {
+            reject({
+              title: "You don't have access to this workspace.",
+              message: "You're not a member or creator of this workspace.",
+            });
+          }
+
           resolve({
             id: docResponse.id,
             ...data,

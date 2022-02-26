@@ -108,11 +108,13 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
   }
 
   function togglePauseJoinRequests() {
-    setPauseJoinRequests((prevState) => {
-      const newState = !prevState;
-      onUpdatePauseJoinRequests(newState);
-      return newState;
-    });
+    if (workspace?.isOwner || workspace?.isAdmin) {
+      setPauseJoinRequests((prevState) => {
+        const newState = !prevState;
+        onUpdatePauseJoinRequests(newState);
+        return newState;
+      });
+    }
   }
 
   async function switchTabs(tab: TabType) {
