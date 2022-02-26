@@ -65,7 +65,7 @@ const TaskDescriptionEditor: React.FC<EditorProps> = ({
   readOnly = false,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [editorInstance, setEditorInstance] = useState(null);
+  const [editorInstance, setEditorInstance] = useState<EditorJS>(null);
 
   useEffect(() => {
     setIsMounted(true);
