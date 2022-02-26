@@ -6,8 +6,8 @@ import Input from '~/components/common/Input';
 import iconEmail from '~/assets/icons/email.svg';
 import Button from '~/components/common/Button';
 import useFormValidation from '~/hooks/useFormValidation';
-import { ResetPasswordEmailInfo } from '~/_serverless/lib/types';
 import validator from 'validator';
+import { ResetPasswordEmailInfo } from '~/_serverless/lib/types';
 
 interface Props {
   handleEmailFormSubmitted: () => void;

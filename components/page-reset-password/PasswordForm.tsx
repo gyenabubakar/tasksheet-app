@@ -5,8 +5,8 @@ import validator from 'validator';
 import iconLock from '~/assets/icons/lock.svg';
 import Input from '~/components/common/Input';
 import useFormValidation from '~/hooks/useFormValidation';
-import { ResetPasswordPasswordsInfo } from '~/_serverless/lib/types';
 import Button from '~/components/common/Button';
+import { ResetPasswordPasswordsInfo } from '~/_serverless/lib/types';
 
 interface Props {
   handleSubmittedPasswords: () => void;

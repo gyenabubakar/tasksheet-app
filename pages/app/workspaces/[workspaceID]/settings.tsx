@@ -140,6 +140,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
       };
 
       setSubmitting(true);
+      // TODO: edit workspace
       setTimeout(() => {
         // eslint-disable-next-line no-console
         console.log(form);
