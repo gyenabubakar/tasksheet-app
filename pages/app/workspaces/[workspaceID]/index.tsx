@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
+import { deleteDoc, doc, getFirestore } from 'firebase/firestore';
 
 import { FolderType, PageWithLayout } from '~/assets/ts/types';
 import WorkspaceDetailsHeader from '~/components/workspace/WorkspaceDetailsHeader';
@@ -10,7 +11,6 @@ import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
 import { Workspace } from '~/assets/firebase/firebaseTypes';
 import Loading from '~/components/common/Loading';
-import illustrationNotFound from '~/assets/illustrations/not-found.svg';
 import useWorkspace from '~/hooks/useWorkspace';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import ErrorFallback from '~/components/common/ErrorFallback';
@@ -43,9 +43,9 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
     },
   ];
 
-  function onEditFolder(folder: FolderType) {
+  async function onEditFolder(folder: FolderType) {
     // eslint-disable-next-line no-console
-    console.log('edit:', folder);
+    await router.push(`/app/folder/${folder.id}/edit`);
   }
 
   async function onDeleteFolder(folder: FolderType) {
@@ -62,19 +62,27 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
       showCancelButton: true,
       showLoaderOnConfirm: true,
       confirmButtonText: 'Yes, delete',
-      preConfirm(confirmed: boolean): Promise<null> | null {
+      preConfirm(confirmed: boolean): Promise<any> | null {
         if (!confirmed) {
           return null;
         }
 
-        return new Promise<null>((resolve) => {
-          setTimeout(() => {
-            // eslint-disable-next-line no-console
-            console.log('delete:', folder);
-            resolve(null);
-          }, 3000);
-        });
+        const db = getFirestore();
+        const folderRef = doc(db, 'folders', folder.id);
+        return deleteDoc(folderRef);
       },
+    }).then(async ({ isConfirmed }) => {
+      if (isConfirmed) {
+        await swal({
+          icon: 'success',
+          title: (
+            <span>
+              Deleted
+              <span className="text-main">{folder.name}</span>!
+            </span>
+          ),
+        });
+      }
     });
   }
 
