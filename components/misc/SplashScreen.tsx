@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 interface Props {
   loadingText: string;
-  performTask?: () => Promise<any>;
+  performTask?: () => Promise<any> | void;
 }
 
 function SplashScreen({ loadingText, performTask }: Props) {

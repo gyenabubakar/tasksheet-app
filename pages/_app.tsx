@@ -37,12 +37,14 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
     </Layout>
   );
 
-  useEffect(() => {
+  function performTask() {
     const accessToken = cookies.get('accessToken');
     if (!accessToken && !user) {
-      router.push(`/login?redirect=${router.route}`);
+      if (router.route.startsWith('/app')) {
+        router.push(`/login?redirect=${router.route}`);
+      }
     }
-  }, [user]);
+  }
 
   if (PageComponent.layout === 'app') {
     if (user) {
@@ -53,7 +55,9 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
       );
     }
 
-    return <SplashScreen loadingText="TaskSheet" />;
+    return (
+      <SplashScreen loadingText="TaskSheet" performTask={() => performTask()} />
+    );
   }
 
   return commonChildren;
