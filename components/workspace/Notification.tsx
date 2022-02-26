@@ -1,52 +1,54 @@
 import React from 'react';
 import Image from 'next/image';
-import { FolderType } from '~/assets/ts/types';
 import moment from 'moment';
-import Link from 'next/link';
+import { InviteNotification } from '~/assets/firebase/firebaseTypes';
+import { Timestamp } from 'firebase/firestore';
 
-export interface Notification {
-  id: string;
-  message: string;
-  createdAt: string;
-  initiator: {
-    avatar: string;
-  };
-  metadata: {
-    folder: Pick<FolderType, 'id' | 'name'> | null;
-    workspace: {
-      id: string;
-      name: string;
-    };
-  };
-}
+export type Notification = InviteNotification;
 
 interface Props {
   notification: Notification;
+  onClick: (notification: Notification) => void;
 }
 
-const NotificationCard: React.FC<Props> = ({ notification }) => {
-  const { initiator, message, createdAt } = notification;
+const NotificationCard: React.FC<Props> = ({ notification, onClick }) => {
+  const { payload, message, createdAt, readAt } = notification;
+
+  const timeElapsed = moment((createdAt as Timestamp).toDate()).fromNow();
 
   return (
-    <Link href="/app/">
-      <a className="notification px-5 py-3 mb-3 bg-white rounded-small flex">
-        <div className="initiator-avatar mr-4">
+    <div
+      className={`notification px-5 py-3 mb-3 rounded-small cursor-pointer flex ${
+        !readAt ? 'bg-faintmain' : 'bg-white'
+      }`}
+      onClick={() => onClick(notification)}
+    >
+      <div className="initiator-avatar mr-4">
+        {payload.sender.avatar && (
           <div className="h-10 w-10 rounded-full overflow-hidden relative">
-            <Image src={initiator.avatar} layout="fill" />
+            <Image src={payload.sender.avatar} layout="fill" />
           </div>
-        </div>
+        )}
 
-        <div className="notification-body grow flex flex-col">
-          <p className="text-base md:text-lg font-medium border-b pb-2 mb-1 w-full">
-            {message}
-          </p>
+        {!payload.sender.avatar && (
+          <div className="h-10 w-10 rounded-full bg-main" />
+        )}
+      </div>
 
-          <div className="text-sm md:text-base text-gray-400 w-full">
-            {moment(createdAt).fromNow()}
-          </div>
+      <div className="notification-body grow flex flex-col">
+        <p
+          className={`text-base md:text-lg font-medium border-b pb-2 mb-1 w-full ${
+            !readAt ? 'border-b-gray-300' : ''
+          }`}
+        >
+          {message}
+        </p>
+
+        <div className="text-sm md:text-base text-gray-400 w-full">
+          {timeElapsed}
         </div>
-      </a>
-    </Link>
+      </div>
+    </div>
   );
 };
 

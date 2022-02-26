@@ -1,8 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  Children,
+  cloneElement,
+  ReactElement,
+  useEffect,
+  useState,
+} from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { getAuth, signOut } from 'firebase/auth';
+import { collection, getFirestore, onSnapshot } from 'firebase/firestore';
 
 import logo from '~/assets/images/logo.svg';
 import iconPlus from '~/assets/icons/nav/plus-white.svg';
@@ -17,6 +24,7 @@ import iconPeopleColoured from '~/assets/icons/nav/people-coloured.svg';
 import LoadingOverlay from '~/components/misc/LoadingOverlay';
 import cookies from '~/assets/ts/cookies';
 import useUser from '~/hooks/useUser';
+import { NotificationsModel } from '~/assets/firebase/firebaseTypes';
 
 const floatingButtonBlockedPaths = [
   '/app/new-task',
@@ -30,13 +38,17 @@ const floatingButtonBlockedPaths = [
 ];
 
 const AppLayout: React.FC = ({ children }) => {
+  const router = useRouter();
   const { user } = useUser();
+  const [notifications, setNotifications] = useState<NotificationsModel[]>([]);
+
+  const hasUnreadNotifs = !!notifications.filter((n) => n.readAt === null)
+    .length;
 
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [logout, setLogout] = useState(false);
 
-  const router = useRouter();
   const isHomePage = /^\/app(\/)?$/.test(router.route);
   const isWorkspacesPage = /^\/app\/workspaces(\/)?$/.test(router.route);
   const isNotificationsPage = /^\/app\/notifications(\/)?$/.test(router.route);
@@ -89,6 +101,34 @@ const AppLayout: React.FC = ({ children }) => {
     }
   }
 
+  function listenForNotifications() {
+    const notificationsCollRef = collection(
+      getFirestore(),
+      `users/${user.uid}`,
+      'notifications',
+    );
+
+    return onSnapshot(notificationsCollRef, (snapshot) => {
+      const notifs = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as NotificationsModel[];
+      setNotifications(notifs);
+    });
+  }
+
+  useEffect(() => {
+    const unsubscribe = listenForNotifications();
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const notifsCount = notifications.length
+      ? `(${notifications.length}) `
+      : '';
+    document.title = notifsCount + document.title;
+  }, [notifications, router]);
+
   useEffect(() => {
     if (showUserMenu) {
       document.addEventListener('click', handleClickedOutsideUserMenu);
@@ -130,8 +170,8 @@ const AppLayout: React.FC = ({ children }) => {
 
             {showMobileMenu && (
               <div
-                id="user-options-wrapper"
-                className="user-options-wrapper absolute bg-white rounded-small min-w-[300px] left-0 top-14 cursor-default overflow-hidden shadow-2xl shadow-faintmain"
+                id="mobile-menu-wrapper"
+                className="mobile-menu-wrapper absolute bg-white rounded-small min-w-[300px] left-0 top-14 cursor-default overflow-hidden shadow-2xl shadow-faintmain"
               >
                 <ul>
                   <li
@@ -155,8 +195,8 @@ const AppLayout: React.FC = ({ children }) => {
                     </svg>
 
                     <span
-                      className={`font-medium text-darkgray inline-block ml-3 text-base ${
-                        isHomePage ? 'text-main' : ''
+                      className={`font-medium inline-block ml-3 text-base ${
+                        isHomePage ? 'text-main' : 'text-darkgray'
                       }`}
                     >
                       Home
@@ -174,8 +214,8 @@ const AppLayout: React.FC = ({ children }) => {
                     {isWorkspacesPage && <Image src={iconPeopleColoured} />}
 
                     <span
-                      className={`font-medium text-darkgray inline-block ml-3 text-darkgray text-base ${
-                        isWorkspacesPage ? 'text-main' : ''
+                      className={`font-medium inline-block ml-3 text-base ${
+                        isWorkspacesPage ? 'text-main' : 'text-darkgray'
                       }`}
                     >
                       Workspaces
@@ -206,9 +246,20 @@ const AppLayout: React.FC = ({ children }) => {
                       />
                     </svg>
 
-                    <span className="font-medium text-darkgray inline-block ml-3 text-darkgray text-base">
-                      Notifications
-                    </span>
+                    <div
+                      className={`font-medium text-darkgray inline-block ml-3 text-base flex items-center `}
+                    >
+                      <span
+                        className={
+                          isNotificationsPage ? 'text-main' : 'text-darkgray'
+                        }
+                      >
+                        Notifications
+                      </span>
+                      {hasUnreadNotifs && (
+                        <div className="w-2 h-2 rounded-full bg-red-500 ml-1" />
+                      )}
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -245,11 +296,14 @@ const AppLayout: React.FC = ({ children }) => {
 
             <Link href="/app/notifications">
               <a
-                className={`link-item ${
+                className={`link-item flex items-center ${
                   isNotificationsPage ? 'exact-active' : ''
                 }`}
               >
                 Notifications
+                {hasUnreadNotifs && (
+                  <div className="w-2 h-2 rounded-full bg-red-500 ml-1" />
+                )}
               </a>
             </Link>
           </div>
@@ -306,7 +360,13 @@ const AppLayout: React.FC = ({ children }) => {
       </nav>
 
       <Container className="mt-[4.42rem] pt-8 md:pt-12 pb-20 md:pb-96">
-        {children}
+        {isNotificationsPage
+          ? Children.map(children, (child) => {
+              return cloneElement(child as ReactElement, {
+                notifications,
+              });
+            })
+          : children}
       </Container>
 
       {!pathIsBlocked && (

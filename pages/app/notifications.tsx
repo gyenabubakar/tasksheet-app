@@ -9,49 +9,18 @@ import NotificationCard, {
   Notification,
 } from '~/components/workspace/Notification';
 import iconBin from '~/assets/icons/workspace/bin.svg';
+import { NotificationsModel } from '~/assets/firebase/firebaseTypes';
 
-const NotificationsPage: PageWithLayout = () => {
+interface PageProps {
+  notifications: Notification[];
+}
+
+const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
   const [showOptions, setShowOptions] = useState(false);
 
-  const notifications: Notification[] = [
-    {
-      id: '1',
-      message:
-        'Congrats 🎉🥳! De Graft Arthur made you an admin of React Projects.',
-      initiator: {
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-      metadata: {
-        folder: {
-          id: '1',
-          name: 'Folder 1',
-        },
-        workspace: {
-          id: '1',
-          name: 'Workspace 1',
-        },
-      },
-      createdAt: moment().subtract(2, 'days').toJSON(),
-    },
-    {
-      id: '2',
-      message: 'Gyen Abubakar has requested to join Workspace 2.',
-      initiator: {
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-      metadata: {
-        folder: {
-          id: '2',
-          name: 'Folder 2',
-        },
-        workspace: {
-          id: '2',
-          name: 'Workspace 2',
-        },
-      },
-      createdAt: moment().subtract(2, 'days').toJSON(),
-    },
-  ];
+  function onNotificationClick(notification: Notification) {
+    console.log(notification);
+  }
 
   function onMarkAllAsRead() {
     // eslint-disable-next-line no-console
@@ -72,7 +41,10 @@ const NotificationsPage: PageWithLayout = () => {
       <main className="w-full md:w-9/12 lg:w-7/12 mx-auto">
         <div className="heading mb-5 flex justify-between items-center">
           <h1 className="text-lg md:text-2xl lg:text-3xl font-bold">
-            Notifications <span className="text-main">(2)</span>
+            Notifications&nbsp;
+            {notifications.length && (
+              <span className="text-main">({notifications.length})</span>
+            )}
           </h1>
 
           <button
@@ -144,16 +116,19 @@ const NotificationsPage: PageWithLayout = () => {
           </button>
         </div>
 
-        <div className="notifications">
-          {notifications.map((notification) => {
-            return (
-              <NotificationCard
-                key={notification.id}
-                notification={notification}
-              />
-            );
-          })}
-        </div>
+        {notifications.length && (
+          <div className="notifications">
+            {notifications.map((notification) => {
+              return (
+                <NotificationCard
+                  key={notification.id}
+                  notification={notification}
+                  onClick={(n) => onNotificationClick(n)}
+                />
+              );
+            })}
+          </div>
+        )}
       </main>
     </>
   );
