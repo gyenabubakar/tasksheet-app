@@ -1,29 +1,49 @@
+import React, { ChangeEvent, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import moment from 'moment';
+import Image from 'next/image';
+import useSWR from 'swr';
+
 import { PageWithLayout, TaskType } from '~/assets/ts/types';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import Navigation from '~/components/common/Navigation';
 import hexToRGB from '~/assets/ts/hexToRGB';
 import Input from '~/components/common/Input';
-import React, { ChangeEvent, useState } from 'react';
 import Task from '~/components/workspace/Task';
-import Image from 'next/image';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
-import moment from 'moment';
+import { getFolder } from '~/assets/fetchers/folder';
+import Loading from '~/components/common/Loading';
+import ErrorFallback from '~/components/common/ErrorFallback';
+import useUser from '~/hooks/useUser';
 
 type TabType = 'To do' | 'Done' | 'Overdue';
 
 const FolderDetailsPage: PageWithLayout = () => {
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [activeTab, setActiveTab] = useState<TabType>('To do');
-
   const router = useRouter();
   const { folderID } = router.query;
+
+  const { user } = useUser();
+
+  const { error, data: folder } = useSWR(
+    'get-folder-details',
+    getFolder(folderID as string, user.uid),
+  );
+
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>('To do');
 
   const isTodoTab = activeTab === 'To do';
   const isDoneTab = activeTab === 'Done';
   const isOverdueTab = activeTab === 'Overdue';
+
+  const pageTitle = (() => {
+    if (folder && !error) {
+      return `${folder.title} | ${folder.workspace.name}${pageTitleSuffix}`;
+    }
+    return `Folder${pageTitleSuffix}`;
+  })();
 
   const tasks: TaskType[] = [
     {
@@ -127,138 +147,148 @@ const FolderDetailsPage: PageWithLayout = () => {
     },
   ];
 
-  const colour = '#14CC8A';
-
   return (
     <>
       <Head>
-        <title>
-          {folderID} | Workspace Name{pageTitleSuffix}
-        </title>
+        <title>{pageTitle}</title>
       </Head>
 
       <Navigation>
-        <button
-          className="text-sm px-3 py-1 rounded-md bg-faintmain font-medium flex items-center"
-          onClick={() => router.push(`/app/folder/${folderID}/edit`)}
-        >
-          Edit folder
-        </button>
+        {folder && !error && (
+          <button
+            className="text-sm px-3 py-1 rounded-md bg-faintmain font-medium flex items-center"
+            onClick={() => router.push(`/app/folder/${folderID}/edit`)}
+          >
+            Edit folder
+          </button>
+        )}
       </Navigation>
 
-      <main>
-        <span
-          className="px-3 py-1 rounded-md text-sm font-medium"
-          style={{
-            backgroundColor: `rgba(${hexToRGB(colour)!.rgb()}, 0.3)`,
-          }}
-        >
-          Development
-        </span>
-        <h1 className="text-2xl md:text-4xl font-bold mt-2">Mobile Apps</h1>
+      {!folder && !error && (
+        <Loading loadingText="Loading folder..." className="mt-12" />
+      )}
 
-        <nav className="flex flex-col md:flex-row justify-between mt-12">
-          <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
-            <div
-              className={`tab ${isTodoTab ? 'active' : ''}`}
-              onClick={() => setActiveTab('To do')}
-            >
-              To do
-            </div>
+      {error && !folder && (
+        <ErrorFallback title={error.title} message={error.message} />
+      )}
 
-            <div
-              className={`tab ${isDoneTab ? 'active' : ''}`}
-              onClick={() => setActiveTab('Done')}
-            >
-              Done
-            </div>
+      {folder && !error && (
+        <main>
+          <span
+            className="px-3 py-1 rounded-md text-sm font-medium"
+            style={{
+              backgroundColor: `rgba(${hexToRGB(folder.colour)!.rgb()}, 0.3)`,
+            }}
+          >
+            {folder.category}
+          </span>
+          <h1 className="text-2xl md:text-4xl font-bold mt-2">
+            {folder.title}
+          </h1>
 
-            <div
-              className={`tab ${isOverdueTab ? 'active' : ''}`}
-              onClick={() => setActiveTab('Overdue')}
-            >
-              <span>Overdue</span>
-              <span className="important ml-2 inline-block" />
-            </div>
-          </div>
-
-          <div className="search mt-3 md:mt-0 md:flex justify-end">
-            <Input
-              id="search-keyword"
-              type="text"
-              value={searchKeyword}
-              wrapperClass="mx-auto md:mx-0 md:w-[350px] lg:w-[450px]"
-              icon={{
-                position: searchKeyword ? 'both' : 'left',
-                elements: [
-                  <div className=" absolute bottom-[1.1rem] left-[1.125rem]">
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                        d="M8.66465 0.045166C3.89415 0.045166 0.045105 3.95109 0.045105 8.74669C0.045105 13.5423 3.89415 17.4482 8.66465 17.4482C13.4352 17.4482 17.2842 13.5423 17.2842 8.74669C17.2842 6.44234 16.3786 4.23023 14.7634 2.59758C13.1477 0.964561 10.9542 0.045166 8.66465 0.045166ZM2.0451 8.74669C2.0451 5.03543 5.01884 2.04517 8.66465 2.04517C10.4168 2.04517 12.0994 2.74859 13.3416 4.0042C14.5842 5.26018 15.2842 6.96591 15.2842 8.74669C15.2842 12.458 12.3105 15.4482 8.66465 15.4482C5.01884 15.4482 2.0451 12.458 2.0451 8.74669ZM17.0791 15.6767C16.6886 15.2862 16.0555 15.2862 15.6649 15.6767C15.2744 16.0672 15.2744 16.7004 15.6649 17.0909L18.2483 19.6743C18.6388 20.0648 19.272 20.0648 19.6625 19.6743C20.053 19.2838 20.053 18.6506 19.6625 18.2601L17.0791 15.6767Z"
-                        fill="#B8B8B8"
-                      />
-                    </svg>
-                  </div>,
-
-                  searchKeyword ? (
-                    <button
-                      type="button"
-                      className="text-sm uppercase font-bold text-main inline-block absolute bottom-[0.95rem] right-[1.125rem] "
-                      onClick={() => setSearchKeyword('')}
-                    >
-                      Clear
-                    </button>
-                  ) : (
-                    <small />
-                  ),
-                ],
-              }}
-              placeholder="Search your tasks"
-              hideBr
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                setSearchKeyword(e.target.value);
-              }}
-            />
-          </div>
-        </nav>
-
-        <div className="content">
-          {tasks.length ? (
-            <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {tasks.map((task) => (
-                <Task key={task.id} task={task} />
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state flex flex-col justify-center items-center mt-24">
-              <div className="w-[247px] h-[241px] relative">
-                <Image src={illustrationEmpty} />
+          <nav className="flex flex-col md:flex-row justify-between mt-12">
+            <div className="tabs text-sm md:text-base font-medium flex items-center bg-[#EAEBFF] px-1.5 py-1.5 rounded-[12px] w-full md:w-auto">
+              <div
+                className={`tab ${isTodoTab ? 'active' : ''}`}
+                onClick={() => setActiveTab('To do')}
+              >
+                To do
               </div>
 
-              <h3 className="font-bold text-[24px] text-center mt-10">
-                There are no tasks in this category.
-              </h3>
+              <div
+                className={`tab ${isDoneTab ? 'active' : ''}`}
+                onClick={() => setActiveTab('Done')}
+              >
+                Done
+              </div>
 
-              <div className="mt-10">
-                <Button
-                  paddingClasses="px-8 py-6"
-                  onClick={() => router.push(`/app/new-task`)}
-                >
-                  Create New Task
-                </Button>
+              <div
+                className={`tab ${isOverdueTab ? 'active' : ''}`}
+                onClick={() => setActiveTab('Overdue')}
+              >
+                <span>Overdue</span>
+                <span className="important ml-2 inline-block" />
               </div>
             </div>
-          )}
-        </div>
-      </main>
+
+            <div className="search mt-3 md:mt-0 md:flex justify-end">
+              <Input
+                id="search-keyword"
+                type="text"
+                value={searchKeyword}
+                wrapperClass="mx-auto md:mx-0 md:w-[350px] lg:w-[450px]"
+                icon={{
+                  position: searchKeyword ? 'both' : 'left',
+                  elements: [
+                    <div className=" absolute bottom-[1.1rem] left-[1.125rem]">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          clipRule="evenodd"
+                          d="M8.66465 0.045166C3.89415 0.045166 0.045105 3.95109 0.045105 8.74669C0.045105 13.5423 3.89415 17.4482 8.66465 17.4482C13.4352 17.4482 17.2842 13.5423 17.2842 8.74669C17.2842 6.44234 16.3786 4.23023 14.7634 2.59758C13.1477 0.964561 10.9542 0.045166 8.66465 0.045166ZM2.0451 8.74669C2.0451 5.03543 5.01884 2.04517 8.66465 2.04517C10.4168 2.04517 12.0994 2.74859 13.3416 4.0042C14.5842 5.26018 15.2842 6.96591 15.2842 8.74669C15.2842 12.458 12.3105 15.4482 8.66465 15.4482C5.01884 15.4482 2.0451 12.458 2.0451 8.74669ZM17.0791 15.6767C16.6886 15.2862 16.0555 15.2862 15.6649 15.6767C15.2744 16.0672 15.2744 16.7004 15.6649 17.0909L18.2483 19.6743C18.6388 20.0648 19.272 20.0648 19.6625 19.6743C20.053 19.2838 20.053 18.6506 19.6625 18.2601L17.0791 15.6767Z"
+                          fill="#B8B8B8"
+                        />
+                      </svg>
+                    </div>,
+
+                    searchKeyword ? (
+                      <button
+                        type="button"
+                        className="text-sm uppercase font-bold text-main inline-block absolute bottom-[0.95rem] right-[1.125rem] "
+                        onClick={() => setSearchKeyword('')}
+                      >
+                        Clear
+                      </button>
+                    ) : (
+                      <small />
+                    ),
+                  ],
+                }}
+                placeholder="Search your tasks"
+                hideBr
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  setSearchKeyword(e.target.value);
+                }}
+              />
+            </div>
+          </nav>
+
+          <div className="content">
+            {tasks.length ? (
+              <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {tasks.map((task) => (
+                  <Task key={task.id} task={task} />
+                ))}
+              </div>
+            ) : (
+              <div className="empty-state flex flex-col justify-center items-center mt-24">
+                <div className="w-[247px] h-[241px] relative">
+                  <Image src={illustrationEmpty} />
+                </div>
+
+                <h3 className="font-bold text-[24px] text-center mt-10">
+                  There are no tasks in this category.
+                </h3>
+
+                <div className="mt-10">
+                  <Button
+                    paddingClasses="px-8 py-6"
+                    onClick={() => router.push(`/app/new-task`)}
+                  >
+                    Create New Task
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </main>
+      )}
     </>
   );
 };

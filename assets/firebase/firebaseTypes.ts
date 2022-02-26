@@ -102,5 +102,9 @@ export interface FolderModel extends WithTime {
 
 // for presenting workspace data for the front-end
 export interface Folder extends FolderModel {
+  workspace: {
+    id: string;
+    name: string;
+  };
   tasks: any[];
 }

@@ -1,4 +1,4 @@
-import { doc, FirestoreError, getDoc, getFirestore } from 'firebase/firestore';
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
 
 import { Workspace, WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
