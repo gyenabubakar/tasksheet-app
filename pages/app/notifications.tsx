@@ -43,6 +43,7 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
       case NotificationType.WorkspaceInviteCreated:
         router.push(`/app/invitation/${notification.payload.id}`);
         break;
+      default:
     }
   }
 
@@ -66,7 +67,7 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
         <div className="heading mb-5 flex justify-between items-center">
           <h1 className="text-lg md:text-2xl lg:text-3xl font-bold">
             Notifications&nbsp;
-            {notifications.length && (
+            {!!notifications.length && (
               <span className="text-main">({notifications.length})</span>
             )}
           </h1>
@@ -140,7 +141,7 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
           </button>
         </div>
 
-        {notifications.length && (
+        {!!notifications.length && (
           <div className="notifications">
             {notifications.map((notification) => {
               return (
@@ -152,6 +153,12 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
               );
             })}
           </div>
+        )}
+
+        {notifications.length === 0 && (
+          <p className="font-medium text-darkgray text-center mt-16">
+            You have no notifications at the moment.
+          </p>
         )}
       </main>
     </>
