@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -9,17 +9,41 @@ import NotificationCard, {
   Notification,
 } from '~/components/workspace/Notification';
 import iconBin from '~/assets/icons/workspace/bin.svg';
-import { NotificationsModel } from '~/assets/firebase/firebaseTypes';
+import { NotificationType } from '~/assets/firebase/firebaseTypes';
+import swal from '~/assets/ts/sweetalert';
+import {
+  doc,
+  getFirestore,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
+import useUser from '~/hooks/useUser';
 
 interface PageProps {
   notifications: Notification[];
 }
 
 const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
+  const router = useRouter();
+  const { user } = useUser();
+
   const [showOptions, setShowOptions] = useState(false);
 
   function onNotificationClick(notification: Notification) {
-    console.log(notification);
+    const notifRef = doc(
+      getFirestore(),
+      `users/${user.uid}`,
+      `notifications/${notification.id}`,
+    );
+    updateDoc(notifRef, {
+      readAt: serverTimestamp(),
+    });
+
+    switch (notification.type) {
+      case NotificationType.WorkspaceInviteCreated:
+        router.push(`/app/invitation/${notification.payload.id}`);
+        break;
+    }
   }
 
   function onMarkAllAsRead() {
