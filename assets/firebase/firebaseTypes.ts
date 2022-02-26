@@ -86,6 +86,9 @@ export interface NotificationsModel {
   id?: string;
   message: string;
   type: NotificationType;
+  createdAt: FieldValue;
+  readAt: FieldValue | null;
+  payload: any;
 }
 
 // for modifying the `folders` collection
