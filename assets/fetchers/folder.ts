@@ -60,8 +60,6 @@ export function getFolders(workspaceID: string) {
       const db = getFirestore(getFirebaseApp());
       const foldersCollRef = collection(db, 'folders');
 
-      resolve([]);
-
       const foldersQuery = query(
         foldersCollRef,
         where('workspaceID', '==', workspaceID),
