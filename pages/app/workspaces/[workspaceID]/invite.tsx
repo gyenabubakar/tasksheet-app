@@ -10,6 +10,7 @@ import ReactTooltip from 'react-tooltip';
 import Button from '~/components/common/Button';
 import swal from '~/assets/ts/sweetalert';
 import Navigation from '~/components/common/Navigation';
+import useUser from '~/hooks/useUser';
 
 interface Invite {
   timestamp: number;
@@ -17,6 +18,8 @@ interface Invite {
 }
 
 const WorkspaceInviteMembers: PageWithLayout = () => {
+  const { user } = useUser();
+
   const [invites, setInvites] = useState<Invite[]>([
     { timestamp: Date.now(), email: '' },
   ]);
@@ -28,7 +31,9 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
 
   const formIsValid = (() => {
     const validInputs: boolean[] = [];
-    invites.forEach(({ email }) => validInputs.push(validator.isEmail(email)));
+    invites.forEach(({ email }) =>
+      validInputs.push(validator.isEmail(email) && email !== user.email),
+    );
     return !validInputs.includes(false);
   })();
 
@@ -37,6 +42,10 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
 
     if (isValid === false) {
       return 'Enter a valid email address.';
+    }
+
+    if (email === user.email) {
+      return "You can't invite yourself.";
     }
 
     const isDuplicate =
