@@ -85,9 +85,7 @@ export enum NotificationType {
 export interface NotificationsModel {
   id?: string;
   message: string;
-  from: string; // UID of user who caused notification to happen
   type: NotificationType;
-  meta: any;
 }
 
 // for modifying the `folders` collection
@@ -107,4 +105,23 @@ export interface Folder extends FolderModel {
     name: string;
   };
   tasks: any[];
+}
+
+export interface InvitationModel extends WithTime {
+  id?: string;
+  email: string;
+  sender: {
+    uid: string;
+    name: string;
+    avatar: string | null;
+  };
+  workspace: {
+    id: string;
+    name: string;
+  };
+}
+
+export interface InviteNotification extends NotificationsModel {
+  type: NotificationType.WorkspaceInviteCreated;
+  payload: InvitationModel;
 }

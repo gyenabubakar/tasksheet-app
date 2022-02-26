@@ -1,8 +1,18 @@
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import validator from 'validator';
+import {
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  serverTimestamp,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
+import { v4 as uuid } from 'uuid';
 
 import iconEmail from '~/assets/icons/email.svg';
 import { PageWithLayout } from '~/assets/ts/types';
@@ -15,6 +25,12 @@ import useWorkspace from '~/hooks/useWorkspace';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
+import {
+  InvitationModel,
+  InviteNotification,
+  NotificationType,
+} from '~/assets/firebase/firebaseTypes';
+import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 
 interface Invite {
   timestamp: number;
@@ -22,6 +38,7 @@ interface Invite {
 }
 
 const WorkspaceInviteMembers: PageWithLayout = () => {
+  // const router = useRouter();
   const { user } = useUser();
   const { error, workspace } = useWorkspace();
 
@@ -30,9 +47,6 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
   ]);
   const [isMounted, setIsMounted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  const router = useRouter();
-  const { workspaceID } = router.query;
 
   const canIssueInvites =
     workspace &&
@@ -65,25 +79,105 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
     return isDuplicate ? 'Duplicate email address.' : null;
   }
 
-  function handleSendInvites(e: FormEvent<HTMLFormElement>) {
+  async function handleSendInvites(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (formIsValid) {
       const emails = invites.map(({ email }) => email);
+      const emailsWithNoAccounts: string[] = [];
+      const userIDs: string[] = [];
 
-      setSubmitting(true);
-      setTimeout(() => {
+      try {
+        setSubmitting(true);
+        const db = getFirestore();
+        const invitesBatch = writeBatch(db);
+        const notificationsBatch = writeBatch(db);
+        const usersCollRef = collection(db, 'users');
+
+        for (let i = 0; i < emails.length; i++) {
+          const email = emails[i];
+
+          const usersQuery = query(usersCollRef, where('email', '==', email));
+          // eslint-disable-next-line no-await-in-loop
+          const snapshot = await getDocs(usersQuery);
+
+          if (!snapshot.docs.length) {
+            emailsWithNoAccounts.push(email);
+            continue;
+          }
+
+          userIDs.push(snapshot.docs[0].id);
+        }
+
+        if (emailsWithNoAccounts.length) {
+          const isOne = emailsWithNoAccounts.length === 1;
+          throw new Error(
+            `${isOne ? 'This' : 'These'} ${isOne ? 'email' : 'emails'} ${
+              isOne ? 'is' : 'are'
+            } not associated with any TaskSheet ${
+              isOne ? "user's" : "users'"
+            } ${isOne ? 'account' : 'accounts'}: ${
+              isOne ? emailsWithNoAccounts[0] : emailsWithNoAccounts.join(', ')
+            }`,
+          );
+        }
+
+        for (let i = 0; i < emails.length; i++) {
+          const email = emails[i];
+          const inviteRef = doc(db, 'invitations', uuid());
+          const notificationRef = doc(
+            db,
+            `users/${userIDs[i]}`,
+            `notifications`,
+            uuid(),
+          );
+
+          const inviteObj: InvitationModel = {
+            email,
+            sender: {
+              uid: user.uid,
+              name: user.displayName!,
+              avatar: user.photoURL,
+            },
+            workspace: {
+              id: workspace.id!,
+              name: workspace.name,
+            },
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          };
+
+          notificationsBatch.set(notificationRef, {
+            type: NotificationType.WorkspaceInviteCreated,
+            message: `${user.displayName} has invited you to join ${workspace.name}.`,
+            payload: {
+              id: inviteRef.id,
+              ...inviteObj,
+            },
+          } as InviteNotification);
+        }
+
+        await invitesBatch.commit();
+        notificationsBatch.commit();
+
         const invitesWord = emails.length === 1 ? 'Invite' : 'Invites';
-
-        setSubmitting(false);
         swal({
           icon: 'success',
           title: `${invitesWord} sent successfully!`,
           timer: 3000,
         }).finally(() => {
-          router.push(`/app/workspaces/${workspaceID}`);
+          setInvites([{ timestamp: Date.now(), email: '' }]);
         });
-      }, 3000);
+      } catch (err: any) {
+        if (err) {
+          await swal({
+            icon: 'error',
+            title: `Failed to send invites.`,
+            text: getDBErrorMessage(err),
+          });
+        }
+      }
+      setSubmitting(false);
     }
   }
 
@@ -122,12 +216,12 @@ const WorkspaceInviteMembers: PageWithLayout = () => {
           <div className="content mt-12">
             <h1 className="text-4xl lg:text-[48px] font-bold line-h-50">
               Invite Team Members to <br className="hidden md:block" />
-              <span className="text-main">Workspace Name</span>.
+              <span className="text-main">{workspace.name}</span>.
             </h1>
 
             <p className="mt-5 mb-16 md:w-[435px] text-lg text-darkgray">
-              Enter one or more email addresses below and we’ll send them
-              invitation mails.
+              Enter one or more email addresses of TaskSheet users and we’ll
+              send them invitation notifications.
             </p>
 
             <form autoComplete="off" onSubmit={handleSendInvites}>
