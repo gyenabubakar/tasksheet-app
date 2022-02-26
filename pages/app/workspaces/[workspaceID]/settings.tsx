@@ -325,6 +325,11 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
             <>
               <h1 className="text-[48px] font-bold">Settings</h1>
 
+              <p className="text-base text-gray-500">
+                Only admins and the workspace owner can modify workspace
+                settings.
+              </p>
+
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 mt-12">
                 <div className="settings-tabs flex lg:block lg:col-start-1 lg:col-end-5">
                   <div

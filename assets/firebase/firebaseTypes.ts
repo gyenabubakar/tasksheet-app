@@ -91,6 +91,17 @@ export interface NotificationsModel {
   payload: any;
 }
 
+export interface NotificationSender {
+  uid: string;
+  name: string;
+  avatar: string | null;
+}
+
+export interface NotificationTargetWorkspace {
+  id: string;
+  name: string;
+}
+
 // for modifying the `folders` collection
 export interface FolderModel extends WithTime {
   id?: string;
@@ -113,18 +124,27 @@ export interface Folder extends FolderModel {
 export interface InvitationModel extends WithTime {
   id?: string;
   email: string;
-  sender: {
-    uid: string;
-    name: string;
-    avatar: string | null;
-  };
-  workspace: {
-    id: string;
-    name: string;
-  };
+  sender: NotificationSender;
+  workspace: NotificationTargetWorkspace;
 }
 
 export interface InviteNotification extends NotificationsModel {
   type: NotificationType.WorkspaceInviteCreated;
   payload: InvitationModel;
+}
+
+export interface InviteAcceptedNotification extends NotificationsModel {
+  type: NotificationType.WorkspaceInviteAccepted;
+  payload: {
+    sender: NotificationSender;
+    workspace: NotificationTargetWorkspace;
+  };
+}
+
+export interface MemberJoinedNotification extends NotificationsModel {
+  type: NotificationType.WorkspaceMemberJoined;
+  payload: {
+    sender: NotificationSender;
+    workspace: NotificationTargetWorkspace;
+  };
 }

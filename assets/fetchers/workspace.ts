@@ -12,7 +12,7 @@ import { Workspace, WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
 import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 
-export function getWorkspace(id: string, uid: string) {
+export function getWorkspace(id: string, uid: string, validateAccess = true) {
   return () => {
     return new Promise<Workspace>((resolve, reject) => {
       const app = getFirebaseApp();
@@ -33,11 +33,13 @@ export function getWorkspace(id: string, uid: string) {
 
           const data = docResponse.data() as WorkspacesModel;
 
-          if (data.createdBy !== uid && !data.members.includes(uid)) {
-            reject({
-              title: "You don't have access to this workspace.",
-              message: "You're not a member or creator of this workspace.",
-            });
+          if (validateAccess) {
+            if (data.createdBy !== uid && !data.members.includes(uid)) {
+              reject({
+                title: "You don't have access to this workspace.",
+                message: "You're not a member or creator of this workspace.",
+              });
+            }
           }
 
           resolve({
