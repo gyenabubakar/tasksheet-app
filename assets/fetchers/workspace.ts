@@ -1,4 +1,12 @@
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  where,
+} from 'firebase/firestore';
 
 import { Workspace, WorkspacesModel } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
@@ -39,6 +47,60 @@ export function getWorkspace(id: string, uid: string) {
               message: getDBErrorMessage(error),
             });
           }
+        });
+    });
+  };
+}
+
+export function getWorkspaces(uid: string) {
+  return () => {
+    return new Promise<WorkspacesModel[]>((resolve, reject) => {
+      const db = getFirestore(getFirebaseApp());
+      const workspacesCollRef = collection(db, 'workspaces');
+
+      let workspaces: WorkspacesModel[] = [];
+
+      const adminQuery = query(
+        workspacesCollRef,
+        where('createdBy', '==', uid),
+      );
+
+      const memberQuery = query(
+        workspacesCollRef,
+        where('members', 'array-contains-any', [uid]),
+      );
+
+      getDocs(adminQuery)
+        .then((snapshot) => {
+          workspaces = snapshot.docs.map((_doc) => ({
+            id: _doc.id,
+            ..._doc.data(),
+          })) as WorkspacesModel[];
+
+          getDocs(memberQuery)
+            .then((membersSnapshot) => {
+              workspaces = [
+                ...workspaces,
+                ...(membersSnapshot.docs.map((_doc) => ({
+                  id: _doc.id,
+                  ..._doc.data(),
+                })) as WorkspacesModel[]),
+              ];
+
+              resolve(workspaces);
+            })
+            .catch((error) => {
+              reject({
+                title: `Couldn't get workspaces.`,
+                message: getDBErrorMessage(error),
+              });
+            });
+        })
+        .catch((error) => {
+          reject({
+            title: `Couldn't get workspaces.`,
+            message: getDBErrorMessage(error),
+          });
         });
     });
   };

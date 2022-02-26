@@ -1,4 +1,4 @@
-import { Folder } from '~/assets/firebase/firebaseTypes';
+import { Folder, FolderModel } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
 import {
   collection,
@@ -56,9 +56,11 @@ export function getFolder(id: string, uid: string, withTasks = false) {
 
 export function getFolders(workspaceID: string) {
   return () => {
-    return new Promise((resolve, reject) => {
+    return new Promise<FolderModel[]>((resolve, reject) => {
       const db = getFirestore(getFirebaseApp());
       const foldersCollRef = collection(db, 'folders');
+
+      resolve([]);
 
       const foldersQuery = query(
         foldersCollRef,
@@ -67,14 +69,13 @@ export function getFolders(workspaceID: string) {
 
       getDocs(foldersQuery)
         .then((snapshot) => {
-          const folders = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const folders = snapshot.docs.map((_doc) => ({
+            id: _doc.id,
+            ..._doc.data(),
+          })) as FolderModel[];
           resolve(folders);
         })
         .catch((error) => {
-          // console.dir(error);
           if (error) {
             reject({
               title: "Couldn't get folders.",

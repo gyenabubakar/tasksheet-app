@@ -29,6 +29,14 @@ import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import notify from '~/assets/ts/notify';
 import Container from '~/components/common/Container';
 import Button from '~/components/common/Button';
+import useUser from '~/hooks/useUser';
+import useSWR from 'swr';
+import { getWorkspaces } from '~/assets/fetchers/workspace';
+import swal from '~/assets/ts/sweetalert';
+import { useRouter } from 'next/router';
+import { FolderModel } from '~/assets/firebase/firebaseTypes';
+import { getFolders } from '~/assets/fetchers/folder';
+import alertDBError from '~/assets/firebase/alertDBError';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -77,15 +85,27 @@ const DatePickerInput = forwardRef(
 );
 
 const NewTaskPage: PageWithLayout = () => {
+  const router = useRouter();
+  const { user } = useUser();
+  const { error: workspacesError, data: workspaces } = useSWR(
+    'get-user-workspaces',
+    getWorkspaces(user.uid),
+  );
+
   const [isMounted, setIsMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('Description');
   const [submitting, setSubmitting] = useState(false);
+
+  const [fetchedFolders, setFetchedFolders] = useState<FolderModel[] | null>(
+    null,
+  );
+  const [gettingFolders, setGettingFolders] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<PriorityDropdownItem | null>(null);
   const [assignees, setAssignees] = useState<Assignee[]>([]);
-  const [workspace, setWorkspace] = useState<Assignee | null>(null);
+  const [workspace, setWorkspace] = useState<DropdownItem | null>(null);
   const [folder, setFolder] = useState<Folder | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
 
@@ -94,7 +114,7 @@ const NewTaskPage: PageWithLayout = () => {
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
-  const [showPriorityDropdow, setShowPriorityDropdow] = useState(false);
+  const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
 
   const dateRef = useRef<Date | null>(null);
 
@@ -105,23 +125,13 @@ const NewTaskPage: PageWithLayout = () => {
   const workspaceIsValid = workspace !== null;
   const folderIsValid = folder !== null;
 
-  const workspaces: DropdownItem[] = [
-    {
-      id: 1,
-      value: 'React Projects',
-      searchable: 'React Projects',
-    },
-    {
-      id: 2,
-      value: 'Freelance',
-      searchable: 'Freelance',
-    },
-    {
-      id: 3,
-      value: 'Open Source',
-      searchable: 'Open Source',
-    },
-  ];
+  const dropdownWorkspaces: DropdownItem[] = workspaces
+    ? workspaces.map(({ id, name }) => ({
+        id,
+        value: name,
+        searchable: name,
+      }))
+    : [];
 
   const priorities: DropdownItem[] = [
     {
@@ -199,53 +209,22 @@ const NewTaskPage: PageWithLayout = () => {
     },
   ];
 
-  const folders: Folder[] = [
-    {
-      id: '1',
-      searchable: 'Mobile Apps',
-      colour: '#5C68FF',
-      value: (
-        <div className="flex items-center">
-          <div
-            className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
-            style={{ backgroundColor: '#5C68FF' }}
-          />
-
-          <span>Mobile Apps</span>
-        </div>
-      ),
-    },
-    {
-      id: '2',
-      searchable: '3D Animations',
-      colour: '#14CC8A',
-      value: (
-        <div className="flex items-center">
-          <div
-            className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
-            style={{ backgroundColor: '#14CC8A' }}
-          />
-
-          <span>3D Animations</span>
-        </div>
-      ),
-    },
-    {
-      id: '3',
-      searchable: 'Blog Articles',
-      colour: '#e11d48',
-      value: (
-        <div className="flex items-center">
-          <div
-            className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
-            style={{ backgroundColor: '#e11d48' }}
-          />
-
-          <span>Blog Articles</span>
-        </div>
-      ),
-    },
-  ];
+  const folders: Folder[] = fetchedFolders
+    ? fetchedFolders.map(({ id, title: folderTitle, colour }) => ({
+        id,
+        searchable: folderTitle,
+        colour,
+        value: (
+          <div className="flex items-center">
+            <div
+              className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
+              style={{ backgroundColor: colour }}
+            />
+            <span>{folderTitle}</span>
+          </div>
+        ),
+      }))
+    : [];
 
   function handleSelectFolder() {
     if (!workspace) {
@@ -327,6 +306,65 @@ const NewTaskPage: PageWithLayout = () => {
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (workspaces) {
+      if (!workspaces.length) {
+        swal({
+          icon: 'warning',
+          title: "You can't create a task.",
+          text: "This is because you're not an owner or member of any workspace.",
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: 'Create workspace',
+          cancelButtonText: 'Cancel',
+        }).then(async ({ isConfirmed }) => {
+          if (isConfirmed) {
+            await router.push(`/app/workspaces/new-workspace`);
+            return;
+          }
+          await router.push('/app/');
+        });
+      }
+    }
+  }, [workspaces]);
+
+  useEffect(() => {
+    if (workspace) {
+      setGettingFolders(true);
+      getFolders(workspace.id)()
+        .then((_folders) => {
+          if (!_folders.length) {
+            swal({
+              icon: 'warning',
+              title: "You can't create a task.",
+              html: (
+                <span>
+                  This is because there are no folders in the workspace you
+                  selected. Please inform an admin of&nbsp;
+                  <span className="text-main">{workspace.searchable}</span>
+                  &nbsp;to create a folder for you, or create it yourself if
+                  you&apos;re an admin.
+                </span>
+              ),
+              showConfirmButton: true,
+            }).then(async () => {
+              await router.push(`/app/workspaces/${workspace.id}`);
+            });
+          }
+          setFetchedFolders(_folders);
+        })
+        .catch(async (err) => {
+          await alertDBError(
+            err,
+            `Couldn't get folders in ${workspace.searchable}`,
+          );
+        })
+        .finally(() => {
+          setGettingFolders(false);
+        });
+    }
+  }, [workspace]);
+
   return (
     <>
       <Head>
@@ -397,12 +435,49 @@ const NewTaskPage: PageWithLayout = () => {
                     <button
                       id="workspaces-dropdown-button"
                       type="button"
-                      className="text-main hover:text-darkmain"
-                      onClick={() =>
-                        setShowWorkspaceDropdown((prevState) => !prevState)
-                      }
+                      className="text-main hover:text-darkmain flex items-center"
+                      onClick={() => {
+                        if (workspaces) {
+                          setShowWorkspaceDropdown((prevState) => !prevState);
+                        }
+                      }}
                     >
-                      Select
+                      <span>Select</span>
+                      {!workspacesError && !workspaces && (
+                        <svg
+                          className="animate-spin h-4 w-4 text-white ml-3"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          data-tip
+                          data-for="workspaces-loading"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="#121212"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="#121212"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      )}
+
+                      {isMounted && (
+                        <ReactTooltip
+                          id="workspaces-loading"
+                          place="top"
+                          type="dark"
+                          effect="solid"
+                        >
+                          Getting your workspaces
+                        </ReactTooltip>
+                      )}
                     </button>
                   )}
                 </div>
@@ -410,7 +485,7 @@ const NewTaskPage: PageWithLayout = () => {
                 {showWorkspaceDropdown && (
                   <Dropdown
                     id="workspaces-dropdown"
-                    options={workspaces}
+                    options={dropdownWorkspaces}
                     value={workspace}
                     className="absolute left-[0px] top-[30px]"
                     onSelect={(item) => setWorkspace(item)}
@@ -452,10 +527,44 @@ const NewTaskPage: PageWithLayout = () => {
                     <button
                       id="workspaces-dropdown-button"
                       type="button"
-                      className="text-main hover:text-darkmain"
+                      className="text-main hover:text-darkmain flex items-center"
                       onClick={() => handleSelectFolder()}
                     >
-                      Select
+                      <span>Select</span>
+                      {gettingFolders && (
+                        <svg
+                          className="animate-spin h-4 w-4 text-white ml-3"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          data-tip
+                          data-for="folders-loading"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="#121212"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="#121212"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      )}
+                      {isMounted && (
+                        <ReactTooltip
+                          id="folders-loading"
+                          place="top"
+                          type="dark"
+                          effect="solid"
+                        >
+                          Getting folders in workspace
+                        </ReactTooltip>
+                      )}
                     </button>
                   )}
                 </div>
@@ -611,7 +720,7 @@ const NewTaskPage: PageWithLayout = () => {
                         className="text-2xl text-red-500 font-bold ml-3"
                         onClick={() => {
                           setPriority(null);
-                          setShowPriorityDropdow(true);
+                          setShowPriorityDropdown(true);
                         }}
                       >
                         &times;
@@ -625,7 +734,7 @@ const NewTaskPage: PageWithLayout = () => {
                       type="button"
                       className="text-main hover:text-darkmain"
                       onClick={() =>
-                        setShowPriorityDropdow((prevState) => !prevState)
+                        setShowPriorityDropdown((prevState) => !prevState)
                       }
                     >
                       Select
@@ -633,7 +742,7 @@ const NewTaskPage: PageWithLayout = () => {
                   )}
                 </div>
 
-                {showPriorityDropdow && (
+                {showPriorityDropdown && (
                   <Dropdown
                     id="priorities-dropdown"
                     options={priorities}
@@ -641,7 +750,7 @@ const NewTaskPage: PageWithLayout = () => {
                     className="absolute left-[0px] top-[30px]"
                     showSearchField={false}
                     onSelect={(item) => setPriority(item)}
-                    onClose={() => setShowPriorityDropdow(false)}
+                    onClose={() => setShowPriorityDropdown(false)}
                   />
                 )}
               </div>
