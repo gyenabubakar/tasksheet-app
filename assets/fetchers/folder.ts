@@ -1,6 +1,14 @@
-import { Folder, FolderModel } from '~/assets/firebase/firebaseTypes';
+import { Folder } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  where,
+} from 'firebase/firestore';
 import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 import { getWorkspace } from '~/assets/fetchers/workspace';
 
@@ -38,6 +46,38 @@ export function getFolder(id: string, uid: string, withTasks = false) {
           if (error) {
             reject({
               title: "Couldn't get folder info.",
+              message: getDBErrorMessage(error),
+            });
+          }
+        });
+    });
+  };
+}
+
+export function getFolders(workspaceID: string) {
+  return () => {
+    return new Promise((resolve, reject) => {
+      const db = getFirestore(getFirebaseApp());
+      const foldersCollRef = collection(db, 'folders');
+
+      const foldersQuery = query(
+        foldersCollRef,
+        where('workspaceID', '==', workspaceID),
+      );
+
+      getDocs(foldersQuery)
+        .then((snapshot) => {
+          const folders = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          resolve(folders);
+        })
+        .catch((error) => {
+          // console.dir(error);
+          if (error) {
+            reject({
+              title: "Couldn't get folders.",
               message: getDBErrorMessage(error),
             });
           }

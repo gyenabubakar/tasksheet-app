@@ -14,6 +14,8 @@ import Loading from '~/components/common/Loading';
 import useWorkspace from '~/hooks/useWorkspace';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import ErrorFallback from '~/components/common/ErrorFallback';
+import { useEffect } from 'react';
+import { getFolders } from '~/assets/fetchers/folder';
 
 const WorkspaceDetailsPage: PageWithLayout = () => {
   const router = useRouter();
@@ -85,6 +87,15 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
       }
     });
   }
+
+  useEffect(() => {
+    if (workspace) {
+      // console.log(workspace);
+      getFolders(workspace.id!)().then((_folders) => {
+        console.log(_folders);
+      });
+    }
+  }, [workspace]);
 
   return (
     <>
