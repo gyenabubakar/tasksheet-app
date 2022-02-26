@@ -16,6 +16,7 @@ import iconPeople from '~/assets/icons/nav/people.svg';
 import iconPeopleColoured from '~/assets/icons/nav/people-coloured.svg';
 import LoadingOverlay from '~/components/misc/LoadingOverlay';
 import cookies from '~/assets/ts/cookies';
+import useUser from '~/hooks/useUser';
 
 const floatingButtonBlockedPaths = [
   '/app/new-task',
@@ -29,6 +30,8 @@ const floatingButtonBlockedPaths = [
 ];
 
 const AppLayout: React.FC = ({ children }) => {
+  const { user } = useUser();
+
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [logout, setLogout] = useState(false);
@@ -263,9 +266,9 @@ const AppLayout: React.FC = ({ children }) => {
                 className="user-options-wrapper absolute bg-white rounded-small min-w-[300px] right-0 top-14 cursor-default overflow-hidden shadow-2xl shadow-faintmain"
               >
                 <div className="px-5 py-3">
-                  <p className="text-main font-bold">Gyen Abubakar</p>
+                  <p className="text-main font-bold">{user.displayName}</p>
                   <p className="text-darkgray font-medium text-sm">
-                    indehyde@gmail.com
+                    {user.email}
                   </p>
                 </div>
 
