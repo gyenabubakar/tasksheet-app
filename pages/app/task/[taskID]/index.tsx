@@ -26,8 +26,13 @@ import calculateTimeLeft from '~/assets/ts/calculateTimeLeft';
 import hexToRGB from '~/assets/ts/hexToRGB';
 import useSWR from 'swr';
 import { getTask } from '~/assets/fetchers/task';
-import { TaskAssignee } from '~/assets/firebase/firebaseTypes';
+import {
+  TaskAssignee,
+  TaskChecklistItem,
+  TaskModel,
+} from '~/assets/firebase/firebaseTypes';
 import useUser from '~/hooks/useUser';
+import { doc, getFirestore, updateDoc } from 'firebase/firestore';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -138,17 +143,6 @@ const TaskDescriptionPage: PageWithLayout = () => {
     ],
   });
 
-  const {
-    title,
-    description,
-    dueDate,
-    priority,
-    workspace,
-    folder,
-    checklist,
-    assignees,
-  } = task;
-
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
 
   const isDescriptionTab = activeTab === 'Description';
@@ -177,26 +171,24 @@ const TaskDescriptionPage: PageWithLayout = () => {
     return assignee.name;
   }
 
-  function changeTodoStatus(todo: ChecklistItem, index: number) {
-    const checklistCopy = [...checklist];
-    checklistCopy.splice(index, 1, {
-      id: todo.id,
-      description: todo.description,
-      isDone: !todo.isDone,
-    });
-    setTask((prevTask) => ({
-      ...prevTask,
-      checklist: checklistCopy,
-    }));
+  function changeTodoStatus(todo: TaskChecklistItem, index: number) {
+    if (task2) {
+      const todoCopy = { ...todo };
+      todoCopy.isDone = !todoCopy.isDone;
 
-    setTimeout(() => {
-      // eslint-disable-next-line no-console
-      console.log(todo);
+      const checklistCopy = [...task2.checklist];
+      checklistCopy.splice(index, 1, todoCopy);
 
-      notify(`To-do marked as ${!todo.isDone ? 'done' : 'undone'}!`, {
-        type: 'success',
+      const db = getFirestore();
+      const taskRef = doc(db, 'tasks', task2.id!);
+      updateDoc(taskRef, {
+        checklist: checklistCopy,
+      }).then(() => {
+        notify(`To-do marked as ${!todo.isDone ? 'done' : 'undone'}!`, {
+          type: 'success',
+        });
       });
-    }, 2000);
+    }
   }
 
   useEffect(() => {
@@ -294,7 +286,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                                 />
                               )}
 
-                              {assignees.length > 6 && index === 5 && (
+                              {task2.assignees.length > 6 && index === 5 && (
                                 <div
                                   className="overlay absolute h-full w-full bg-black opacity-70 text-white text-sm font-medium flex items-center justify-center cursor-pointer"
                                   onClick={() =>
@@ -303,7 +295,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                                     )
                                   }
                                 >
-                                  +{assignees.length - 5}
+                                  +{task2.assignees.length - 5}
                                 </div>
                               )}
                             </div>
@@ -316,7 +308,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                                 effect="solid"
                               >
                                 {index === 5
-                                  ? `${assignees.length - 5} more`
+                                  ? `${task2.assignees.length - 5} more`
                                   : getAssigneeName(assignee)}
                               </ReactTooltip>
                             )}
@@ -444,7 +436,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                         />
                       </div>
 
-                      <span className="text-gray-600 ml-3">
+                      <span className="text-gray-600 text-sm  ml-5">
                         {getProgressPercent()}%
                       </span>
                     </div>
@@ -475,22 +467,32 @@ const TaskDescriptionPage: PageWithLayout = () => {
               <div className="explainer-content">
                 {isDescriptionTab && (
                   <div className="mt-16">
-                    <TaskDescriptionEditor value={description} readOnly />
+                    <TaskDescriptionEditor
+                      value={task2.editorjsData}
+                      readOnly
+                    />
                   </div>
                 )}
 
                 {isChecklistTab && (
                   <div className="checklist-tab mt-10">
                     <ul>
-                      {checklist.map(
-                        ({ id, isDone, description: clDescription }, index) => (
-                          <li key={id} className="flex items-center mb-4">
+                      {task2.checklist.map((_checklistItem, index) => {
+                        const { isDone, description: clDescription } =
+                          _checklistItem;
+
+                        return (
+                          <li
+                            key={clDescription}
+                            className="flex items-center mb-4"
+                          >
                             <input
                               type="checkbox"
                               checked={isDone}
                               className="hidden"
                               readOnly
                             />
+
                             <div
                               className={`checkbox h-7 w-7 rounded-full flex items-center justify-center border ${
                                 isDone
@@ -498,14 +500,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                                   : 'border-darkgray hover:border-main'
                               }`}
                               onClick={() =>
-                                changeTodoStatus(
-                                  {
-                                    id,
-                                    isDone,
-                                    description: clDescription,
-                                  },
-                                  index,
-                                )
+                                changeTodoStatus(_checklistItem, index)
                               }
                             >
                               <i className="linearicons linearicons-check text-xs font-bold" />
@@ -519,8 +514,8 @@ const TaskDescriptionPage: PageWithLayout = () => {
                               {clDescription}
                             </div>
                           </li>
-                        ),
-                      )}
+                        );
+                      })}
                     </ul>
                   </div>
                 )}
