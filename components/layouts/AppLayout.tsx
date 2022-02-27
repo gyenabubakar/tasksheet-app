@@ -9,7 +9,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { getAuth, signOut } from 'firebase/auth';
-import { collection, getFirestore, onSnapshot } from 'firebase/firestore';
+import {
+  collection,
+  getFirestore,
+  onSnapshot,
+  orderBy,
+  query,
+} from 'firebase/firestore';
 
 import logo from '~/assets/images/logo.svg';
 import iconPlus from '~/assets/icons/nav/plus-white.svg';
@@ -112,7 +118,12 @@ const AppLayout: React.FC = ({ children }) => {
       'notifications',
     );
 
-    return onSnapshot(notificationsCollRef, (snapshot) => {
+    const notifsQuery = query(
+      notificationsCollRef,
+      orderBy('createdAt', 'desc'),
+    );
+
+    return onSnapshot(notifsQuery, (snapshot) => {
       const notifs = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),

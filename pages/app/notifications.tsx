@@ -1,23 +1,27 @@
 // noinspection ES6MissingAwait
-
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useState } from 'react';
+import {
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+  writeBatch,
+} from 'firebase/firestore';
+
 import { PageWithLayout } from '~/assets/ts/types';
 import Options from '~/components/common/Options';
-
 import NotificationCard, {
   Notification,
 } from '~/components/workspace/Notification';
 import iconBin from '~/assets/icons/workspace/bin.svg';
 import { NotificationType } from '~/assets/firebase/firebaseTypes';
-import {
-  doc,
-  getFirestore,
-  serverTimestamp,
-  updateDoc,
-} from 'firebase/firestore';
 import useUser from '~/hooks/useUser';
 
 interface PageProps {
@@ -65,9 +69,20 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
     }
   }
 
-  function onMarkAllAsRead() {
-    // eslint-disable-next-line no-console
-    console.log('onMarkAllAsRead');
+  async function onMarkAllAsRead() {
+    const db = getFirestore();
+    const batch = writeBatch(db);
+    const notifsCollRef = collection(db, `users/${user.uid}`, 'notifications');
+    const unreadNotifsQuery = query(notifsCollRef, where('readAt', '==', null));
+
+    const snapshot = await getDocs(unreadNotifsQuery);
+    snapshot.docs.forEach((_doc) => {
+      batch.update(doc(db, `users/${user.uid}`, 'notifications', _doc.id), {
+        readAt: serverTimestamp(),
+      });
+    });
+
+    batch.commit();
   }
 
   function onRemoveAll() {
