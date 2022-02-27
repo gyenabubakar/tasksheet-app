@@ -219,6 +219,25 @@ const NewTaskPage: PageWithLayout = () => {
     setShowMembersDropdown((prevState) => !prevState);
   }
 
+  function checklistItemIsDuplicate(itemDescription: string, index: number) {
+    return (
+      itemDescription &&
+      checklist
+        .filter((_, i) => i !== index)
+        .some(
+          (item) =>
+            item.description.toLowerCase().trim() ===
+            itemDescription.toLowerCase().trim(),
+        )
+    );
+  }
+
+  function hasDuplicationChecklistItems() {
+    const items = checklist.map((item) => item.description);
+    const uniqueItems = new Set(items);
+    return items.length !== uniqueItems.size;
+  }
+
   function onCreateNewTask() {
     if (!submitting) {
       if (!nameIsValid) {
@@ -276,6 +295,13 @@ const NewTaskPage: PageWithLayout = () => {
         return;
       }
 
+      if (hasDuplicationChecklistItems()) {
+        notify('Checklist has duplicate items.', {
+          type: 'error',
+        });
+        return;
+      }
+
       const form = {
         title,
         description,
@@ -297,19 +323,6 @@ const NewTaskPage: PageWithLayout = () => {
         setSubmitting(false);
       }, 2000);
     }
-  }
-
-  function checklistItemIsDuplicate(itemDescription: string, index: number) {
-    return (
-      itemDescription &&
-      checklist
-        .filter((_, i) => i !== index)
-        .some(
-          (item) =>
-            item.description.toLowerCase().trim() ===
-            itemDescription.toLowerCase().trim(),
-        )
-    );
   }
 
   useEffect(() => {
