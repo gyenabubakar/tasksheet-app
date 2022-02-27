@@ -85,9 +85,17 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
     batch.commit();
   }
 
-  function onRemoveAll() {
-    // eslint-disable-next-line no-console
-    console.log('onRemoveAll');
+  async function onRemoveAll() {
+    const db = getFirestore();
+    const batch = writeBatch(db);
+    const notifsCollRef = collection(db, `users/${user.uid}`, 'notifications');
+
+    const snapshot = await getDocs(notifsCollRef);
+    snapshot.docs.forEach((_doc) => {
+      batch.delete(doc(db, `users/${user.uid}`, 'notifications', _doc.id));
+    });
+
+    batch.commit();
   }
 
   return (
