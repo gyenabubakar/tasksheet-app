@@ -47,7 +47,7 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
     const accessToken = cookies.get('accessToken');
     if (!accessToken && !user) {
       if (router.route.startsWith('/app')) {
-        router.push(`/login?redirect=${router.route}`);
+        router.replace(`/login?redirect=${window.location.pathname}`);
       }
     }
   }
