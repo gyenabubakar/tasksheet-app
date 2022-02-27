@@ -53,6 +53,7 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
         );
         break;
       case NotificationType.WorkspaceMemberJoined:
+      case NotificationType.WorkspaceInviteAccepted:
         await router.push(
           `/app/workspaces/${notification.payload.workspace.id}/members`,
         );
