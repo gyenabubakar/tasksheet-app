@@ -248,7 +248,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
           <button
             className={`text-sm px-3 py-1 rounded-md flex items-center ${
               task.isCompleted
-                ? 'bg-gray-500 hover:bg-gray-600'
+                ? 'bg-gray-400 hover:bg-gray-600'
                 : 'bg-green-500 hover:bg-green-600'
             }`}
             onClick={() => onChangeStatus(!task?.isCompleted)}
@@ -277,7 +277,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
             <div className="name">
               <span
                 className={`status-badge text-sm font-medium text-white px-2 py-1 rounded-md cursor-default ${
-                  !task.isCompleted ? 'bg-gray-500' : 'bg-green-500'
+                  !task.isCompleted ? 'bg-gray-400' : 'bg-green-500'
                 }`}
               >
                 {!task.isCompleted ? 'In Progress' : 'Completed'}

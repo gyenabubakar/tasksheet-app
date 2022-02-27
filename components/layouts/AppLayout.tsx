@@ -138,11 +138,6 @@ const AppLayout: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const notifsCount = unreadNotifsCount ? `(${unreadNotifsCount}) ` : '';
-    document.title = notifsCount + document.title;
-  }, [unreadNotifsCount, router.route]);
-
-  useEffect(() => {
     if (showUserMenu) {
       document.addEventListener('click', handleClickedOutsideUserMenu);
     } else {
