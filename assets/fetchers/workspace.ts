@@ -7,8 +7,13 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { User } from 'firebase/auth';
 
-import { Workspace, WorkspacesModel } from '~/assets/firebase/firebaseTypes';
+import {
+  UserModel,
+  Workspace,
+  WorkspacesModel,
+} from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
 import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 
@@ -113,5 +118,24 @@ export function getWorkspaces(uid: string) {
           });
         });
     });
+  };
+}
+
+export function getMembers(workspaceID: string, user: User) {
+  return async (): Promise<UserModel[]> => {
+    const db = getFirestore();
+
+    const workspace = await getWorkspace(workspaceID, user.uid)();
+    if (workspace.members.length) {
+      const usersCollRef = collection(db, 'users');
+      const membersQuery = query(
+        usersCollRef,
+        where('uid', 'in', workspace.members),
+      );
+      const snapshot = await getDocs(membersQuery);
+      return snapshot.docs.map((_doc) => _doc.data() as UserModel);
+    }
+
+    return [];
   };
 }

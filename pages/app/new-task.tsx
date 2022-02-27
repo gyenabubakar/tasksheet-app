@@ -31,10 +31,10 @@ import Container from '~/components/common/Container';
 import Button from '~/components/common/Button';
 import useUser from '~/hooks/useUser';
 import useSWR from 'swr';
-import { getWorkspaces } from '~/assets/fetchers/workspace';
+import { getMembers, getWorkspaces } from '~/assets/fetchers/workspace';
 import swal from '~/assets/ts/sweetalert';
 import { useRouter } from 'next/router';
-import { FolderModel } from '~/assets/firebase/firebaseTypes';
+import { FolderModel, UserModel } from '~/assets/firebase/firebaseTypes';
 import { getFolders } from '~/assets/fetchers/folder';
 import alertDBError from '~/assets/firebase/alertDBError';
 
@@ -46,7 +46,7 @@ const TaskDescriptionEditor = dynamic(
 );
 
 interface Assignee extends DropdownItem {
-  avatar: string;
+  avatar: string | null;
 }
 
 interface Folder extends DropdownItem {
@@ -66,10 +66,10 @@ interface ChecklistItem {
 
 type TabType = 'Description' | 'Checklist';
 
-type DatePickerInputProps = {
+interface DatePickerInputProps {
   value?: Date | null;
   onClick?: (e: FormEvent<HTMLButtonElement>) => void;
-};
+}
 
 const DatePickerInput = forwardRef(
   ({ value, onClick }: DatePickerInputProps, ref: Ref<HTMLButtonElement>) => (
@@ -96,10 +96,11 @@ const NewTaskPage: PageWithLayout = () => {
   const [activeTab, setActiveTab] = useState<TabType>('Description');
   const [submitting, setSubmitting] = useState(false);
 
-  const [fetchedFolders, setFetchedFolders] = useState<FolderModel[] | null>(
-    null,
-  );
+  const [folders, setFolders] = useState<FolderModel[] | null>(null);
+  const [members, setMembers] = useState<UserModel[] | null>(null);
+
   const [gettingFolders, setGettingFolders] = useState(false);
+  const [gettingMembers, setGettingMembers] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -133,6 +134,45 @@ const NewTaskPage: PageWithLayout = () => {
       }))
     : [];
 
+  const dropdownFolders: Folder[] = folders
+    ? folders.map(({ id, title: folderTitle, colour }) => ({
+        id,
+        searchable: folderTitle,
+        colour,
+        value: (
+          <div className="flex items-center">
+            <div
+              className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
+              style={{ backgroundColor: colour }}
+            />
+            <span>{folderTitle}</span>
+          </div>
+        ),
+      }))
+    : [];
+
+  const dropdownMembers: Assignee[] = members
+    ? members.map(({ uid, avatar, displayName }) => ({
+        id: uid,
+        searchable: displayName,
+        avatar,
+        value: (
+          <div className="flex items-center">
+            {avatar && (
+              <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+                <Image src={avatar} alt={displayName} priority layout="fill" />
+              </div>
+            )}
+            {!avatar && (
+              <div className="h-8 w-8 relative rounded-full bg-main mr-3 ring-2 ring-white" />
+            )}
+
+            <span>{displayName}</span>
+          </div>
+        ),
+      }))
+    : [];
+
   const priorities: DropdownItem[] = [
     {
       id: TaskPriority.Low,
@@ -151,80 +191,6 @@ const NewTaskPage: PageWithLayout = () => {
       value: TaskPriority.Urgent,
     },
   ];
-
-  const members: Assignee[] = [
-    {
-      id: '1',
-      searchable: 'De Graft Arthur',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-    },
-    {
-      id: '2',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Gyen Abubakar',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-    {
-      id: '3',
-      value: (
-        <div className="flex items-center">
-          <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-            <Image
-              src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde"
-              alt="De Graft Arthur"
-              layout="fill"
-            />
-          </div>
-
-          <span>De Graft Arthur</span>
-        </div>
-      ),
-      searchable: 'Felix Amoako',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-    },
-  ];
-
-  const folders: Folder[] = fetchedFolders
-    ? fetchedFolders.map(({ id, title: folderTitle, colour }) => ({
-        id,
-        searchable: folderTitle,
-        colour,
-        value: (
-          <div className="flex items-center">
-            <div
-              className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
-              style={{ backgroundColor: colour }}
-            />
-            <span>{folderTitle}</span>
-          </div>
-        ),
-      }))
-    : [];
 
   function handleSelectFolder() {
     if (!workspace) {
@@ -351,7 +317,7 @@ const NewTaskPage: PageWithLayout = () => {
               await router.push(`/app/workspaces/${workspace.id}`);
             });
           }
-          setFetchedFolders(_folders);
+          setFolders(_folders);
         })
         .catch(async (err) => {
           await alertDBError(
@@ -361,6 +327,21 @@ const NewTaskPage: PageWithLayout = () => {
         })
         .finally(() => {
           setGettingFolders(false);
+        });
+
+      setGettingMembers(true);
+      getMembers(workspace.id, user)()
+        .then((users) => {
+          setMembers(users);
+        })
+        .catch(async (err) => {
+          await alertDBError(
+            err,
+            `Failed to get members of ${workspace.searchable}.`,
+          );
+        })
+        .finally(() => {
+          setGettingMembers(false);
         });
     }
   }, [workspace]);
@@ -572,7 +553,7 @@ const NewTaskPage: PageWithLayout = () => {
                 {showFolderDropdown && (
                   <Dropdown
                     id="workspaces-dropdown"
-                    options={folders}
+                    options={dropdownFolders}
                     value={folder}
                     className="absolute left-[0px] top-[30px]"
                     onSelect={(item) => setFolder(item)}
@@ -603,13 +584,16 @@ const NewTaskPage: PageWithLayout = () => {
                             data-tip
                             data-for={`assignee-${assignee.id}`}
                             key={assignee.id}
-                            className="h-8 w-8 rounded-full ring-2 ring-white inline-block overflow-hidden relative"
+                            className="h-8 w-8 rounded-full bg-main ring-2 ring-white inline-block overflow-hidden relative"
                           >
-                            <Image
-                              src={assignee.avatar}
-                              alt={assignee.searchable}
-                              layout="fill"
-                            />
+                            {assignee.avatar && (
+                              <Image
+                                src={assignee.avatar}
+                                alt={assignee.searchable}
+                                layout="fill"
+                                priority
+                              />
+                            )}
 
                             {assignees.length > 6 && index === 5 && (
                               <div
@@ -649,6 +633,42 @@ const NewTaskPage: PageWithLayout = () => {
                     >
                       +
                     </button>
+
+                    {gettingMembers && (
+                      <svg
+                        className="animate-spin h-4 w-4 text-white ml-3"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        data-tip
+                        data-for="members-loading"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="#121212"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="#121212"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                    )}
+
+                    {isMounted && (
+                      <ReactTooltip
+                        id="members-loading"
+                        place="top"
+                        type="dark"
+                        effect="solid"
+                      >
+                        Getting members of workspace
+                      </ReactTooltip>
+                    )}
                   </div>
                 </div>
               </div>
@@ -656,7 +676,7 @@ const NewTaskPage: PageWithLayout = () => {
               {showMembersDropdown && (
                 <DropdownMultiple
                   id="assignees-dropdown"
-                  options={members}
+                  options={dropdownMembers}
                   value={assignees}
                   className="absolute mt-3 left-0 top-[30px]"
                   onSelect={(items) => setAssignees(items)}
