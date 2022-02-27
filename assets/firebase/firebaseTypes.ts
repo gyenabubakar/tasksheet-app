@@ -5,6 +5,13 @@ interface WithTime {
   updatedAt: FieldValue;
 }
 
+export interface UserModel extends WithTime {
+  uid: string;
+  displayName: string;
+  email: string;
+  avatar: string | null;
+}
+
 export interface WorkspaceSettings {
   joinRequests: {
     pauseRequests: boolean;

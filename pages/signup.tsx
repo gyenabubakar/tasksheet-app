@@ -10,7 +10,13 @@ import {
   signOut,
   AuthErrorCodes,
 } from 'firebase/auth';
-import { getFirestore, collection, setDoc, doc } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  setDoc,
+  doc,
+  serverTimestamp,
+} from 'firebase/firestore';
 
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Input from '~/components/common/Input';
@@ -27,6 +33,7 @@ import Button from '~/components/common/Button';
 import FormValidation from '~/assets/ts/form-validation';
 import { useRouter } from 'next/router';
 import swal from '~/assets/ts/sweetalert';
+import { UserModel } from '~/assets/firebase/firebaseTypes';
 
 interface FormErrors extends FormValidationErrors {
   name: string | null;
@@ -95,8 +102,10 @@ const SignupPage: PageWithLayout = () => {
           displayName: name.trim(),
           uid,
           email: currentUserEmail,
-          photoURL,
-        });
+          avatar: photoURL,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        } as UserModel);
 
         await sendEmailVerification(userCred.user, {
           url: `http://${window.location.host}/login`,
