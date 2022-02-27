@@ -1,12 +1,5 @@
 import Head from 'next/head';
-import React, {
-  FormEvent,
-  forwardRef,
-  Ref,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { FormEvent, forwardRef, Ref, useEffect, useState } from 'react';
 import Image from 'next/image';
 import ReactTooltip from 'react-tooltip';
 import DatePicker from 'react-datepicker';
@@ -37,6 +30,7 @@ import { useRouter } from 'next/router';
 import { FolderModel, UserModel } from '~/assets/firebase/firebaseTypes';
 import { getFolders } from '~/assets/fetchers/folder';
 import alertDBError from '~/assets/firebase/alertDBError';
+import moment from 'moment';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -248,6 +242,32 @@ const NewTaskPage: PageWithLayout = () => {
         return;
       }
 
+      if (selectedDate) {
+        const diff = moment(selectedDate).diff(moment(), 'minutes');
+        if (diff < 5) {
+          const text = (() => {
+            if (diff < 0) {
+              return `It's ${diff
+                .toString()
+                .slice(1)} minutes pass the due date.`;
+            }
+            if (diff > 0) {
+              return `The task is due in ${diff} minutes.`;
+            }
+
+            return `The task is due right now.`;
+          })();
+
+          swal({
+            icon: 'warning',
+            title: "The due date doesn't seem right. 🤔",
+            text,
+            confirmButtonText: 'Change date',
+          }).finally(() => {});
+          return;
+        }
+      }
+
       const unfinishedTodoItem = checklist.find((item) => !item.description);
       if (checklist.length && unfinishedTodoItem) {
         notify('Remove empty to-dos from checklist.', {
@@ -277,6 +297,19 @@ const NewTaskPage: PageWithLayout = () => {
         setSubmitting(false);
       }, 2000);
     }
+  }
+
+  function checklistItemIsDuplicate(itemDescription: string, index: number) {
+    return (
+      itemDescription &&
+      checklist
+        .filter((_, i) => i !== index)
+        .some(
+          (item) =>
+            item.description.toLowerCase().trim() ===
+            itemDescription.toLowerCase().trim(),
+        )
+    );
   }
 
   useEffect(() => {
@@ -832,63 +865,71 @@ const NewTaskPage: PageWithLayout = () => {
                         index,
                         list,
                       ) => (
-                        <li key={key} className="flex items-center mb-4">
+                        <li key={key} className="mb-4">
                           <input
                             type="checkbox"
                             checked={isDone}
                             className="hidden"
                             readOnly
                           />
-                          <div
-                            className={`checkbox h-7 w-7 rounded-full flex items-center justify-center border ${
-                              isDone
-                                ? 'bg-main text-white border-main hover:border-main'
-                                : 'border-darkgray hover:border-main'
-                            }`}
-                            onClick={() => {
-                              const checklistCopy = [...list];
-                              checklistCopy.splice(index, 1, {
-                                key,
-                                description: clDescription,
-                                isDone: !isDone,
-                              });
-                              setChecklist(checklistCopy);
-                            }}
-                          >
-                            <i className="linearicons linearicons-check text-xs font-bold" />
-                          </div>
-
-                          <div className="flex-grow relative">
-                            <input
-                              type="text"
-                              value={clDescription}
-                              placeholder="Enter to do item title"
-                              className={`block w-full outline-none bg-transparent text-base md:text-lg text-darkgray ml-5 ${
-                                isDone ? 'line-through' : ''
+                          <div className="flex items-center">
+                            <div
+                              className={`checkbox h-7 w-7 rounded-full flex items-center justify-center border ${
+                                isDone
+                                  ? 'bg-main text-white border-main hover:border-main'
+                                  : 'border-darkgray hover:border-main'
                               }`}
-                              onChange={(e) => {
+                              onClick={() => {
                                 const checklistCopy = [...list];
                                 checklistCopy.splice(index, 1, {
                                   key,
-                                  isDone,
-                                  description: e.target.value,
+                                  description: clDescription,
+                                  isDone: !isDone,
                                 });
                                 setChecklist(checklistCopy);
                               }}
-                            />
-                            <button
-                              type="button"
-                              className="text-red-500 text-3xl font-bold absolute top-[-3px] right-0 hover:text-red-600"
-                              title="Remove"
-                              onClick={() => {
-                                const checklistCopy = [...list];
-                                checklistCopy.splice(index, 1);
-                                setChecklist(checklistCopy);
-                              }}
                             >
-                              &times;
-                            </button>
+                              <i className="linearicons linearicons-check text-xs font-bold" />
+                            </div>
+
+                            <div className="flex-grow relative">
+                              <input
+                                type="text"
+                                value={clDescription}
+                                placeholder="Enter to do item title"
+                                className={`block w-full outline-none bg-transparent text-base md:text-lg text-darkgray ml-5 ${
+                                  isDone ? 'line-through' : ''
+                                }`}
+                                onChange={(e) => {
+                                  const checklistCopy = [...list];
+                                  checklistCopy.splice(index, 1, {
+                                    key,
+                                    isDone,
+                                    description: e.target.value,
+                                  });
+                                  setChecklist(checklistCopy);
+                                }}
+                              />
+                              <button
+                                type="button"
+                                className="text-red-500 text-3xl font-bold absolute top-[-3px] right-0 hover:text-red-600"
+                                title="Remove"
+                                onClick={() => {
+                                  const checklistCopy = [...list];
+                                  checklistCopy.splice(index, 1);
+                                  setChecklist(checklistCopy);
+                                }}
+                              >
+                                &times;
+                              </button>
+                            </div>
                           </div>
+
+                          {checklistItemIsDuplicate(clDescription, index) && (
+                            <small className="text-red-500 font-medium">
+                              Duplicate checklist item.
+                            </small>
+                          )}
                         </li>
                       ),
                     )}
