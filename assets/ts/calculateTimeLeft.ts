@@ -8,7 +8,7 @@ function calculateTimeLeft(start: Moment, end: Moment) {
     let unit: unitOfTime.Diff | string = units[i];
     const difference = end.diff(start, unit as unitOfTime.Diff);
 
-    if (difference === 0) {
+    if (difference <= 0) {
       if (i === 2) {
         duration = 'Overdue';
         break;
