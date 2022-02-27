@@ -52,6 +52,14 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
           `/app/workspaces/${notification.payload.workspace.id}`,
         );
         break;
+      case NotificationType.WorkspaceMemberJoined:
+        await router.push(
+          `/app/workspaces/${notification.payload.workspace.id}/members`,
+        );
+        break;
+      case NotificationType.TaskAssigned:
+        await router.push(`/app/task/${notification.payload.task.id}`);
+        break;
       default:
     }
   }
