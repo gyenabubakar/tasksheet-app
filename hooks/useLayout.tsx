@@ -1,5 +1,6 @@
-import { AppLayout as LayoutType } from '~/assets/ts/types';
 import React, { useCallback } from 'react';
+
+import { AppLayout as LayoutType } from '~/assets/ts/types';
 import AuthLayout from '~/components/layouts/AuthLayout';
 import AppLayout from '~/components/layouts/AppLayout';
 

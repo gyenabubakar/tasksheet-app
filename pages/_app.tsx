@@ -33,7 +33,13 @@ const WithUserContext: React.FC<WithUserCtxProps> = ({
 
   const commonChildren = (
     <Layout>
-      <PageComponent {...pageProps} />
+      {PageComponent.SecondaryLayout && (
+        <PageComponent.SecondaryLayout>
+          <PageComponent {...pageProps} />
+        </PageComponent.SecondaryLayout>
+      )}
+
+      {!PageComponent.SecondaryLayout && <PageComponent {...pageProps} />}
     </Layout>
   );
 

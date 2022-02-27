@@ -9,7 +9,6 @@ import Folder from '~/components/workspace/Folder';
 import swal from '~/assets/ts/sweetalert';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
-import { Workspace } from '~/assets/firebase/firebaseTypes';
 import Loading from '~/components/common/Loading';
 import useWorkspace from '~/hooks/useWorkspace';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
@@ -116,55 +115,50 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
       )}
 
       {workspace && !error && (
-        <>
-          <WorkspaceDetailsHeader workspace={workspace as Workspace} />
+        <main className="page-workspace-folders mt-8">
+          <p className="text-darkgray font-medium">{folders.length} folders</p>
 
-          <main className="page-workspace-folders mt-8">
-            <p className="text-darkgray font-medium">
-              {folders.length} folders
-            </p>
-
-            {folders.length ? (
-              <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {folders.map((folder) => (
-                  <Folder
-                    href={`/app/folder/${folder.id}`}
-                    key={folder.id}
-                    folder={folder}
-                    onEdit={(f) => onEditFolder(f)}
-                    onDelete={(f) => onDeleteFolder(f)}
-                  />
-                ))}
+          {folders.length ? (
+            <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {folders.map((folder) => (
+                <Folder
+                  href={`/app/folder/${folder.id}`}
+                  key={folder.id}
+                  folder={folder}
+                  onEdit={(f) => onEditFolder(f)}
+                  onDelete={(f) => onDeleteFolder(f)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state flex flex-col justify-center items-center mt-24">
+              <div className="w-[247px] h-[241px] relative">
+                <Image src={illustrationEmpty} priority />
               </div>
-            ) : (
-              <div className="empty-state flex flex-col justify-center items-center mt-24">
-                <div className="w-[247px] h-[241px] relative">
-                  <Image src={illustrationEmpty} priority />
-                </div>
 
-                <h3 className="font-bold text-[24px] mt-10">
-                  There are no folders in this workspace.
-                </h3>
+              <h3 className="font-bold text-[24px] mt-10">
+                There are no folders in this workspace.
+              </h3>
 
-                <div className="mt-10">
-                  <Button
-                    paddingClasses="px-8 py-6"
-                    onClick={() =>
-                      router.push(`/app/workspaces/${workspace.id}/new-folder`)
-                    }
-                  >
-                    Create New Folder
-                  </Button>
-                </div>
+              <div className="mt-10">
+                <Button
+                  paddingClasses="px-8 py-6"
+                  onClick={() =>
+                    router.push(`/app/workspaces/${workspace.id}/new-folder`)
+                  }
+                >
+                  Create New Folder
+                </Button>
               </div>
-            )}
-          </main>
-        </>
+            </div>
+          )}
+        </main>
       )}
     </>
   );
 };
 
 WorkspaceDetailsPage.layout = 'app';
+WorkspaceDetailsPage.SecondaryLayout = WorkspaceDetailsHeader;
 
 export default WorkspaceDetailsPage;
