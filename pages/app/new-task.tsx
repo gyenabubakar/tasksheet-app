@@ -69,17 +69,30 @@ type TabType = 'Description' | 'Checklist';
 interface DatePickerInputProps {
   value?: Date | null;
   onClick?: (e: FormEvent<HTMLButtonElement>) => void;
+  onClear: () => void;
 }
 
 const DatePickerInput = forwardRef(
-  ({ value, onClick }: DatePickerInputProps, ref: Ref<HTMLButtonElement>) => (
+  (
+    { value, onClick, onClear }: DatePickerInputProps,
+    ref: Ref<HTMLButtonElement>,
+  ) => (
     <button
       type="button"
       ref={ref}
       onClick={onClick}
-      className="text-main text-sm md:text-base font-medium hover:text-darkmain"
+      className="text-main text-sm md:text-base hover:text-darkmain flex items-center"
     >
-      {value}
+      <span>{value || 'Select'}</span>
+      {value && (
+        <span
+          className="text-red-500 text-3xl font-bold hover:text-red-600 ml-2"
+          title="Clear date"
+          onClick={onClear}
+        >
+          &times;
+        </span>
+      )}
     </button>
   ),
 );
@@ -110,14 +123,12 @@ const NewTaskPage: PageWithLayout = () => {
   const [folder, setFolder] = useState<Folder | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
 
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const [showWorkspaceDropdown, setShowWorkspaceDropdown] = useState(false);
   const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
-
-  const dateRef = useRef<Date | null>(null);
 
   const isDescriptionTab = activeTab === 'Description';
   const isChecklistTab = activeTab === 'Checklist';
@@ -251,7 +262,7 @@ const NewTaskPage: PageWithLayout = () => {
         workspace: workspace?.id,
         folder: folder?.id || null,
         assignees: assignees.map((a) => a.id),
-        dueDate: dateRef.current?.toJSON() || null,
+        dueDate: selectedDate?.toJSON() || null,
         checklist: checklist.map(({ isDone, description: desc }) => ({
           isDone,
           description: desc,
@@ -702,13 +713,17 @@ const NewTaskPage: PageWithLayout = () => {
                     selected={selectedDate}
                     onChange={(date) => {
                       setSelectedDate(date);
-                      dateRef.current = date;
                     }}
                     timeFormat="hh:mm aa"
                     dateFormat="MMM d, yyyy @ h:mm aa"
                     minDate={new Date()}
                     filterTime={(date) => date.getTime() > new Date().getTime()}
-                    customInput={<DatePickerInput value={selectedDate} />}
+                    customInput={
+                      <DatePickerInput
+                        value={selectedDate}
+                        onClear={() => setSelectedDate(null)}
+                      />
+                    }
                     showTimeSelect
                     showYearDropdown
                   />
