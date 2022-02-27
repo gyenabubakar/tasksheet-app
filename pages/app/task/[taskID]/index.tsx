@@ -6,6 +6,7 @@ import useSWR from 'swr';
 import {
   doc,
   getFirestore,
+  onSnapshot,
   serverTimestamp,
   updateDoc,
   writeBatch,
@@ -216,8 +217,20 @@ const TaskDescriptionPage: PageWithLayout = () => {
     }
   }
 
+  function listenForChanges() {
+    const taskRef = doc(getFirestore(), 'tasks', taskID as string);
+    return onSnapshot(taskRef, (snapshot) => {
+      setTask({
+        id: snapshot.id,
+        ...snapshot.data(),
+      } as TaskModel);
+    });
+  }
+
   useEffect(() => {
     setIsMounted(true);
+    const unsubscribe = listenForChanges();
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {

@@ -17,11 +17,12 @@ import {
 
 import { PageWithLayout } from '~/assets/ts/types';
 import Options from '~/components/common/Options';
-import NotificationCard, {
+import NotificationCard from '~/components/workspace/Notification';
+import {
   Notification,
-} from '~/components/workspace/Notification';
+  NotificationType,
+} from '~/assets/firebase/firebaseTypes';
 import iconBin from '~/assets/icons/workspace/bin.svg';
-import { NotificationType } from '~/assets/firebase/firebaseTypes';
 import useUser from '~/hooks/useUser';
 
 interface PageProps {
