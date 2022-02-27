@@ -365,9 +365,11 @@ const AppLayout: React.FC = ({ children }) => {
       <Container className="mt-[4.42rem] pt-8 md:pt-12 pb-20 md:pb-96">
         {isNotificationsPage
           ? Children.map(children, (child) => {
-              return cloneElement(child as ReactElement, {
-                notifications,
-              });
+              return child
+                ? cloneElement(child as ReactElement, {
+                    notifications,
+                  })
+                : child;
             })
           : children}
       </Container>

@@ -27,10 +27,27 @@ import useSWR from 'swr';
 import { getMembers, getWorkspaces } from '~/assets/fetchers/workspace';
 import swal from '~/assets/ts/sweetalert';
 import { useRouter } from 'next/router';
-import { FolderModel, UserModel } from '~/assets/firebase/firebaseTypes';
+import {
+  FolderModel,
+  InviteAcceptedNotification,
+  MemberJoinedNotification,
+  NotificationType,
+  TaskAssignedNotification,
+  TaskModel,
+  UserModel,
+} from '~/assets/firebase/firebaseTypes';
 import { getFolders } from '~/assets/fetchers/folder';
 import alertDBError from '~/assets/firebase/alertDBError';
 import moment from 'moment';
+import {
+  addDoc,
+  collection,
+  doc,
+  getFirestore,
+  serverTimestamp,
+  writeBatch,
+} from 'firebase/firestore';
+import { v4 as uuid } from 'uuid';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -238,8 +255,43 @@ const NewTaskPage: PageWithLayout = () => {
     return items.length !== uniqueItems.size;
   }
 
-  function onCreateNewTask() {
-    if (!submitting) {
+  function notifyAssignees(task: TaskModel) {
+    if (assignees.length) {
+      const db = getFirestore();
+      const batch = writeBatch(db);
+
+      assignees
+        .filter((assignee) => assignee.id !== user.uid)
+        .forEach((assignee) => {
+          const assigneeNotifRef = doc(
+            db,
+            `users/${assignee.id}`,
+            `notifications`,
+            uuid(),
+          );
+
+          batch.set(assigneeNotifRef, {
+            type: NotificationType.TaskAssigned,
+            readAt: null,
+            message: `${user.displayName} assigned you to the task: ${title}.`,
+            createdAt: serverTimestamp(),
+            payload: {
+              sender: {
+                uid: user.uid,
+                name: user.displayName!,
+                avatar: user.photoURL,
+              },
+              task,
+            },
+          } as TaskAssignedNotification);
+        });
+
+      batch.commit();
+    }
+  }
+
+  async function onCreateNewTask() {
+    if (!submitting && workspace && folder) {
       if (!nameIsValid) {
         notify('Task title is required.', {
           type: 'error',
@@ -302,26 +354,73 @@ const NewTaskPage: PageWithLayout = () => {
         return;
       }
 
-      const form = {
-        title,
-        description,
-        workspace: workspace?.id,
-        folder: folder?.id || null,
-        assignees: assignees.map((a) => a.id),
-        dueDate: selectedDate?.toJSON() || null,
-        checklist: checklist.map(({ isDone, description: desc }) => ({
-          isDone,
-          description: desc,
-        })),
-        priority: priority?.value || null,
-      };
+      try {
+        setSubmitting(true);
+        const targetFolder = folders!.find((f) => f.id === folder.id)!;
+        const targetMembers = assignees
+          .map((a) => ({
+            uid: a.id,
+            name: a.searchable! === 'Me' ? user.displayName! : a.searchable!,
+            avatar: a.avatar,
+          }))
+          .sort((a, b) => {
+            if (a.uid === user.uid) return -1;
+            if (b.uid !== user.uid) return 1;
+            return 0;
+          });
+        const checklistItems = checklist.map(
+          ({ isDone, description: desc }) => ({
+            isDone,
+            description: desc,
+          }),
+        );
 
-      setSubmitting(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
-      }, 2000);
+        // const checklistComplete = (() => {
+        //   let isComplete = true
+        //   checklistItems.forEach(item => {
+        //     isComplete = isComplete && item.isDone
+        //   })
+        //   return isComplete
+        // })
+
+        const form: TaskModel = {
+          title,
+          editorjsData: description,
+          description: '',
+          workspace: {
+            id: workspace.id,
+            name: workspace.searchable!,
+          },
+          folder: {
+            id: targetFolder.id!,
+            title: targetFolder.title,
+            colour: targetFolder.colour,
+          },
+          assignees: targetMembers,
+          dueDate: selectedDate?.toJSON() || null,
+          priority: priority?.id || null,
+          checklist: checklistItems,
+          createdBy: {
+            uid: user.uid,
+            name: user.displayName!,
+            avatar: user.photoURL,
+          },
+          isCompleted: false,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        };
+        const tasksCollRef = collection(getFirestore(), 'tasks');
+        const taskResponse = await addDoc(tasksCollRef, form);
+        notify('Task created!', {
+          type: 'success',
+        });
+        notifyAssignees(form);
+        await router.push(`/app/task/${taskResponse.id}`);
+      } catch (err: any) {
+        alertDBError(err, "Couldn't create workspace.").then(() => {
+          setSubmitting(false);
+        });
+      }
     }
   }
 

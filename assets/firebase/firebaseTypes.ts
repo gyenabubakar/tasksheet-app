@@ -1,4 +1,5 @@
 import { FieldValue } from 'firebase/firestore';
+import { TaskPriority } from '~/assets/ts/types';
 
 interface WithTime {
   createdAt: FieldValue;
@@ -128,6 +129,41 @@ export interface Folder extends FolderModel {
   tasks: any[];
 }
 
+export interface TaskAssignee {
+  uid: string;
+  name: string;
+  avatar: string | null;
+}
+export interface TaskChecklistItem {
+  isDone: boolean;
+  description: string;
+}
+export interface TaskModel extends WithTime {
+  id?: string;
+  title: string;
+  editorjsData: string;
+  description: string;
+  workspace: {
+    id: string;
+    name: string;
+  };
+  folder: {
+    id: string;
+    title: string;
+    colour: string;
+  };
+  assignees: TaskAssignee[];
+  dueDate: string | null;
+  createdBy: {
+    uid: string;
+    name: string;
+    avatar: string | null;
+  };
+  checklist: TaskChecklistItem[];
+  priority: TaskPriority | null;
+  isCompleted: boolean;
+}
+
 export interface InvitationModel extends WithTime {
   id?: string;
   email: string;
@@ -153,5 +189,13 @@ export interface MemberJoinedNotification extends NotificationsModel {
   payload: {
     sender: NotificationSender;
     workspace: NotificationTargetWorkspace;
+  };
+}
+
+export interface TaskAssignedNotification extends NotificationsModel {
+  type: NotificationType.TaskAssigned;
+  payload: {
+    sender: NotificationSender;
+    task: TaskModel;
   };
 }
