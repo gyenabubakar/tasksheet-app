@@ -5,7 +5,7 @@ interface WithTime {
   updatedAt: FieldValue;
 }
 
-export interface UserModel extends WithTime {
+export interface UserModel extends Partial<WithTime> {
   uid: string;
   displayName: string;
   email: string;

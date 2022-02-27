@@ -388,8 +388,16 @@ const NewTaskPage: PageWithLayout = () => {
 
       setGettingMembers(true);
       getMembers(workspace.id, user)()
-        .then((users) => {
-          setMembers(users);
+        .then((_members) => {
+          setMembers([
+            {
+              uid: user.uid,
+              email: user.email!,
+              avatar: user.photoURL,
+              displayName: 'Me',
+            },
+            ..._members,
+          ]);
         })
         .catch(async (err) => {
           await alertDBError(
