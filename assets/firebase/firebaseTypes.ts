@@ -184,6 +184,14 @@ export interface InviteAcceptedNotification extends NotificationsModel {
   };
 }
 
+export interface InviteDeclinedNotification extends NotificationsModel {
+  type: NotificationType.WorkspaceInviteDeclined;
+  payload: {
+    sender: NotificationSender;
+    workspace: NotificationTargetWorkspace;
+  };
+}
+
 export interface MemberJoinedNotification extends NotificationsModel {
   type: NotificationType.WorkspaceMemberJoined;
   payload: {

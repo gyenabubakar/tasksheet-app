@@ -4,10 +4,12 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import useSWR from 'swr';
 import {
+  deleteDoc,
   doc,
   getDoc,
   getFirestore,
   serverTimestamp,
+  setDoc,
   updateDoc,
   writeBatch,
 } from 'firebase/firestore';
@@ -23,6 +25,7 @@ import notify from '~/assets/ts/notify';
 import {
   InvitationModel,
   InviteAcceptedNotification,
+  InviteDeclinedNotification,
   MemberJoinedNotification,
   NotificationType,
 } from '~/assets/firebase/firebaseTypes';
@@ -32,6 +35,7 @@ import ErrorFallback from '~/components/common/ErrorFallback';
 import { getWorkspace } from '~/assets/fetchers/workspace';
 import useUser from '~/hooks/useUser';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
+import alertDBError from '~/assets/firebase/alertDBError';
 
 const WorkspaceInvitationActionPage: PageWithLayout = () => {
   const router = useRouter();
@@ -39,6 +43,7 @@ const WorkspaceInvitationActionPage: PageWithLayout = () => {
   const { user } = useUser();
 
   const [accepting, setAccepting] = useState(false);
+  const [declining, setDeclining] = useState(false);
 
   const { error, data: invite } = useSWR('get-invite-info', () => {
     return new Promise<InvitationModel>((resolve, reject) => {
@@ -85,7 +90,7 @@ const WorkspaceInvitationActionPage: PageWithLayout = () => {
       batch.set(senderNotifRef, {
         type: NotificationType.WorkspaceInviteAccepted,
         readAt: null,
-        message: `${user.displayName} has accepted your invite to join ${invite.workspace.name}.`,
+        message: `${user.displayName} has accepted your invitation to join ${invite.workspace.name}.`,
         createdAt: serverTimestamp(),
         payload: {
           sender: {
@@ -187,14 +192,48 @@ const WorkspaceInvitationActionPage: PageWithLayout = () => {
   }
 
   async function onDeclineInvite() {
-    // eslint-disable-next-line no-console
-    await router.replace('/app/');
+    if (invite && !accepting) {
+      try {
+        setDeclining(true);
+        const db = getFirestore();
+        const inviteRef = doc(db, 'invitations', invite.id as string);
+        await deleteDoc(inviteRef);
+        notify('Invitation declined!', {
+          type: 'success',
+        });
 
-    setTimeout(() => {
-      notify('Declined invite successfully!', {
-        type: 'success',
-      });
-    }, 1500);
+        const senderNotifRef = doc(
+          db,
+          `users/${invite.sender.uid}`,
+          `notifications`,
+          uuid(),
+        );
+
+        setDoc(senderNotifRef, {
+          type: NotificationType.WorkspaceInviteDeclined,
+          readAt: null,
+          message: `${user.displayName} has declined your invitation to join ${invite.workspace.name}.`,
+          createdAt: serverTimestamp(),
+          payload: {
+            sender: {
+              uid: user.uid,
+              name: user.displayName,
+              avatar: user.photoURL,
+            },
+            workspace: {
+              id: invite.workspace.id,
+              name: invite.workspace.name,
+            },
+          },
+        } as InviteDeclinedNotification);
+
+        await router.replace('/app/');
+      } catch (err: any) {
+        alertDBError(err, 'Declining invitation failed.').then(() => {
+          setDeclining(false);
+        });
+      }
+    }
   }
 
   return (
@@ -265,10 +304,11 @@ const WorkspaceInvitationActionPage: PageWithLayout = () => {
 
             <div className="decline-wrapper">
               <button
+                disabled={declining || accepting}
                 className="mt-3 md:mt-0 md:ml-3 text-red-500 px-20 py-4 rounded-small border-2 border-red-500 hover:bg-red-500 hover:text-white font-medium"
                 onClick={() => onDeclineInvite()}
               >
-                Decline
+                {declining ? 'Declining...' : 'Decline'}
               </button>
             </div>
           </div>
