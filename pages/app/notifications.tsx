@@ -1,3 +1,5 @@
+// noinspection ES6MissingAwait
+
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -10,7 +12,6 @@ import NotificationCard, {
 } from '~/components/workspace/Notification';
 import iconBin from '~/assets/icons/workspace/bin.svg';
 import { NotificationType } from '~/assets/firebase/firebaseTypes';
-import swal from '~/assets/ts/sweetalert';
 import {
   doc,
   getFirestore,
@@ -32,7 +33,7 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
 
   const [showOptions, setShowOptions] = useState(false);
 
-  function onNotificationClick(notification: Notification) {
+  async function onNotificationClick(notification: Notification) {
     const notifRef = doc(
       getFirestore(),
       `users/${user.uid}`,
@@ -44,7 +45,12 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
 
     switch (notification.type) {
       case NotificationType.WorkspaceInviteCreated:
-        router.push(`/app/invitation/${notification.payload.id}`);
+        await router.push(`/app/invitation/${notification.payload.id}`);
+        break;
+      case NotificationType.WorkspaceInviteDeclined:
+        await router.push(
+          `/app/workspaces/${notification.payload.workspace.id}`,
+        );
         break;
       default:
     }

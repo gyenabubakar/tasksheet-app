@@ -1,10 +1,21 @@
 import React from 'react';
 import Image from 'next/image';
 import moment from 'moment';
-import { InviteNotification } from '~/assets/firebase/firebaseTypes';
+import {
+  InviteAcceptedNotification,
+  InviteDeclinedNotification,
+  InviteNotification,
+  MemberJoinedNotification,
+  TaskAssignedNotification,
+} from '~/assets/firebase/firebaseTypes';
 import { Timestamp } from 'firebase/firestore';
 
-export type Notification = InviteNotification;
+export type Notification =
+  | InviteNotification
+  | InviteAcceptedNotification
+  | InviteDeclinedNotification
+  | TaskAssignedNotification
+  | MemberJoinedNotification;
 
 interface Props {
   notification: Notification;
