@@ -45,6 +45,10 @@ const AppLayout: React.FC = ({ children }) => {
   const hasUnreadNotifs = !!notifications.filter((n) => n.readAt === null)
     .length;
 
+  const unreadNotifsCount = notifications.filter(
+    (n) => n.readAt === null,
+  ).length;
+
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [logout, setLogout] = useState(false);
@@ -123,11 +127,9 @@ const AppLayout: React.FC = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const notifsCount = notifications.length
-      ? `(${notifications.length}) `
-      : '';
+    const notifsCount = unreadNotifsCount ? `(${unreadNotifsCount}) ` : '';
     document.title = notifsCount + document.title;
-  }, [notifications, router]);
+  }, [unreadNotifsCount, router.route]);
 
   useEffect(() => {
     if (showUserMenu) {
@@ -367,7 +369,10 @@ const AppLayout: React.FC = ({ children }) => {
           ? Children.map(children, (child) => {
               return child
                 ? cloneElement(child as ReactElement, {
-                    notifications,
+                    notifications: {
+                      data: notifications,
+                      unread: unreadNotifsCount,
+                    },
                   })
                 : child;
             })

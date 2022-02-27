@@ -20,7 +20,10 @@ import {
 import useUser from '~/hooks/useUser';
 
 interface PageProps {
-  notifications: Notification[];
+  notifications: {
+    data: Notification[];
+    unread: number;
+  };
 }
 
 const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
@@ -67,8 +70,8 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
         <div className="heading mb-5 flex justify-between items-center">
           <h1 className="text-lg md:text-2xl lg:text-3xl font-bold">
             Notifications&nbsp;
-            {!!notifications.length && (
-              <span className="text-main">({notifications.length})</span>
+            {!!notifications.unread && (
+              <span className="text-main">({notifications.unread})</span>
             )}
           </h1>
 
@@ -141,9 +144,9 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
           </button>
         </div>
 
-        {!!notifications.length && (
+        {notifications.data.length > 0 && (
           <div className="notifications">
-            {notifications.map((notification) => {
+            {notifications.data.map((notification) => {
               return (
                 <NotificationCard
                   key={notification.id}
@@ -155,7 +158,7 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
           </div>
         )}
 
-        {notifications.length === 0 && (
+        {!notifications.data.length && (
           <p className="font-medium text-darkgray text-center mt-16">
             You have no notifications at the moment.
           </p>

@@ -72,7 +72,7 @@ const WorkspaceInvitationActionPage: PageWithLayout = () => {
   function notifyMembers(members: string[]) {
     if (invite) {
       const db = getFirestore();
-      const inviteRef = doc(db, 'invites', invite.id as string);
+      const inviteRef = doc(db, 'invitations', invite.id as string);
       const batch = writeBatch(db);
 
       const senderNotifRef = doc(
@@ -218,7 +218,7 @@ const WorkspaceInvitationActionPage: PageWithLayout = () => {
             <Image src={voidIllustration} layout="fill" />
           </div>
 
-          <h1 className="text-xl md:text-2xl font-medium text-darkgray text-center">
+          <h1 className="text-xl md:text-2xl font-medium text-darkgray text-center mt-5">
             {error.title}
           </h1>
 
