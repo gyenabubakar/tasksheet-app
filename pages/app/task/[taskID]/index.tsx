@@ -1,15 +1,26 @@
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import {
+  doc,
+  getFirestore,
+  serverTimestamp,
+  updateDoc,
+  writeBatch,
+} from 'firebase/firestore';
+import ReactTooltip from 'react-tooltip';
+import dynamic from 'next/dynamic';
+import moment from 'moment';
+import Link from 'next/link';
+import { v4 as uuid } from 'uuid';
 
 import {
   DropdownItem,
   PageWithLayout,
-  TaskPriority,
   TaskPriorityColour,
 } from '~/assets/ts/types';
-import notify from '~/assets/ts/notify';
 import Navigation from '~/components/common/Navigation';
 import iconPeople from '~/assets/icons/task/people.svg';
 import iconWorkspace from '~/assets/icons/task/workspace.svg';
@@ -17,22 +28,18 @@ import iconFolder from '~/assets/icons/task/folder.svg';
 import iconCalendar from '~/assets/icons/task/calendar.svg';
 import iconFlag from '~/assets/icons/task/flag.svg';
 import iconProgress from '~/assets/icons/task/progress.svg';
-import ReactTooltip from 'react-tooltip';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
-import dynamic from 'next/dynamic';
-import moment from 'moment';
-import Link from 'next/link';
 import calculateTimeLeft from '~/assets/ts/calculateTimeLeft';
 import hexToRGB from '~/assets/ts/hexToRGB';
-import useSWR from 'swr';
 import { getTask } from '~/assets/fetchers/task';
 import {
+  NotificationType,
   TaskAssignee,
   TaskChecklistItem,
   TaskModel,
+  TaskStatusChangedNotification,
 } from '~/assets/firebase/firebaseTypes';
 import useUser from '~/hooks/useUser';
-import { doc, getFirestore, updateDoc } from 'firebase/firestore';
 import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
 
@@ -44,37 +51,6 @@ const TaskDescriptionEditor = dynamic(
 );
 
 type TabType = 'Description' | 'Checklist';
-
-interface ChecklistItem {
-  id: string | number;
-  description: string;
-  isDone: boolean;
-}
-
-interface Assignee {
-  id: string;
-  name: string;
-  avatar: string;
-}
-
-export interface TaskInfo {
-  id: string;
-  title: string;
-  description: string;
-  priority: TaskPriority;
-  dueDate: string;
-  workspace: {
-    id: string;
-    name: string;
-  };
-  folder: {
-    id: string;
-    name: string;
-    colour: string;
-  };
-  assignees: Assignee[];
-  checklist: ChecklistItem[];
-}
 
 const assigneesToDropdownItems = (
   assignees: TaskAssignee[],
@@ -109,8 +85,6 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
   const [task, setTask] = useState<TaskModel | undefined>(undefined);
 
-  console.log(task);
-
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
 
   const isDescriptionTab = activeTab === 'Description';
@@ -139,8 +113,49 @@ const TaskDescriptionPage: PageWithLayout = () => {
     return assignee.name;
   }
 
+  function notifyAssignees(isCompleted: boolean) {
+    if (task) {
+      if (task.assignees.length) {
+        const db = getFirestore();
+        const batch = writeBatch(db);
+
+        task.assignees
+          .filter((assignee) => assignee.uid !== user.uid)
+          .forEach((assignee) => {
+            const assigneeNotifRef = doc(
+              db,
+              `users/${assignee.uid}`,
+              `notifications`,
+              uuid(),
+            );
+
+            batch.set(assigneeNotifRef, {
+              type: NotificationType.TaskStatusChanged,
+              readAt: null,
+              message: `${user.displayName} marked the task ${task.title} as ${
+                isCompleted ? 'Completed' : 'In Progress'
+              }.`,
+              createdAt: serverTimestamp(),
+              payload: {
+                sender: {
+                  uid: user.uid,
+                  name: user.displayName!,
+                  avatar: user.photoURL,
+                },
+                task,
+              },
+            } as TaskStatusChangedNotification);
+          });
+
+        batch.commit();
+      }
+    }
+  }
+
   function onChangeStatus(isCompleted: boolean) {
     if (task) {
+      const statusChanged = task.isCompleted !== isCompleted;
+
       const checklistCopy = task.checklist.map(
         (item) =>
           ({
@@ -161,12 +176,9 @@ const TaskDescriptionPage: PageWithLayout = () => {
         checklist: checklistCopy,
         isCompleted,
       }).then(() => {
-        notify(
-          `Task status set to ${isCompleted ? 'Completed' : 'In Progress'}`,
-          {
-            type: 'success',
-          },
-        );
+        if (statusChanged) {
+          notifyAssignees(isCompleted);
+        }
       });
     }
   }
@@ -178,25 +190,28 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
       const checklistCopy = [...task.checklist];
       checklistCopy.splice(index, 1, todoCopy);
+
+      const allItemsAreChecked = checklistCopy
+        .map(({ isDone }) => isDone)
+        .reduce((prevItem, currItem) => prevItem && currItem);
+
+      const statusChanged = task.isCompleted !== allItemsAreChecked;
+
       setTask({
         ...task,
         checklist: checklistCopy,
+        isCompleted: allItemsAreChecked,
       });
-
-      // const allItemsAreChecked = checklistCopy.reduce(
-      //   (prevItem, currItem) => prevItem.isDone && currItem.isDone,
-      // );
-      //
-      // console.log(allItemsAreChecked);
 
       const db = getFirestore();
       const taskRef = doc(db, 'tasks', task.id!);
       updateDoc(taskRef, {
         checklist: checklistCopy,
+        isCompleted: allItemsAreChecked,
       }).then(() => {
-        notify(`To-do marked as ${!todo.isDone ? 'done' : 'undone'}!`, {
-          type: 'success',
-        });
+        if (statusChanged) {
+          notifyAssignees(allItemsAreChecked);
+        }
       });
     }
   }
@@ -225,8 +240,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
             }`}
             onClick={() => onChangeStatus(!task?.isCompleted)}
           >
-            <i className="linearicons linearicons-checkmark-circle text-sm md:text-lg font-bold text-white" />
-            <span className="text-white font-light ml-2 ">
+            <span className="text-white font-light">
               Mark as{' '}
               <span className="font-medium">
                 {task.isCompleted ? 'In Progress' : 'Completed'}
@@ -539,7 +553,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
                             />
 
                             <div
-                              className={`checkbox h-7 w-7 rounded-full flex items-center justify-center border ${
+                              className={`checkbox h-7 w-[1.9rem] rounded-full flex items-center justify-center border ${
                                 isDone
                                   ? 'bg-main text-white border-main hover:border-main'
                                   : 'border-darkgray hover:border-main'

@@ -63,6 +63,7 @@ const NotificationsPage: PageWithLayout<PageProps> = ({ notifications }) => {
         );
         break;
       case NotificationType.TaskAssigned:
+      case NotificationType.TaskStatusChanged:
         await router.push(`/app/task/${notification.payload.task.id}`);
         break;
       default:

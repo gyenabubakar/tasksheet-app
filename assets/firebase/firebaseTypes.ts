@@ -46,7 +46,7 @@ export enum NotificationType {
   TaskPriorityChanged = 'TaskPriorityChanged',
 
   // when to-do item in task checklist is marked as done
-  TaskTodoItemChecked = 'TaskTodoItemChecked',
+  TaskStatusChanged = 'TaskStatusChanged',
 
   // when user accepts workspace invite
   WorkspaceInviteAccepted = 'WorkspaceInviteAccepted',
@@ -207,3 +207,19 @@ export interface TaskAssignedNotification extends NotificationsModel {
     task: TaskModel;
   };
 }
+
+export interface TaskStatusChangedNotification extends NotificationsModel {
+  type: NotificationType.TaskStatusChanged;
+  payload: {
+    sender: NotificationSender;
+    task: TaskModel;
+  };
+}
+
+export type Notification =
+  | InviteNotification
+  | InviteAcceptedNotification
+  | InviteDeclinedNotification
+  | TaskAssignedNotification
+  | MemberJoinedNotification
+  | TaskStatusChangedNotification;
