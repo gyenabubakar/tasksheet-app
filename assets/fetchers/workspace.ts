@@ -92,24 +92,17 @@ export function getWorkspaces(uid: string) {
             ..._doc.data(),
           })) as WorkspacesModel[];
 
-          getDocs(memberQuery)
-            .then((membersSnapshot) => {
-              workspaces = [
-                ...workspaces,
-                ...(membersSnapshot.docs.map((_doc) => ({
-                  id: _doc.id,
-                  ..._doc.data(),
-                })) as WorkspacesModel[]),
-              ];
+          return getDocs(memberQuery).then(async (membersSnapshot) => {
+            workspaces = [
+              ...workspaces,
+              ...(membersSnapshot.docs.map((_doc) => ({
+                id: _doc.id,
+                ..._doc.data(),
+              })) as WorkspacesModel[]),
+            ];
 
-              resolve(workspaces);
-            })
-            .catch((error) => {
-              reject({
-                title: `Couldn't get workspaces.`,
-                message: getDBErrorMessage(error),
-              });
-            });
+            resolve(workspaces);
+          });
         })
         .catch((error) => {
           reject({

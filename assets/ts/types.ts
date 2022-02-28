@@ -57,9 +57,9 @@ export interface WorkspaceCardInfo {
   id: string;
   name: string;
   description: string;
-  foldersCount: number;
-  membersCount: number;
-  tasksCount: number;
+  foldersCount?: number;
+  membersCount?: number;
+  tasksCount?: number;
 }
 
 export interface TaskMember {

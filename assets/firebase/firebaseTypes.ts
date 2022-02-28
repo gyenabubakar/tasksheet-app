@@ -36,6 +36,9 @@ export interface Workspace extends WorkspacesModel {
   hasNewJoinRequests: boolean;
   isAdmin: boolean;
   isOwner: boolean;
+  foldersCount: number;
+  membersCount: number;
+  tasksCount: number;
 }
 
 export enum NotificationType {
