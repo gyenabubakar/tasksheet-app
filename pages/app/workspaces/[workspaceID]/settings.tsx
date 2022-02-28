@@ -26,6 +26,7 @@ import Loading from '~/components/common/Loading';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import useUser from '~/hooks/useUser';
 import ErrorFallback from '~/components/common/ErrorFallback';
+import alertDBError from '~/assets/firebase/alertDBError';
 
 interface WorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -133,25 +134,26 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
     }
   }
 
-  function handleUpdateWorkspace(e: FormEvent<HTMLFormElement>) {
+  async function handleUpdateWorkspace(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (formIsValid) {
-      const form = {
-        name,
-        description,
-      };
-
       setSubmitting(true);
-      // TODO: edit workspace
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
+      try {
+        const db = getFirestore();
+        const workspaceRef = doc(db, 'workspaces', workspace!.id!);
+        await updateDoc(workspaceRef, {
+          name,
+          description,
+          updatedAt: serverTimestamp(),
+        });
         notify('Workspace updated!', {
           type: 'success',
         });
-      }, 3000);
+      } catch (err: any) {
+        alertDBError(err, `Failed to update workspace.`);
+      }
+      setSubmitting(false);
     }
   }
 
@@ -342,14 +344,14 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                   >
                     General
                   </div>
-                  <div
-                    className={`settings-tab py-3 cursor-pointer ${
-                      activeTab === 'join-requests' ? 'active' : ''
-                    }`}
-                    onClick={() => switchTabs('join-requests')}
-                  >
-                    Join requests
-                  </div>
+                  {/* <div */}
+                  {/*   className={`settings-tab py-3 cursor-pointer ${ */}
+                  {/*     activeTab === 'join-requests' ? 'active' : '' */}
+                  {/*   }`} */}
+                  {/*   onClick={() => switchTabs('join-requests')} */}
+                  {/* > */}
+                  {/*   Join requests */}
+                  {/* </div> */}
                   {workspace.isOwner && (
                     <div
                       className={`settings-tab py-3 cursor-pointer ${
@@ -444,16 +446,16 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
                     </form>
                   )}
 
-                  {activeTab === 'join-requests' && (
-                    <div className="join-requests border-b pb-5 flex justify-between items-center">
-                      <p className="text-lg">Pause receiving join requests.</p>
+                  {/* {activeTab === 'join-requests' && ( */}
+                  {/*   <div className="join-requests border-b pb-5 flex justify-between items-center"> */}
+                  {/*     <p className="text-lg">Pause receiving join requests.</p> */}
 
-                      <Switch
-                        value={pauseJoinRequests}
-                        onSwitch={() => togglePauseJoinRequests()}
-                      />
-                    </div>
-                  )}
+                  {/*     <Switch */}
+                  {/*       value={pauseJoinRequests} */}
+                  {/*       onSwitch={() => togglePauseJoinRequests()} */}
+                  {/*     /> */}
+                  {/*   </div> */}
+                  {/* )} */}
 
                   {activeTab === 'deactivate' && (
                     <div className="deactivation border-b pb-5">

@@ -14,7 +14,7 @@ function useWorkspace(
   const { workspaceID } = router.query;
 
   const { error, data: workspace } = useSWR(
-    'get-workspace-details',
+    `get-workspace-details-${workspaceID}`,
     getWorkspace(workspaceID as string, user.uid),
     {
       revalidateIfStale: true,
