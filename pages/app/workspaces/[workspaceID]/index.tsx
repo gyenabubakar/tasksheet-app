@@ -15,6 +15,7 @@ import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import ErrorFallback from '~/components/common/ErrorFallback';
 import { getFolders } from '~/assets/fetchers/folder';
 import { FolderModel, Workspace } from '~/assets/firebase/firebaseTypes';
+import alertDBError from '~/assets/firebase/alertDBError';
 
 interface WorkspaceSubpageProps {
   workspace: Workspace;
@@ -59,19 +60,23 @@ const WorkspaceDetailsPage: PageWithLayout<WorkspaceSubpageProps> = ({
         const folderRef = doc(db, 'folders', folder.id);
         return deleteDoc(folderRef);
       },
-    }).then(async ({ isConfirmed }) => {
-      if (isConfirmed) {
-        await swal({
-          icon: 'success',
-          title: (
-            <span>
-              Deleted
-              <span className="text-main">{folder.name}</span>!
-            </span>
-          ),
-        }).finally(() => window.location.reload());
-      }
-    });
+    })
+      .then(async ({ isConfirmed }) => {
+        if (isConfirmed) {
+          await swal({
+            icon: 'success',
+            title: (
+              <span>
+                Deleted&nbsp;
+                <span className="text-main">{folder.name}</span>!
+              </span>
+            ),
+          }).finally(() => window.location.reload());
+        }
+      })
+      .catch((err) => {
+        alertDBError(err, `Couldn't delete folder.`);
+      });
   }
 
   useEffect(() => {

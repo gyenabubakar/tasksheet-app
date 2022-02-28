@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 
 type Option = {
-  element: JSX.Element;
+  element: JSX.Element | null;
   onClick: (arg: any) => void;
 };
 
@@ -50,19 +50,21 @@ const Options: React.FC<OptionProps> = ({
   return (
     <div className={`options ${className}`} {...props}>
       <ul>
-        {options.map((option, index) => (
-          <li
-            // eslint-disable-next-line react/no-array-index-key
-            key={index}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              option.onClick(optionObject);
-            }}
-          >
-            {option.element}
-          </li>
-        ))}
+        {options.map((option, index) =>
+          option.element ? (
+            <li
+              // eslint-disable-next-line react/no-array-index-key
+              key={index}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                option.onClick(optionObject);
+              }}
+            >
+              {option.element}
+            </li>
+          ) : null,
+        )}
       </ul>
     </div>
   );

@@ -157,7 +157,7 @@ textarea::placeholder {
 }
 
 .card {
-    @apply bg-white shadow-lg shadow-faintmain p-5 rounded-small;
+    @apply bg-white shadow-lg shadow-faintmain px-5 py-7 rounded-small;
 }
 
 .colours-wrapper .colour {

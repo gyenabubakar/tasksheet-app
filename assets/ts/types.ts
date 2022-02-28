@@ -27,9 +27,10 @@ export interface FolderType {
 export interface MemberType {
   id: string;
   name: string;
-  avatar: string;
-  role: string;
-  tasks: {
+  avatar: string | null;
+  email: string;
+  role?: string;
+  tasks?: {
     completed: number;
     total: number;
   };

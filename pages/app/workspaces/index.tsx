@@ -66,7 +66,7 @@ const WorkspacesHomePage: PageWithLayout = () => {
               <p className="mt-5 text-darkgray md:max-w-[600px] mx-auto">
                 Workspaces are like containers for organising your projects.{' '}
                 <br className="hidden md:block" /> You can be invited into
-                workspaces, join with a shared link or create one yourself.
+                workspaces and you create one yourself.
               </p>
 
               <div className="text-center mt-12">

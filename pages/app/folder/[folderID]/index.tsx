@@ -27,7 +27,7 @@ const FolderDetailsPage: PageWithLayout = () => {
   const { user } = useUser();
 
   const { error, data: folder } = useSWR(
-    'get-folder-details',
+    `get-folder-details-${folderID}`,
     getFolder(folderID as string, user.uid),
   );
 
