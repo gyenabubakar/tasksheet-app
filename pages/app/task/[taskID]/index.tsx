@@ -421,6 +421,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
   function updateLocalTask(_fetchedTask: TaskModel | undefined) {
     if (_fetchedTask) {
       if (task === undefined) {
+        console.log(_fetchedTask);
         setTask(_fetchedTask);
         return;
       }
@@ -564,9 +565,11 @@ const TaskDescriptionPage: PageWithLayout = () => {
       );
 
       if (!hasDuplicateChecklistItems(validChecklist)) {
-        const allItemsAreChecked = validChecklist
-          .map(({ isDone }) => isDone)
-          .reduce((prevItem, currItem) => prevItem && currItem);
+        const allItemsAreChecked = validChecklist.length
+          ? validChecklist
+              .map(({ isDone }) => isDone)
+              .reduce((prevItem, currItem) => prevItem && currItem, false)
+          : false;
 
         const newChecklist: TaskChecklistItem[] = validChecklist.map(
           (item) => ({
@@ -591,9 +594,11 @@ const TaskDescriptionPage: PageWithLayout = () => {
   // watch task for changes
   useEffect(() => {
     if (task) {
-      const allItemsAreChecked = task.checklist
-        .map(({ isDone }) => isDone)
-        .reduce((prevItem, currItem) => prevItem && currItem);
+      const allItemsAreChecked = task.checklist.length
+        ? task.checklist
+            .map(({ isDone }) => isDone)
+            .reduce((prevItem, currItem) => prevItem && currItem)
+        : false;
 
       const statusChanged = task.isCompleted !== allItemsAreChecked;
 
@@ -993,9 +998,12 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
                   <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
                     <DatePicker
-                      selected={selectedDate}
+                      selected={task.dueDate ? new Date(task.dueDate) : null}
                       onChange={(date) => {
-                        setSelectedDate(date);
+                        setTask({
+                          ...task,
+                          dueDate: date?.toJSON() || null,
+                        });
                       }}
                       timeFormat="hh:mm aa"
                       dateFormat="MMM d, yyyy @ h:mm aa"
@@ -1006,7 +1014,12 @@ const TaskDescriptionPage: PageWithLayout = () => {
                       customInput={
                         <DatePickerInput
                           value={selectedDate}
-                          onClear={() => setSelectedDate(null)}
+                          onClear={() => {
+                            setTask({
+                              ...task,
+                              dueDate: null,
+                            });
+                          }}
                         />
                       }
                       showTimeSelect

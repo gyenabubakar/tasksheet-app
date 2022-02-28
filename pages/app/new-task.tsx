@@ -127,7 +127,7 @@ const NewTaskPage: PageWithLayout = () => {
   const [gettingMembers, setGettingMembers] = useState(false);
 
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState('[]');
   const [priority, setPriority] = useState<PriorityDropdownItem | null>(null);
   const [assignees, setAssignees] = useState<Assignee[]>([]);
   const [workspace, setWorkspace] = useState<DropdownItem | null>(null);
@@ -174,25 +174,28 @@ const NewTaskPage: PageWithLayout = () => {
     : [];
 
   const dropdownMembers: Assignee[] = members
-    ? members.map(({ uid, avatar, displayName }) => ({
-        id: uid,
-        searchable: displayName,
-        avatar,
-        value: (
-          <div className="flex items-center">
-            {avatar && (
-              <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
-                <Image src={avatar} alt={displayName} priority layout="fill" />
-              </div>
-            )}
-            {!avatar && (
-              <div className="h-8 w-8 relative rounded-full bg-main mr-3 ring-2 ring-white" />
-            )}
+    ? members.map(({ uid, avatar, displayName }) => {
+        const name = uid === user.uid ? 'Me' : displayName;
+        return {
+          id: uid,
+          searchable: name,
+          avatar,
+          value: (
+            <div className="flex items-center">
+              {avatar && (
+                <div className="h-8 w-8 relative rounded-full overflow-hidden mr-3 ring-2 ring-white">
+                  <Image src={avatar} alt={name} priority layout="fill" />
+                </div>
+              )}
+              {!avatar && (
+                <div className="h-8 w-8 relative rounded-full bg-main mr-3 ring-2 ring-white" />
+              )}
 
-            <span>{displayName}</span>
-          </div>
-        ),
-      }))
+              <span>{name}</span>
+            </div>
+          ),
+        };
+      })
     : [];
 
   const priorities: DropdownItem[] = [
@@ -488,15 +491,8 @@ const NewTaskPage: PageWithLayout = () => {
       setGettingMembers(true);
       getMembers(workspace.id, user)()
         .then((_members) => {
-          setMembers([
-            {
-              uid: user.uid,
-              email: user.email!,
-              avatar: user.photoURL,
-              displayName: 'Me',
-            },
-            ..._members,
-          ]);
+          console.log(_members.length);
+          setMembers([..._members]);
         })
         .catch(async (err) => {
           await alertDBError(
@@ -970,6 +966,7 @@ const NewTaskPage: PageWithLayout = () => {
                   <TaskDescriptionEditor
                     value={description}
                     onChange={(newDesc) => {
+                      console.log(description);
                       setDescription(JSON.stringify(newDesc));
                     }}
                   />

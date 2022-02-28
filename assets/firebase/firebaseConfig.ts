@@ -1,10 +1,10 @@
 const firebaseConfig = {
-  apiKey: 'AIzaSyCe-z30Gvb0yq5_0FIVqD2o2jYhopUKv_E',
-  authDomain: 'tasksheet-app.firebaseapp.com',
-  projectId: 'tasksheet-app',
-  storageBucket: 'tasksheet-app.appspot.com',
-  messagingSenderId: '1064448057968',
-  appId: '1:1064448057968:web:48723e773cf278de68cab5',
+  apiKey: 'AIzaSyAYW5q4UisuXj8dDPd0c_vXCBW35T9qZ4I',
+  authDomain: 'tasksheet-abe90.firebaseapp.com',
+  projectId: 'tasksheet-abe90',
+  storageBucket: 'tasksheet-abe90.appspot.com',
+  messagingSenderId: '973728350096',
+  appId: '1:973728350096:web:47223d08d70bff31e0bd15',
 };
 
 export default firebaseConfig;

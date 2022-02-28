@@ -60,10 +60,6 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
   }, [selectedItems]);
 
   useEffect(() => {
-    console.log('--->', value);
-  }, []);
-
-  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!document.querySelector(`#${id}`)?.contains(target)) {
