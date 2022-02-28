@@ -4,7 +4,7 @@ import React from 'react';
 import Image from 'next/image';
 import useSWR from 'swr';
 
-import { PageWithLayout, WorkspaceCardInfo } from '~/assets/ts/types';
+import { PageWithLayout } from '~/assets/ts/types';
 import Workspace from '~/components/workspace/Workspace';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import { getWorkspaces } from '~/assets/fetchers/workspace';

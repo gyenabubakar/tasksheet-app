@@ -8,6 +8,7 @@ import {
   FirestoreError,
   serverTimestamp,
   deleteDoc,
+  writeBatch,
 } from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';
@@ -231,9 +232,11 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
         confirmButtonText: 'Delete!',
         cancelButtonText: 'Cancel',
         showLoaderOnConfirm: true,
-        preConfirm(confirmed: boolean): Promise<any> | null {
+        async preConfirm(confirmed: boolean): Promise<any> {
           if (confirmed) {
             const db = getFirestore();
+            const batch = writeBatch(db);
+            // const;
             const workspaceRef = doc(db, 'workspaces', workspace!.id!);
             return deleteDoc(workspaceRef);
           }
@@ -285,30 +288,29 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
       </Head>
 
       <Navigation backUrl={`/app/workspaces/${workspaceID}`}>
-        {isJustMember ||
-          (workspace?.isAdmin && (
-            <button
-              className="bg-red-100 text-sm px-3 py-1 rounded-md flex items-center"
-              onClick={handleLeaveWorkspace}
+        {isJustMember && (
+          <button
+            className="bg-red-100 text-sm px-3 py-1 rounded-md flex items-center"
+            onClick={handleLeaveWorkspace}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM13.5 10.75H8.31L10.03 12.47C10.32 12.76 10.32 13.24 10.03 13.53C9.88 13.68 9.69 13.75 9.5 13.75C9.31 13.75 9.12 13.68 8.97 13.53L5.97 10.53C5.68 10.24 5.68 9.76 5.97 9.47L8.97 6.47C9.26 6.18 9.74 6.18 10.03 6.47C10.32 6.76 10.32 7.24 10.03 7.53L8.31 9.25H13.5C13.91 9.25 14.25 9.59 14.25 10C14.25 10.41 13.91 10.75 13.5 10.75Z"
-                  fill="rgb(239,68,68)"
-                />
-              </svg>
+              <path
+                d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM13.5 10.75H8.31L10.03 12.47C10.32 12.76 10.32 13.24 10.03 13.53C9.88 13.68 9.69 13.75 9.5 13.75C9.31 13.75 9.12 13.68 8.97 13.53L5.97 10.53C5.68 10.24 5.68 9.76 5.97 9.47L8.97 6.47C9.26 6.18 9.74 6.18 10.03 6.47C10.32 6.76 10.32 7.24 10.03 7.53L8.31 9.25H13.5C13.91 9.25 14.25 9.59 14.25 10C14.25 10.41 13.91 10.75 13.5 10.75Z"
+                fill="rgb(239,68,68)"
+              />
+            </svg>
 
-              <span className="text-red-500 font-medium ml-2">
-                Leave <span className="hidden sm:inline">Workspace</span>
-              </span>
-            </button>
-          ))}
+            <span className="text-red-500 font-medium ml-2">
+              Leave <span className="hidden sm:inline">Workspace</span>
+            </span>
+          </button>
+        )}
       </Navigation>
 
       <main className="page-workspace-settings">

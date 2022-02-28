@@ -14,12 +14,8 @@ import Navigation from '~/components/common/Navigation';
 import useWorkspace from '~/hooks/useWorkspace';
 import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
-import { doc, getFirestore, updateDoc } from 'firebase/firestore';
-import alertDBError from '~/assets/firebase/alertDBError';
-import useUser from '~/hooks/useUser';
 
 const WorkspaceDetailsHeader: React.FC = ({ children }) => {
-  const { user } = useUser();
   const { error, workspace } = useWorkspace();
   const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
@@ -55,64 +51,13 @@ const WorkspaceDetailsHeader: React.FC = ({ children }) => {
     });
   }
 
-  function onLeaveWorkspace() {
-    swal({
-      icon: 'warning',
-      title: (
-        <>
-          Proceed leaving&nbsp;
-          <span className="font-bold text-main">{workspace?.name}</span>?
-        </>
-      ),
-      text: 'You would have to be invited again.',
-      showConfirmButton: true,
-      showCancelButton: true,
-      showLoaderOnConfirm: true,
-      confirmButtonText: 'Yes, leave!',
-      preConfirm(confirmed: boolean): Promise<any> | null {
-        if (!confirmed) {
-          return null;
-        }
-
-        const db = getFirestore();
-        const workspaceRef = doc(db, 'workspaces', workspace?.id!);
-        return updateDoc(workspaceRef, {
-          members: workspace?.members.filter((m) => m !== user.uid),
-        });
-      },
-    })
-      .then(async ({ isConfirmed }) => {
-        if (isConfirmed) {
-          await swal({
-            icon: 'success',
-            title: (
-              <span>
-                You left&nbsp;
-                <span className="text-main">{workspace?.name}</span>! <br />
-                😢
-              </span>
-            ),
-          }).finally(() => router.replace(`/app/workspaces`));
-        }
-      })
-      .catch((err) => {
-        alertDBError(err, `Couldn't remove user.`);
-      });
-  }
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   return (
     <>
-      <Navigation>
-        {!(workspace?.isAdmin || workspace?.isOwner) && (
-          <button className="text-red-500" onClick={onLeaveWorkspace}>
-            Leave
-          </button>
-        )}
-      </Navigation>
+      <Navigation />
 
       {!workspace && !error && (
         <Loading loadingText="Loading workspace..." className="mt-12" />
