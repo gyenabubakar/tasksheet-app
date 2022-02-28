@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Children, cloneElement, useEffect, useState } from 'react';
 import Image from 'next/image';
 import ReactTooltip from 'react-tooltip';
 
@@ -205,7 +205,15 @@ const WorkspaceDetailsHeader: React.FC = ({ children }) => {
         </div>
       )}
 
-      {workspace && children}
+      {workspace &&
+        Children.map(children, (child) => {
+          return (
+            child &&
+            cloneElement(child as React.ReactElement, {
+              workspace,
+            })
+          );
+        })}
     </>
   );
 };

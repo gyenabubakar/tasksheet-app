@@ -12,6 +12,11 @@ function useWorkspace() {
   const { error, data: workspace } = useSWR(
     'get-workspace-details',
     getWorkspace(workspaceID as string, user.uid),
+    {
+      revalidateIfStale: true,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+    },
   );
 
   return { error, workspace };

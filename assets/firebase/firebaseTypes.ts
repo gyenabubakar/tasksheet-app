@@ -20,7 +20,7 @@ export interface WorkspaceSettings {
 }
 
 // for modifying the `workspaces` collection
-export interface WorkspacesModel extends WithTime {
+export interface WorkspaceModel extends WithTime {
   id?: string;
   name: string;
   description: string;
@@ -31,7 +31,7 @@ export interface WorkspacesModel extends WithTime {
 }
 
 // for presenting workspace data for the front-end
-export interface Workspace extends WorkspacesModel {
+export interface Workspace extends WorkspaceModel {
   // this should be evaluated and added when fetching. Don't store this in the DB
   hasNewJoinRequests: boolean;
   isAdmin: boolean;

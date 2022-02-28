@@ -12,7 +12,7 @@ import { User } from 'firebase/auth';
 import {
   UserModel,
   Workspace,
-  WorkspacesModel,
+  WorkspaceModel,
 } from '~/assets/firebase/firebaseTypes';
 import getFirebaseApp from '~/assets/firebase/getFirebaseApp';
 import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
@@ -36,7 +36,7 @@ export function getWorkspace(id: string, uid: string, validateAccess = true) {
             return;
           }
 
-          const data = docResponse.data() as WorkspacesModel;
+          const data = docResponse.data() as WorkspaceModel;
 
           if (validateAccess) {
             if (data.createdBy !== uid && !data.members.includes(uid)) {
@@ -69,11 +69,11 @@ export function getWorkspace(id: string, uid: string, validateAccess = true) {
 
 export function getWorkspaces(uid: string) {
   return () => {
-    return new Promise<WorkspacesModel[]>((resolve, reject) => {
+    return new Promise<WorkspaceModel[]>((resolve, reject) => {
       const db = getFirestore(getFirebaseApp());
       const workspacesCollRef = collection(db, 'workspaces');
 
-      let workspaces: WorkspacesModel[] = [];
+      let workspaces: WorkspaceModel[] = [];
 
       const adminQuery = query(
         workspacesCollRef,
@@ -90,7 +90,7 @@ export function getWorkspaces(uid: string) {
           workspaces = snapshot.docs.map((_doc) => ({
             id: _doc.id,
             ..._doc.data(),
-          })) as WorkspacesModel[];
+          })) as WorkspaceModel[];
 
           return getDocs(memberQuery).then(async (membersSnapshot) => {
             workspaces = [
@@ -98,7 +98,7 @@ export function getWorkspaces(uid: string) {
               ...(membersSnapshot.docs.map((_doc) => ({
                 id: _doc.id,
                 ..._doc.data(),
-              })) as WorkspacesModel[]),
+              })) as WorkspaceModel[]),
             ];
 
             resolve(workspaces);

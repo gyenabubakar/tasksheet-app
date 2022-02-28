@@ -20,7 +20,7 @@ import Input from '~/components/common/Input';
 import Button from '~/components/common/Button';
 import iconWhiteArrowRight from '~/assets/icons/workspace/arrow-right-white.svg';
 import notify from '~/assets/ts/notify';
-import { WorkspacesModel } from '~/assets/firebase/firebaseTypes';
+import { WorkspaceModel } from '~/assets/firebase/firebaseTypes';
 import useUser from '~/hooks/useUser';
 import swal from '~/assets/ts/sweetalert';
 import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
@@ -74,7 +74,7 @@ const NewWorkspacePage: PageWithLayout = () => {
       const db = getFirestore();
       const workspaceCollRef = collection(db, 'workspaces');
 
-      const workspace: WorkspacesModel = {
+      const workspace: WorkspaceModel = {
         name,
         description,
         createdBy: user.uid,

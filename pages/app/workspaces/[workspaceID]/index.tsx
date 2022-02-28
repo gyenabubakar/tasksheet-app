@@ -11,15 +11,19 @@ import swal from '~/assets/ts/sweetalert';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
 import Loading from '~/components/common/Loading';
-import useWorkspace from '~/hooks/useWorkspace';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import ErrorFallback from '~/components/common/ErrorFallback';
 import { getFolders } from '~/assets/fetchers/folder';
-import { FolderModel } from '~/assets/firebase/firebaseTypes';
+import { FolderModel, Workspace } from '~/assets/firebase/firebaseTypes';
 
-const WorkspaceDetailsPage: PageWithLayout = () => {
+interface WorkspaceSubpageProps {
+  workspace: Workspace;
+}
+
+const WorkspaceDetailsPage: PageWithLayout<WorkspaceSubpageProps> = ({
+  workspace,
+}) => {
   const router = useRouter();
-  const { error, workspace } = useWorkspace();
 
   const [folders, setFolders] = useState<FolderModel[] | null>(null);
   const [foldersError, setFoldersError] = useState<{
@@ -88,81 +92,71 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
     <>
       <Head>
         <title>
-          {workspace && `${workspace.name} | `}
+          {`${workspace.name} | `}
           Folders
           {pageTitleSuffix}
         </title>
       </Head>
 
-      {!workspace && !error && (
-        <Loading loadingText="Getting workspace folders..." className="mt-12" />
-      )}
+      <main className="page-workspace-folders mt-8">
+        {workspace && !folders && !foldersError && (
+          <Loading
+            loadingText="Getting workspace folders..."
+            className="mt-12"
+          />
+        )}
 
-      {error && !workspace && (
-        <ErrorFallback title={error.title} message={error.message} />
-      )}
+        {workspace && foldersError && !folders && (
+          <ErrorFallback
+            title={foldersError.title}
+            message={foldersError.message}
+          />
+        )}
 
-      {workspace && !error && (
-        <main className="page-workspace-folders mt-8">
-          {workspace && !folders && !foldersError && (
-            <Loading
-              loadingText="Getting workspace folders..."
-              className="mt-12"
-            />
-          )}
+        {!foldersError && folders && folders.length && (
+          <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {folders.map(({ id, title, workspaceID, colour, category }) => (
+              <Folder
+                key={id}
+                href={`/app/folder/${id}`}
+                folder={{
+                  id: id!,
+                  name: title,
+                  colour,
+                  workspaceId: workspaceID,
+                  category,
+                }}
+                canModify={Boolean(workspace?.isAdmin || workspace?.isOwner)}
+                onEdit={(f) => onEditFolder(f)}
+                onDelete={(f) => onDeleteFolder(f)}
+              />
+            ))}
+          </div>
+        )}
 
-          {workspace && foldersError && !folders && (
-            <ErrorFallback
-              title={foldersError.title}
-              message={foldersError.message}
-            />
-          )}
-
-          {workspace && !foldersError && folders && folders.length && (
-            <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {folders.map(({ id, title, workspaceID, colour, category }) => (
-                <Folder
-                  key={id}
-                  href={`/app/folder/${id}`}
-                  folder={{
-                    id: id!,
-                    name: title,
-                    colour,
-                    workspaceId: workspaceID,
-                    category,
-                  }}
-                  canModify={Boolean(workspace?.isAdmin || workspace?.isOwner)}
-                  onEdit={(f) => onEditFolder(f)}
-                  onDelete={(f) => onDeleteFolder(f)}
-                />
-              ))}
+        {!foldersError && folders && !folders.length && (
+          <div className="empty-state flex flex-col justify-center items-center mt-24">
+            <div className="w-[247px] h-[241px] relative">
+              <Image src={illustrationEmpty} priority />
             </div>
-          )}
 
-          {workspace && !foldersError && folders && !folders.length && (
-            <div className="empty-state flex flex-col justify-center items-center mt-24">
-              <div className="w-[247px] h-[241px] relative">
-                <Image src={illustrationEmpty} priority />
-              </div>
+            <h3 className="font-bold text-[24px] mt-10">
+              There are no folders in this workspace.
+            </h3>
 
-              <h3 className="font-bold text-[24px] mt-10">
-                There are no folders in this workspace.
-              </h3>
-
-              <div className="mt-10">
-                <Button
-                  paddingClasses="px-8 py-6"
-                  onClick={() =>
-                    router.push(`/app/workspaces/${workspace.id}/new-folder`)
-                  }
-                >
-                  Create New Folder
-                </Button>
-              </div>
+            <div className="mt-10">
+              <Button
+                paddingClasses="px-8 py-6"
+                onClick={() =>
+                  router.push(`/app/workspaces/${workspace.id}/new-folder`)
+                }
+              >
+                Create New Folder
+              </Button>
             </div>
-          )}
-        </main>
-      )}
+          </div>
+        )}
+      </main>
     </>
   );
 };
