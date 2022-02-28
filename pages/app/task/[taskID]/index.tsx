@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  FormEvent,
+  forwardRef,
+  Ref,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -17,10 +24,13 @@ import dynamic from 'next/dynamic';
 import moment from 'moment';
 import Link from 'next/link';
 import { v4 as uuid } from 'uuid';
+import DatePicker from 'react-datepicker';
+import { isEqual } from 'lodash';
 
 import {
   DropdownItem,
   PageWithLayout,
+  TaskPriority,
   TaskPriorityColour,
 } from '~/assets/ts/types';
 import Navigation from '~/components/common/Navigation';
@@ -29,21 +39,29 @@ import iconWorkspace from '~/assets/icons/task/workspace.svg';
 import iconFolder from '~/assets/icons/task/folder.svg';
 import iconCalendar from '~/assets/icons/task/calendar.svg';
 import iconFlag from '~/assets/icons/task/flag.svg';
-import iconProgress from '~/assets/icons/task/progress.svg';
 import DropdownMultiple from '~/components/workspace/DropdownMultiple';
 import calculateTimeLeft from '~/assets/ts/calculateTimeLeft';
-import hexToRGB from '~/assets/ts/hexToRGB';
 import { getTask } from '~/assets/fetchers/task';
 import {
+  FolderModel,
   NotificationType,
+  TaskAssignedNotification,
   TaskAssignee,
   TaskChecklistItem,
   TaskModel,
+  TaskPriorityChangedNotification,
   TaskStatusChangedNotification,
+  UserModel,
 } from '~/assets/firebase/firebaseTypes';
 import useUser from '~/hooks/useUser';
 import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
+import Dropdown from '~/components/workspace/Dropdown';
+import { getFolders } from '~/assets/fetchers/folder';
+import swal from '~/assets/ts/sweetalert';
+import alertDBError from '~/assets/firebase/alertDBError';
+import { getMembers } from '~/assets/fetchers/workspace';
+import { User } from 'firebase/auth';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -52,25 +70,75 @@ const TaskDescriptionEditor = dynamic(
   },
 );
 
+interface Assignee extends DropdownItem {
+  avatar: string | null;
+}
+
+interface Folder extends DropdownItem {
+  colour: string;
+}
+
+interface ChecklistItem {
+  key: string | number;
+  description: string;
+  isDone: boolean;
+}
+
 type TabType = 'Description' | 'Checklist';
 
 const assigneesToDropdownItems = (
   assignees: TaskAssignee[],
+  user: User,
 ): DropdownItem[] => {
-  return assignees.map(({ uid, name, avatar }) => ({
-    id: uid,
-    value: (
-      <div className="flex items-center">
-        <div className="h-8 w-8 relative rounded-full bg-main overflow-hidden mr-3 ring-2 ring-white">
-          {avatar && <Image src={avatar} alt={name} layout="fill" />}
-        </div>
+  return assignees.map(({ uid, name, avatar }) => {
+    const assigneeName = uid === user.uid ? 'Me' : name;
+    return {
+      id: uid,
+      value: (
+        <div className="flex items-center">
+          <div className="h-8 w-8 relative rounded-full bg-main overflow-hidden mr-3 ring-2 ring-white">
+            {avatar && <Image src={avatar} alt={assigneeName} layout="fill" />}
+          </div>
 
-        <span>{name}</span>
-      </div>
-    ),
-    searchable: name,
-  }));
+          <span>{assigneeName}</span>
+        </div>
+      ),
+      searchable: assigneeName,
+      avatar,
+    };
+  });
 };
+
+interface DatePickerInputProps {
+  value?: Date | null;
+  onClick?: (e: FormEvent<HTMLButtonElement>) => void;
+  onClear: () => void;
+}
+
+const DatePickerInput = forwardRef(
+  (
+    { value, onClick, onClear }: DatePickerInputProps,
+    ref: Ref<HTMLButtonElement>,
+  ) => (
+    <button
+      type="button"
+      ref={ref}
+      onClick={onClick}
+      className="text-main text-sm md:text-base hover:text-darkmain flex items-center"
+    >
+      <span>{value || 'Select'}</span>
+      {value && (
+        <span
+          className="text-red-500 text-3xl font-bold hover:text-red-600 ml-2"
+          title="Clear date"
+          onClick={onClear}
+        >
+          &times;
+        </span>
+      )}
+    </button>
+  ),
+);
 
 const TaskDescriptionPage: PageWithLayout = () => {
   const router = useRouter();
@@ -80,6 +148,12 @@ const TaskDescriptionPage: PageWithLayout = () => {
   const { error, data: fetchedTask } = useSWR(
     'get-task-info',
     getTask(taskID as string),
+    {
+      revalidateOnReconnect: true,
+      revalidateOnFocus: false,
+      refreshWhenHidden: false,
+      revalidateIfStale: false,
+    },
   );
 
   const [isMounted, setIsMounted] = useState(false);
@@ -87,10 +161,27 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
   const [task, setTask] = useState<TaskModel | undefined>(undefined);
 
+  const [folders, setFolders] = useState<FolderModel[] | null>(null);
+  const [members, setMembers] = useState<UserModel[] | null>(null);
+
+  const [gettingFolders, setGettingFolders] = useState(false);
+  const [gettingMembers, setGettingMembers] = useState(false);
+
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const [showFolderDropdown, setShowFolderDropdown] = useState(false);
   const [showMembersDropdown, setShowMembersDropdown] = useState(false);
+  const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
+
+  const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
 
   const isDescriptionTab = activeTab === 'Description';
   const isChecklistTab = activeTab === 'Checklist';
+
+  const nameIsValid = task?.title
+    ? task?.title.length >= 2 && task?.title.length < 120
+    : null;
+  const folderIsValid = !!task?.folder;
 
   const unsubscribeRef = useRef<Unsubscribe | null>(null);
 
@@ -102,6 +193,99 @@ const TaskDescriptionPage: PageWithLayout = () => {
     }
     return 'N/A';
   })();
+
+  const [selectedFolder, setSelectedFolder] = useState<Folder | null>(null);
+  const [selectedPriority, setSelectedPriority] = useState<DropdownItem | null>(
+    null,
+  );
+
+  const dropdownFolders: Folder[] = folders
+    ? folders.map(({ id, title: folderTitle, colour }) => ({
+        id,
+        searchable: folderTitle,
+        colour,
+        value: (
+          <div className="flex items-center">
+            <div
+              className="h-6 w-6 relative rounded-full overflow-hidden mr-3 ring-2 ring-white"
+              style={{ backgroundColor: colour }}
+            />
+            <span>{folderTitle}</span>
+          </div>
+        ),
+      }))
+    : [];
+
+  const dropdownMembers: Assignee[] = members
+    ? members.map(({ uid, avatar, displayName }) => {
+        const name = uid === user.uid ? 'Me' : displayName;
+        return {
+          id: uid,
+          searchable: uid === user.uid ? 'Me' : name,
+          avatar,
+          value: (
+            <div className="flex items-center">
+              <div className="h-8 w-8 relative rounded-full bg-main overflow-hidden mr-3 ring-2 ring-white">
+                {avatar && (
+                  <Image src={avatar} alt={name} priority layout="fill" />
+                )}
+              </div>
+
+              <span>{name}</span>
+            </div>
+          ),
+        };
+      })
+    : [];
+
+  const priorities: DropdownItem[] = [
+    {
+      id: TaskPriority.Low,
+      value: TaskPriority.Low,
+    },
+    {
+      id: TaskPriority.Normal,
+      value: TaskPriority.Normal,
+    },
+    {
+      id: TaskPriority.High,
+      value: TaskPriority.High,
+    },
+    {
+      id: TaskPriority.Urgent,
+      value: TaskPriority.Urgent,
+    },
+  ];
+
+  function onSelectFolder() {
+    setShowFolderDropdown((prevState) => !prevState);
+  }
+
+  function handleSelectAssignees() {
+    setShowMembersDropdown((prevState) => !prevState);
+  }
+
+  function checklistItemIsDuplicate(itemDescription: string, index: number) {
+    return (
+      itemDescription &&
+      task?.checklist
+        .filter((_, i) => i !== index)
+        .some(
+          (item) =>
+            item.description.toLowerCase() === itemDescription.toLowerCase(),
+        )
+    );
+  }
+
+  function hasDuplicateChecklistItems(
+    _checklist: ChecklistItem[] | null = null,
+  ) {
+    const items = (_checklist || task?.checklist)?.map(
+      (item) => item.description,
+    );
+    const uniqueItems = new Set(items);
+    return items?.length !== uniqueItems.size;
+  }
 
   function getProgressPercent() {
     const { checklist: _checklist } = task!;
@@ -117,7 +301,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
     return assignee.name;
   }
 
-  function notifyAssignees(isCompleted: boolean) {
+  function notifyAboutStatusChange(isCompleted: boolean) {
     if (task) {
       if (task.assignees.length) {
         const db = getFirestore();
@@ -181,7 +365,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
         isCompleted,
       }).then(() => {
         if (statusChanged) {
-          notifyAssignees(isCompleted);
+          notifyAboutStatusChange(isCompleted);
         }
       });
     }
@@ -214,7 +398,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
         isCompleted: allItemsAreChecked,
       }).then(() => {
         if (statusChanged) {
-          notifyAssignees(allItemsAreChecked);
+          notifyAboutStatusChange(allItemsAreChecked);
         }
       });
     }
@@ -234,15 +418,247 @@ const TaskDescriptionPage: PageWithLayout = () => {
     setIsMounted(true);
   }, []);
 
+  function updateLocalTask(_fetchedTask: TaskModel | undefined) {
+    if (_fetchedTask) {
+      if (task === undefined) {
+        setTask(_fetchedTask);
+        return;
+      }
+
+      const remoteAndLocalTaskObjectsAreDifferent = !isEqual(
+        _fetchedTask,
+        task,
+      );
+      if (remoteAndLocalTaskObjectsAreDifferent) {
+        setTask(_fetchedTask);
+      }
+    }
+  }
+
   useEffect(() => {
-    setTask(fetchedTask);
+    updateLocalTask(fetchedTask);
 
     if (fetchedTask) {
-      unsubscribeRef.current = listenForChanges();
+      setGettingFolders(true);
+      getFolders(fetchedTask.workspace.id)()
+        .then((_folders) => {
+          if (!_folders.length) {
+            swal({
+              icon: 'warning',
+              title: "You can't create a task.",
+              html: (
+                <span>
+                  This is because there are no folders in the workspace you
+                  selected. Please inform an admin of&nbsp;
+                  <span className="text-main">
+                    {fetchedTask.workspace.name}
+                  </span>
+                  &nbsp;to create a folder for you, or create it yourself if
+                  you&apos;re an admin.
+                </span>
+              ),
+              showConfirmButton: true,
+            }).then(async () => {
+              await router.push(`/app/workspaces/${fetchedTask.workspace.id}`);
+            });
+          }
+          setFolders(_folders);
+        })
+        .catch(async (err) => {
+          await alertDBError(
+            err,
+            `Couldn't get folders in ${fetchedTask.workspace.name}`,
+          );
+        })
+        .finally(() => {
+          setGettingFolders(false);
+        });
+
+      setGettingMembers(true);
+      getMembers(fetchedTask.workspace.id, user)()
+        .then((_members) => {
+          setMembers([..._members]);
+        })
+        .catch(async (err) => {
+          await alertDBError(
+            err,
+            `Failed to get members of ${fetchedTask.workspace.name}.`,
+          );
+        })
+        .finally(() => {
+          setGettingMembers(false);
+        });
+
+      setSelectedPriority(
+        fetchedTask.priority
+          ? {
+              id: TaskPriority[fetchedTask.priority],
+              value: TaskPriority[fetchedTask.priority],
+            }
+          : null,
+      );
+
+      setChecklist(
+        fetchedTask.checklist.map((item) => ({
+          key: uuid(),
+          description: item.description,
+          isDone: item.isDone,
+        })),
+      );
     }
 
     return () => unsubscribeRef.current?.();
   }, [fetchedTask]);
+
+  // watch priority for changes
+  useEffect(() => {
+    if (task && selectedPriority?.value !== task.priority) {
+      setTask({
+        ...task,
+        priority: (selectedPriority?.value as TaskPriority) || null,
+      });
+
+      if (task?.title.trim()) {
+        const db = getFirestore();
+        const notificationsBatch = writeBatch(db);
+
+        // notify newly added assignees
+        task.assignees
+          .filter((a) => a.uid !== user.uid)
+          .forEach((uid) => {
+            const assigneeNotifRef = doc(
+              db,
+              `users/${uid}`,
+              `notifications`,
+              uuid(),
+            );
+
+            notificationsBatch.set(assigneeNotifRef, {
+              type: NotificationType.TaskPriorityChanged,
+              readAt: null,
+              message: `${
+                user.displayName
+              } changed the priority of the task: ${task?.title.trim()}.`,
+              createdAt: serverTimestamp(),
+              payload: {
+                sender: {
+                  uid: user.uid,
+                  name: user.displayName!,
+                  avatar: user.photoURL,
+                },
+                task,
+              },
+            } as TaskPriorityChangedNotification);
+          });
+
+        notificationsBatch.commit();
+      }
+    }
+  }, [selectedPriority]);
+
+  // watch checklist for changes
+  useEffect(() => {
+    if (task) {
+      const validChecklist = checklist.filter((item) =>
+        Boolean(item.description),
+      );
+
+      if (!hasDuplicateChecklistItems(validChecklist)) {
+        const allItemsAreChecked = validChecklist
+          .map(({ isDone }) => isDone)
+          .reduce((prevItem, currItem) => prevItem && currItem);
+
+        const newChecklist: TaskChecklistItem[] = validChecklist.map(
+          (item) => ({
+            description: item.description,
+            isDone: item.isDone,
+          }),
+        );
+
+        const checklistChanged = !isEqual(newChecklist, task.checklist);
+
+        if (checklistChanged) {
+          setTask({
+            ...task,
+            checklist: newChecklist,
+            isCompleted: allItemsAreChecked,
+          });
+        }
+      }
+    }
+  }, [checklist]);
+
+  // watch task for changes
+  useEffect(() => {
+    if (task) {
+      const allItemsAreChecked = task.checklist
+        .map(({ isDone }) => isDone)
+        .reduce((prevItem, currItem) => prevItem && currItem);
+
+      const statusChanged = task.isCompleted !== allItemsAreChecked;
+
+      const db = getFirestore();
+      const taskRef = doc(db, 'tasks', task.id!);
+
+      const taskCopy = { ...task };
+      delete taskCopy.id;
+
+      // console.log(task);
+      // return;
+
+      if (task.title.trim() && folderIsValid) {
+        updateDoc(taskRef, {
+          ...taskCopy,
+          title: task.title.trim(),
+          updatedAt: serverTimestamp(),
+        }).then(() => {
+          if (statusChanged) {
+            notifyAboutStatusChange(allItemsAreChecked);
+          }
+
+          const remoteTaskAssigneesUIDs = fetchedTask!.assignees.map(
+            (a) => a.uid,
+          );
+          const localTaskAssigneesUIDs = task.assignees.map((a) => a.uid);
+
+          const notificationsBatch = writeBatch(db);
+
+          // notify newly added assignees
+          localTaskAssigneesUIDs
+            .filter((uid) => uid !== user.uid)
+            .forEach((uid) => {
+              if (!remoteTaskAssigneesUIDs.includes(uid)) {
+                const assigneeNotifRef = doc(
+                  db,
+                  `users/${uid}`,
+                  `notifications`,
+                  uuid(),
+                );
+
+                notificationsBatch.set(assigneeNotifRef, {
+                  type: NotificationType.TaskAssigned,
+                  readAt: null,
+                  message: `${
+                    user.displayName
+                  } assigned you to the task: ${task?.title.trim()}.`,
+                  createdAt: serverTimestamp(),
+                  payload: {
+                    sender: {
+                      uid: user.uid,
+                      name: user.displayName!,
+                      avatar: user.photoURL,
+                    },
+                    task,
+                  },
+                } as TaskAssignedNotification);
+              }
+            });
+
+          notificationsBatch.commit();
+        });
+      }
+    }
+  }, [task]);
 
   return (
     <>
@@ -282,14 +698,48 @@ const TaskDescriptionPage: PageWithLayout = () => {
         <main className="page-new-task">
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="name">
-              <span
-                className={`status-badge text-sm font-medium text-white px-2 py-1 rounded-md cursor-default ${
-                  !task.isCompleted ? 'bg-gray-400' : 'bg-green-500'
-                }`}
-              >
-                {!task.isCompleted ? 'In Progress' : 'Completed'}
-              </span>
-              <h1 className="text-3xl font-bold">{task.title}</h1>
+              <div>
+                <span
+                  className={`status-badge text-sm font-medium text-white px-2 py-1 rounded-md cursor-default ${
+                    !task.isCompleted ? 'bg-gray-400' : 'bg-green-500'
+                  }`}
+                >
+                  {!task.isCompleted ? 'In Progress' : 'Completed'}
+                </span>
+              </div>
+
+              <br />
+              <div className="input-container relative">
+                <input
+                  type="text"
+                  id="task-name"
+                  minLength={1}
+                  required
+                  autoComplete="off"
+                  value={task.title}
+                  className="bg-transparent border-0 text-xl md:text-3xl outline-0 font-bold w-full my-3 block"
+                  onChange={(e) => {
+                    if (e.target.value !== task?.title) {
+                      setTask({
+                        ...task,
+                        title: e.target.value,
+                      });
+                    }
+                  }}
+                />
+
+                <label
+                  htmlFor="task-name"
+                  className="text-3xl font-bold absolute cursor-text"
+                >
+                  Task title...
+                </label>
+              </div>
+              {nameIsValid === false && (
+                <small className="text-red font-medium text-red-500">
+                  Name must be between 2 and 120 characters long.
+                </small>
+              )}
             </div>
 
             <div className="details mt-10">
@@ -307,7 +757,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
                   <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
                     <Link href={`/app/workspaces/${task.workspace.id}`}>
-                      <a style={{ color: task.folder.colour }}>
+                      <a className={`text-${task.folder.colour}`}>
                         {task.workspace.name}
                       </a>
                     </Link>
@@ -328,12 +778,62 @@ const TaskDescriptionPage: PageWithLayout = () => {
                   </div>
 
                   <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
-                    <Link href={`/app/folder/${task.folder.id}`}>
-                      <a style={{ color: task.folder.colour }}>
-                        {task.folder.title}
-                      </a>
-                    </Link>
+                    {task.folder && (
+                      <button
+                        id="workspaces-dropdown-button"
+                        type="button"
+                        className="text-main hover:text-darkmain flex items-center"
+                        onClick={() => onSelectFolder()}
+                      >
+                        <span>{task.folder.title}</span>
+                        {gettingFolders && (
+                          <svg
+                            className="animate-spin h-4 w-4 text-white ml-3"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            data-tip
+                            data-for="folders-loading"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="#121212"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="#121212"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                        )}
+                        {isMounted && (
+                          <ReactTooltip
+                            id="folders-loading"
+                            place="top"
+                            type="dark"
+                            effect="solid"
+                          >
+                            Getting folders in workspace
+                          </ReactTooltip>
+                        )}
+                      </button>
+                    )}
                   </div>
+
+                  {showFolderDropdown && (
+                    <Dropdown
+                      id="workspaces-dropdown"
+                      options={dropdownFolders}
+                      value={selectedFolder}
+                      className="absolute left-[0px] top-[30px]"
+                      onSelect={(item) => setSelectedFolder(item)}
+                      onClose={() => setShowFolderDropdown(false)}
+                    />
+                  )}
                 </div>
               </div>
 
@@ -352,51 +852,105 @@ const TaskDescriptionPage: PageWithLayout = () => {
                   <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
                     <div className="flex items-center">
                       <div className="flex -space-x-2 overflow-hidden">
-                        {task.assignees.slice(0, 6).map((assignee, index) => (
-                          <div key={assignee.uid} className="flex items-center">
-                            <div
-                              data-tip
-                              data-for={`assignee-${assignee.uid}`}
-                              key={assignee.uid}
-                              className="h-8 w-8 rounded-full bg-main ring-2 ring-white inline-block overflow-hidden relative"
-                            >
-                              {assignee.avatar && (
-                                <Image
-                                  src={assignee.avatar}
-                                  alt={assignee.name}
-                                  layout="fill"
-                                />
-                              )}
-
-                              {task.assignees.length > 6 && index === 5 && (
-                                <div
-                                  className="overlay absolute h-full w-full bg-black opacity-70 text-white text-sm font-medium flex items-center justify-center cursor-pointer"
-                                  onClick={() =>
-                                    setShowMembersDropdown(
-                                      (prevState) => !prevState,
-                                    )
-                                  }
-                                >
-                                  +{task.assignees.length - 5}
-                                </div>
-                              )}
-                            </div>
-
-                            {isMounted && (
-                              <ReactTooltip
-                                id={`assignee-${assignee.uid}`}
-                                place="top"
-                                type="dark"
-                                effect="solid"
+                        {task &&
+                          task.assignees.slice(0, 6).map((assignee, index) => {
+                            return (
+                              <div
+                                key={assignee.uid}
+                                className="flex items-center"
                               >
-                                {index === 5
-                                  ? `${task.assignees.length - 5} more`
-                                  : getAssigneeName(assignee)}
-                              </ReactTooltip>
-                            )}
-                          </div>
-                        ))}
+                                <div
+                                  data-tip
+                                  data-for={`assignee-${assignee.uid}`}
+                                  key={assignee.uid}
+                                  className="h-8 w-8 rounded-full bg-main ring-2 ring-white inline-block overflow-hidden relative"
+                                >
+                                  {assignee.avatar && (
+                                    <Image
+                                      src={assignee.avatar}
+                                      alt={assignee.name}
+                                      layout="fill"
+                                      priority
+                                    />
+                                  )}
+
+                                  {task &&
+                                    task.assignees.length > 6 &&
+                                    index === 5 && (
+                                      <div
+                                        className="overlay absolute h-full w-full bg-black opacity-70 text-white text-sm font-medium flex items-center justify-center cursor-pointer"
+                                        onClick={() =>
+                                          setShowMembersDropdown(
+                                            (prevState) => !prevState,
+                                          )
+                                        }
+                                      >
+                                        +{task.assignees.length - 5}
+                                      </div>
+                                    )}
+                                </div>
+
+                                {isMounted && (
+                                  <ReactTooltip
+                                    id={`assignee-${assignee.uid}`}
+                                    place="top"
+                                    type="dark"
+                                    effect="solid"
+                                  >
+                                    {index === 5
+                                      ? `${task.assignees.length - 5} more`
+                                      : getAssigneeName(assignee)}
+                                  </ReactTooltip>
+                                )}
+                              </div>
+                            );
+                          })}
                       </div>
+
+                      <button
+                        id="assignees-dropdown-button"
+                        type="button"
+                        className="text-main w-8 h-8 rounded-full border border-main flex items-center justify-center text-xl ml-2 hover:bg-main hover:text-white"
+                        onClick={() => handleSelectAssignees()}
+                      >
+                        +
+                      </button>
+
+                      {gettingMembers && (
+                        <svg
+                          className="animate-spin h-4 w-4 text-white ml-3"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          data-tip
+                          data-for="members-loading"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="#121212"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="#121212"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                      )}
+
+                      {isMounted && (
+                        <ReactTooltip
+                          id="members-loading"
+                          place="top"
+                          type="dark"
+                          effect="solid"
+                        >
+                          Getting members of workspace
+                        </ReactTooltip>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -404,10 +958,22 @@ const TaskDescriptionPage: PageWithLayout = () => {
                 {showMembersDropdown && (
                   <DropdownMultiple
                     id="assignees-dropdown"
-                    options={assigneesToDropdownItems(task.assignees)}
-                    value={assigneesToDropdownItems(task.assignees)}
-                    readOnly
+                    options={dropdownMembers}
+                    value={assigneesToDropdownItems(task.assignees, user)}
                     className="absolute mt-3 left-0 top-[30px]"
+                    onSelect={(items) => {
+                      setTask({
+                        ...task,
+                        assignees: (items as Assignee[]).map((a) => ({
+                          uid: a.id,
+                          name:
+                            a.id === user.uid
+                              ? user.displayName!
+                              : a.searchable!,
+                          avatar: a.avatar,
+                        })),
+                      });
+                    }}
                     onClose={() => setShowMembersDropdown(false)}
                   />
                 )}
@@ -426,27 +992,26 @@ const TaskDescriptionPage: PageWithLayout = () => {
                   </div>
 
                   <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
-                    <span
-                      data-tip
-                      data-for="due-date"
-                      className={`text-sm md:text-base ${
-                        timeLeft === 'Overdue' ? 'text-red-600' : ''
-                      }`}
-                    >
-                      {task.dueDate
-                        ? moment(task.dueDate).format('D MMM, YYYY @ hh:mm A')
-                        : 'N/A'}
-                    </span>
-                    {isMounted && (
-                      <ReactTooltip
-                        id="due-date"
-                        place="top"
-                        type="dark"
-                        effect="solid"
-                      >
-                        {timeLeft}
-                      </ReactTooltip>
-                    )}
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={(date) => {
+                        setSelectedDate(date);
+                      }}
+                      timeFormat="hh:mm aa"
+                      dateFormat="MMM d, yyyy @ h:mm aa"
+                      minDate={new Date()}
+                      filterTime={(date) =>
+                        date.getTime() > new Date().getTime()
+                      }
+                      customInput={
+                        <DatePickerInput
+                          value={selectedDate}
+                          onClear={() => setSelectedDate(null)}
+                        />
+                      }
+                      showTimeSelect
+                      showYearDropdown
+                    />
                   </div>
                 </div>
               </div>
@@ -464,65 +1029,56 @@ const TaskDescriptionPage: PageWithLayout = () => {
                   </div>
 
                   <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
-                    <span
-                      style={{
-                        color: task.priority
-                          ? TaskPriorityColour[task.priority]
-                          : '#7a7a7a',
-                      }}
-                    >
-                      {task.priority}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="progress-wrapper relative">
-                <div className="progress grid grid-cols-7 lg:grid-cols-5 mb-5">
-                  <div className="col-start-1 col-end-4 lg:col-end-2 flex items-center">
-                    <div className="icon flex items-center relative h-5 w-5 lg:h-7 lg:w-7">
-                      <Image src={iconProgress} layout="fill" priority />
-                    </div>
-
-                    <span className="text-darkgray md:text-xl font-medium ml-3">
-                      Progress
-                    </span>
-                  </div>
-
-                  <div className="col-start-4 col-end-8 lg:col-start-2 lg:col-end-6 relative">
-                    <div className="flex items-center">
-                      <div className="progress-bar w-[200px] relative max-w-[200px]">
-                        <div
-                          className="point absolute w-4 h-4 rounded-full -top-1"
+                    {selectedPriority && (
+                      <div className="flex items-center">
+                        <span
                           style={{
-                            backgroundColor: task.folder.colour,
-                            left: `${getProgressPercent() - 2}%`,
+                            color:
+                              TaskPriorityColour[
+                                selectedPriority.value as TaskPriority
+                              ],
                           }}
-                        />
+                        >
+                          {selectedPriority.value}
+                        </span>
 
-                        <div
-                          className="bar-inner absolute h-full rounded-l-full"
-                          style={{
-                            width: `${getProgressPercent() + 0.5}%`,
-                            backgroundColor: task.folder.colour,
+                        <button
+                          className="text-2xl text-red-500 font-bold ml-3"
+                          onClick={() => {
+                            setSelectedPriority(null);
+                            setShowPriorityDropdown(true);
                           }}
-                        />
-
-                        <div
-                          className="bar w-full h-2 rounded-full overflow-hidden relative opacity-25"
-                          style={{
-                            backgroundColor: `rgba(${hexToRGB(
-                              task.folder.colour,
-                            )!.rgb()}, 0.8)`,
-                          }}
-                        />
+                        >
+                          &times;
+                        </button>
                       </div>
+                    )}
 
-                      <span className="text-gray-600 text-sm  ml-5">
-                        {getProgressPercent()}%
-                      </span>
-                    </div>
+                    {!selectedPriority && (
+                      <button
+                        id="priorities-dropdown-button"
+                        type="button"
+                        className="text-main hover:text-darkmain"
+                        onClick={() =>
+                          setShowPriorityDropdown((prevState) => !prevState)
+                        }
+                      >
+                        Select
+                      </button>
+                    )}
                   </div>
+
+                  {showPriorityDropdown && (
+                    <Dropdown
+                      id="priorities-dropdown"
+                      options={priorities}
+                      value={selectedPriority}
+                      className="absolute left-[0px] top-[30px]"
+                      showSearchField={false}
+                      onSelect={(item) => setSelectedPriority(item)}
+                      onClose={() => setShowPriorityDropdown(false)}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -549,53 +1105,116 @@ const TaskDescriptionPage: PageWithLayout = () => {
               <div className="explainer-content">
                 {isDescriptionTab && (
                   <div className="mt-16">
-                    <TaskDescriptionEditor value={task.editorjsData} readOnly />
+                    <TaskDescriptionEditor
+                      value={task.editorjsData}
+                      onChange={(newContent) => {
+                        if (task && task.editorjsData !== newContent) {
+                          setTask({
+                            ...task,
+                            editorjsData: newContent,
+                          });
+                        }
+                      }}
+                    />
                   </div>
                 )}
 
                 {isChecklistTab && (
                   <div className="checklist-tab mt-10">
                     <ul>
-                      {task.checklist.map((_checklistItem, index) => {
-                        const { isDone, description: clDescription } =
-                          _checklistItem;
-
-                        return (
-                          <li
-                            key={clDescription}
-                            className="flex items-center mb-4"
-                          >
+                      {checklist.map(
+                        (
+                          { key, isDone, description: clDescription },
+                          index,
+                          list,
+                        ) => (
+                          <li key={key} className="mb-4">
                             <input
                               type="checkbox"
                               checked={isDone}
                               className="hidden"
                               readOnly
                             />
+                            <div className="flex items-center">
+                              <div
+                                className={`checkbox h-7 w-7 rounded-full flex items-center justify-center border ${
+                                  isDone
+                                    ? 'bg-main text-white border-main hover:border-main'
+                                    : 'border-darkgray hover:border-main'
+                                }`}
+                                onClick={() => {
+                                  const checklistCopy = [...list];
+                                  checklistCopy.splice(index, 1, {
+                                    key,
+                                    description: clDescription,
+                                    isDone: !isDone,
+                                  });
+                                  setChecklist(checklistCopy);
+                                }}
+                              >
+                                <i className="linearicons linearicons-check text-xs font-bold" />
+                              </div>
 
-                            <div
-                              className={`checkbox h-7 w-[1.9rem] rounded-full flex items-center justify-center border ${
-                                isDone
-                                  ? 'bg-main text-white border-main hover:border-main'
-                                  : 'border-darkgray hover:border-main'
-                              }`}
-                              onClick={() =>
-                                changeTodoStatus(_checklistItem, index)
-                              }
-                            >
-                              <i className="linearicons linearicons-check text-xs font-bold" />
+                              <div className="flex-grow relative">
+                                <input
+                                  type="text"
+                                  value={clDescription}
+                                  placeholder="Enter to do item title"
+                                  className={`block w-full outline-none bg-transparent text-base md:text-lg text-darkgray ml-5 ${
+                                    isDone ? 'line-through' : ''
+                                  }`}
+                                  onChange={(e) => {
+                                    const checklistCopy = [...list];
+                                    checklistCopy.splice(index, 1, {
+                                      key,
+                                      isDone,
+                                      description: e.target.value,
+                                    });
+                                    setChecklist(checklistCopy);
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  className="text-red-500 text-3xl font-bold absolute top-[-3px] right-0 hover:text-red-600"
+                                  title="Remove"
+                                  onClick={() => {
+                                    const checklistCopy = [...list];
+                                    checklistCopy.splice(index, 1);
+                                    setChecklist(checklistCopy);
+                                  }}
+                                >
+                                  &times;
+                                </button>
+                              </div>
                             </div>
 
-                            <div
-                              className={`flex-grow w-full text-base md:text-lg text-darkgray ml-5 ${
-                                isDone ? 'line-through' : ''
-                              }`}
-                            >
-                              {clDescription}
-                            </div>
+                            {checklistItemIsDuplicate(clDescription, index) && (
+                              <small className="text-red-500 font-medium">
+                                Duplicate checklist item.
+                              </small>
+                            )}
                           </li>
-                        );
-                      })}
+                        ),
+                      )}
                     </ul>
+
+                    <div>
+                      <button
+                        type="button"
+                        className="mt-12 px-5 py-2 rounded-lg text-main border-2 border-main"
+                        onClick={() => {
+                          const list = [...checklist];
+                          list.push({
+                            key: Date.now(),
+                            isDone: false,
+                            description: '',
+                          });
+                          setChecklist(list);
+                        }}
+                      >
+                        Add to do
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

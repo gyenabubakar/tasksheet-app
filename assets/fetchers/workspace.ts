@@ -122,20 +122,36 @@ export function getWorkspaces(uid: string) {
 }
 
 export function getMembers(workspaceID: string, user: User) {
-  return async (): Promise<UserModel[]> => {
-    const db = getFirestore();
+  return () => {
+    return new Promise<UserModel[]>((resolve, reject) => {
+      const db = getFirestore();
 
-    const workspace = await getWorkspace(workspaceID, user.uid)();
-    if (workspace.members.length) {
-      const usersCollRef = collection(db, 'users');
-      const membersQuery = query(
-        usersCollRef,
-        where('uid', 'in', workspace.members),
-      );
-      const snapshot = await getDocs(membersQuery);
-      return snapshot.docs.map((_doc) => _doc.data() as UserModel);
-    }
+      getWorkspace(workspaceID, user.uid)()
+        .then((workspace) => {
+          getDoc(doc(db, 'users', workspace.createdBy)).then((_doc) => {
+            const allMembers: UserModel[] = [_doc.data() as UserModel];
 
-    return [];
+            if (workspace.members.length) {
+              const usersCollRef = collection(db, 'users');
+              const membersQuery = query(
+                usersCollRef,
+                where('uid', 'in', workspace.members),
+              );
+              getDocs(membersQuery).then((snapshot) => {
+                snapshot.docs.map((__doc) =>
+                  allMembers.push(__doc.data() as UserModel),
+                );
+                resolve(allMembers);
+              });
+            }
+          });
+        })
+        .catch((error) => {
+          reject({
+            title: `Couldn't get members.`,
+            error: getDBErrorMessage(error),
+          });
+        });
+    });
   };
 }

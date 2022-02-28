@@ -14,7 +14,6 @@ import iconArrowLeft from '~/assets/icons/arrow-left.svg';
 import illustrationVerification from '~/assets/illustrations/verification.svg';
 import Link from 'next/link';
 import Button from '~/components/common/Button';
-import { VerificationCodeInfo } from '~/_serverless/lib/types';
 import notify from '~/assets/ts/notify';
 
 type DigitInput = 'input1' | 'input2' | 'input3' | 'input4' | 'input5';
@@ -120,7 +119,7 @@ const VerifyEmailPage: PageWithLayout = () => {
     e.preventDefault();
 
     if (formIsValid && !submitting) {
-      const form: VerificationCodeInfo = {
+      const form = {
         code: otpCode,
         email: 'john@doe.com',
       };

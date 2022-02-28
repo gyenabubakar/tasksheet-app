@@ -216,10 +216,19 @@ export interface TaskStatusChangedNotification extends NotificationsModel {
   };
 }
 
+export interface TaskPriorityChangedNotification extends NotificationsModel {
+  type: NotificationType.TaskPriorityChanged;
+  payload: {
+    sender: NotificationSender;
+    task: TaskModel;
+  };
+}
+
 export type Notification =
   | InviteNotification
   | InviteAcceptedNotification
   | InviteDeclinedNotification
   | TaskAssignedNotification
   | MemberJoinedNotification
-  | TaskStatusChangedNotification;
+  | TaskStatusChangedNotification
+  | TaskPriorityChangedNotification;

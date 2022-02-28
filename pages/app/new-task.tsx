@@ -249,7 +249,7 @@ const NewTaskPage: PageWithLayout = () => {
     );
   }
 
-  function hasDuplicationChecklistItems() {
+  function hasDuplicateChecklistItems() {
     const items = checklist.map((item) => item.description);
     const uniqueItems = new Set(items);
     return items.length !== uniqueItems.size;
@@ -347,7 +347,7 @@ const NewTaskPage: PageWithLayout = () => {
         return;
       }
 
-      if (hasDuplicationChecklistItems()) {
+      if (hasDuplicateChecklistItems()) {
         notify('Checklist has duplicate items.', {
           type: 'error',
         });
@@ -530,7 +530,7 @@ const NewTaskPage: PageWithLayout = () => {
                 required
                 autoComplete="off"
                 className="bg-transparent border-0 text-xl md:text-3xl outline-0 font-bold w-full my-3 block"
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => setTitle(e.target.value.trim())}
               />
 
               <label

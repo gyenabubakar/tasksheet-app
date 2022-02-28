@@ -60,6 +60,10 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
   }, [selectedItems]);
 
   useEffect(() => {
+    console.log('--->', value);
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       if (!document.querySelector(`#${id}`)?.contains(target)) {
@@ -106,9 +110,10 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
           </svg>
         </div>
       </div>
-      <ul>
-        {filteredOptions.length ? (
-          filteredOptions.map((item) => (
+
+      {filteredOptions.length ? (
+        <ul>
+          {filteredOptions.map((item) => (
             <li
               key={item.id}
               className="dropdown-item"
@@ -120,13 +125,13 @@ const DropdownMultiple: React.FC<DropdownProps> = ({
                 <i className="linearicons linearicons-check font-bold text-main" />
               )}
             </li>
-          ))
-        ) : (
-          <li className="text-darkgray italic text-center py-2">
-            Found nothing
-          </li>
-        )}
-      </ul>
+          ))}
+        </ul>
+      ) : (
+        <div className="text-darkgray italic text-center py-2">
+          Found nothing
+        </div>
+      )}
     </div>
   );
 };

@@ -74,7 +74,10 @@ const TaskDescriptionEditor: React.FC<EditorProps> = ({
   async function saveEditorBlocks(editor) {
     if (!readOnly) {
       const result = await editor?.save();
-      if (onChange) onChange(result.blocks);
+      const newContent = JSON.stringify(result.blocks);
+      if (newContent !== value) {
+        onChange?.(newContent);
+      }
     }
   }
 
