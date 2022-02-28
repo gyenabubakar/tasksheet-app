@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -13,36 +14,18 @@ import Loading from '~/components/common/Loading';
 import useWorkspace from '~/hooks/useWorkspace';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import ErrorFallback from '~/components/common/ErrorFallback';
-import { useEffect } from 'react';
 import { getFolders } from '~/assets/fetchers/folder';
+import { FolderModel } from '~/assets/firebase/firebaseTypes';
 
 const WorkspaceDetailsPage: PageWithLayout = () => {
   const router = useRouter();
   const { error, workspace } = useWorkspace();
 
-  const folders: FolderType[] = [
-    {
-      id: '1',
-      name: 'Mobile Apps',
-      colour: '#5C68FF',
-      category: 'Development',
-      tasks: { completed: 3, total: 8 },
-    },
-    {
-      id: '2',
-      name: '3D Animations',
-      colour: '#14CC8A',
-      category: 'Modelling, Colouring',
-      tasks: { completed: 9, total: 12 },
-    },
-    {
-      id: '3',
-      name: 'Blog Articles',
-      colour: '#e11d48',
-      category: 'Content Creation',
-      tasks: { completed: 3, total: 18 },
-    },
-  ];
+  const [folders, setFolders] = useState<FolderModel[] | null>(null);
+  const [foldersError, setFoldersError] = useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
   async function onEditFolder(folder: FolderType) {
     // eslint-disable-next-line no-console
@@ -89,10 +72,15 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
 
   useEffect(() => {
     if (workspace) {
-      // console.log(workspace);
-      getFolders(workspace.id!)().then((_folders) => {
-        console.log(_folders);
-      });
+      getFolders(workspace.id!)()
+        .then((data) => {
+          setFolders(data);
+          setFoldersError(null);
+        })
+        .catch((_error: any) => {
+          setFoldersError(_error);
+          setFolders(null);
+        });
     }
   }, [workspace]);
 
@@ -107,7 +95,7 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
       </Head>
 
       {!workspace && !error && (
-        <Loading loadingText="Loading workspace..." className="mt-12" />
+        <Loading loadingText="Getting workspace folders..." className="mt-12" />
       )}
 
       {error && !workspace && (
@@ -116,21 +104,42 @@ const WorkspaceDetailsPage: PageWithLayout = () => {
 
       {workspace && !error && (
         <main className="page-workspace-folders mt-8">
-          <p className="text-darkgray font-medium">{folders.length} folders</p>
+          {workspace && !folders && !foldersError && (
+            <Loading
+              loadingText="Getting workspace folders..."
+              className="mt-12"
+            />
+          )}
 
-          {folders.length ? (
+          {workspace && foldersError && !folders && (
+            <ErrorFallback
+              title={foldersError.title}
+              message={foldersError.message}
+            />
+          )}
+
+          {workspace && !foldersError && folders && folders.length && (
             <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {folders.map((folder) => (
+              {folders.map(({ id, title, workspaceID, colour, category }) => (
                 <Folder
-                  href={`/app/folder/${folder.id}`}
-                  key={folder.id}
-                  folder={folder}
+                  key={id}
+                  href={`/app/folder/${id}`}
+                  folder={{
+                    id: id!,
+                    name: title,
+                    colour,
+                    workspaceId: workspaceID,
+                    category,
+                  }}
+                  canModify={Boolean(workspace?.isAdmin || workspace?.isOwner)}
                   onEdit={(f) => onEditFolder(f)}
                   onDelete={(f) => onDeleteFolder(f)}
                 />
               ))}
             </div>
-          ) : (
+          )}
+
+          {workspace && !foldersError && folders && !folders.length && (
             <div className="empty-state flex flex-col justify-center items-center mt-24">
               <div className="w-[247px] h-[241px] relative">
                 <Image src={illustrationEmpty} priority />
