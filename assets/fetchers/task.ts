@@ -7,12 +7,20 @@ export function getTask(id: string) {
     return new Promise<TaskModel>((resolve, reject) => {
       const taskRef = doc(getFirestore(), 'tasks', id);
       getDoc(taskRef)
-        .then((_doc) =>
+        .then((_doc) => {
+          if (!_doc.exists()) {
+            reject({
+              title: 'Task not found.',
+              message: `The link you followed is probably broken or the task has been deleted.`,
+            });
+            return;
+          }
+
           resolve({
             id: _doc.id,
             ..._doc.data(),
-          } as TaskModel),
-        )
+          } as TaskModel);
+        })
         .catch((error) => {
           reject({
             title: 'Error getting task info',

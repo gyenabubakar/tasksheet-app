@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -8,6 +8,7 @@ import {
   getFirestore,
   onSnapshot,
   serverTimestamp,
+  Unsubscribe,
   updateDoc,
   writeBatch,
 } from 'firebase/firestore';
@@ -90,6 +91,8 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
   const isDescriptionTab = activeTab === 'Description';
   const isChecklistTab = activeTab === 'Checklist';
+
+  const unsubscribeRef = useRef<Unsubscribe | null>(null);
 
   const timeLeft = (() => {
     if (task?.dueDate) {
@@ -229,12 +232,16 @@ const TaskDescriptionPage: PageWithLayout = () => {
 
   useEffect(() => {
     setIsMounted(true);
-    const unsubscribe = listenForChanges();
-    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     setTask(fetchedTask);
+
+    if (fetchedTask) {
+      unsubscribeRef.current = listenForChanges();
+    }
+
+    return () => unsubscribeRef.current?.();
   }, [fetchedTask]);
 
   return (
@@ -263,15 +270,15 @@ const TaskDescriptionPage: PageWithLayout = () => {
         )}
       </Navigation>
 
-      {!task && !error && (
+      {!fetchedTask && !error && (
         <Loading loadingText="Loading task..." className="mt-12" />
       )}
 
-      {error && !task && (
+      {error && !fetchedTask && (
         <ErrorFallback title={error.title} message={error.message} />
       )}
 
-      {task && !error && (
+      {fetchedTask && task && !error && (
         <main className="page-new-task">
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="name">
