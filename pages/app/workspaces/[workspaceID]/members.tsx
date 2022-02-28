@@ -13,39 +13,39 @@ const WorkspaceMembersPage: PageWithLayout = () => {
   const { workspaceID } = router.query;
 
   const members: MemberType[] = [
-    // {
-    //   id: '1',
-    //   name: 'De Graft Arthur',
-    //   role: 'UI/UX Designer',
-    //   avatar:
-    //     'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
-    //   tasks: {
-    //     completed: 10,
-    //     total: 12,
-    //   },
-    // },
-    // {
-    //   id: '2',
-    //   name: 'De Graft Arthur',
-    //   role: 'UI/UX Designer',
-    //   avatar:
-    //     'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
-    //   tasks: {
-    //     completed: 10,
-    //     total: 12,
-    //   },
-    // },
-    // {
-    //   id: '3',
-    //   name: 'De Graft Arthur',
-    //   role: 'UI/UX Designer',
-    //   avatar:
-    //     'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
-    //   tasks: {
-    //     completed: 10,
-    //     total: 12,
-    //   },
-    // },
+    {
+      id: '1',
+      name: 'De Graft Arthur',
+      role: 'UI/UX Designer',
+      avatar:
+        'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
+      tasks: {
+        completed: 10,
+        total: 12,
+      },
+    },
+    {
+      id: '2',
+      name: 'De Graft Arthur',
+      role: 'UI/UX Designer',
+      avatar:
+        'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
+      tasks: {
+        completed: 10,
+        total: 12,
+      },
+    },
+    {
+      id: '3',
+      name: 'De Graft Arthur',
+      role: 'UI/UX Designer',
+      avatar:
+        'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80',
+      tasks: {
+        completed: 10,
+        total: 12,
+      },
+    },
   ];
 
   function onAssignTask(member: MemberType) {

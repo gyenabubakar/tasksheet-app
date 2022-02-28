@@ -69,7 +69,7 @@ const WorkspaceDetailsPage: PageWithLayout<WorkspaceSubpageProps> = ({
               <span className="text-main">{folder.name}</span>!
             </span>
           ),
-        });
+        }).finally(() => window.location.reload());
       }
     });
   }
@@ -113,7 +113,7 @@ const WorkspaceDetailsPage: PageWithLayout<WorkspaceSubpageProps> = ({
           />
         )}
 
-        {!foldersError && folders && folders.length && (
+        {!foldersError && folders && folders.length > 0 && (
           <div className="folders mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {folders.map(({ id, title, workspaceID, colour, category }) => (
               <Folder
@@ -134,7 +134,7 @@ const WorkspaceDetailsPage: PageWithLayout<WorkspaceSubpageProps> = ({
           </div>
         )}
 
-        {!foldersError && folders && !folders.length && (
+        {!foldersError && folders && !(folders.length > 0) && (
           <div className="empty-state flex flex-col justify-center items-center mt-24">
             <div className="w-[247px] h-[241px] relative">
               <Image src={illustrationEmpty} priority />
@@ -144,16 +144,26 @@ const WorkspaceDetailsPage: PageWithLayout<WorkspaceSubpageProps> = ({
               There are no folders in this workspace.
             </h3>
 
-            <div className="mt-10">
-              <Button
-                paddingClasses="px-8 py-6"
-                onClick={() =>
-                  router.push(`/app/workspaces/${workspace.id}/new-folder`)
-                }
-              >
-                Create New Folder
-              </Button>
-            </div>
+            {(workspace.isAdmin || workspace.isOwner) && (
+              <div className="mt-10">
+                <Button
+                  paddingClasses="px-8 py-6"
+                  onClick={() => {
+                    if (workspace.isAdmin || workspace.isOwner) {
+                      router.push(`/app/workspaces/${workspace.id}/new-folder`);
+                    }
+                  }}
+                >
+                  Create New Folder
+                </Button>
+              </div>
+            )}
+
+            {!(workspace.isAdmin || workspace.isOwner) && (
+              <p className="text-darkgray font-medium">
+                Ask an admin of this workspace to create one for you.
+              </p>
+            )}
           </div>
         )}
       </main>

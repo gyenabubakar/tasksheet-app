@@ -20,7 +20,6 @@ import Button from '~/components/common/Button';
 import useFolder from '~/hooks/useFolder';
 import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
-import { FolderModel } from '~/assets/firebase/firebaseTypes';
 import alertDBError from '~/assets/firebase/alertDBError';
 
 interface NewFolderForm extends FormValidationErrors {
@@ -34,7 +33,6 @@ const EditFolderPage: PageWithLayout = () => {
   const { folder, error } = useFolder();
   const router = useRouter();
   const { folderID } = router.query;
-  const { workspaceID } = router.query;
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');

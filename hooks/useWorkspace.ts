@@ -3,8 +3,12 @@ import useSWR from 'swr';
 
 import useUser from '~/hooks/useUser';
 import { getWorkspace } from '~/assets/fetchers/workspace';
+import { PublicConfiguration } from 'swr/dist/types';
+import { Workspace } from '~/assets/firebase/firebaseTypes';
 
-function useWorkspace() {
+function useWorkspace(
+  config: Partial<PublicConfiguration<Workspace, any, any>> = {},
+) {
   const { user } = useUser();
   const router = useRouter();
   const { workspaceID } = router.query;
@@ -16,6 +20,7 @@ function useWorkspace() {
       revalidateIfStale: true,
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
+      ...config,
     },
   );
 
