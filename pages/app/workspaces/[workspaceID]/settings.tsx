@@ -9,6 +9,10 @@ import {
   serverTimestamp,
   deleteDoc,
   writeBatch,
+  query,
+  collection,
+  where,
+  getDocs,
 } from 'firebase/firestore';
 
 import { PageWithLayout } from '~/assets/ts/types';
@@ -19,7 +23,6 @@ import useFormValidation, {
 } from '~/hooks/useFormValidation';
 import Button from '~/components/common/Button';
 import notify from '~/assets/ts/notify';
-import Switch from '~/components/common/Switch';
 import swal from '~/assets/ts/sweetalert';
 import useWorkspace from '~/hooks/useWorkspace';
 import Loading from '~/components/common/Loading';
@@ -27,6 +30,7 @@ import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import useUser from '~/hooks/useUser';
 import ErrorFallback from '~/components/common/ErrorFallback';
 import alertDBError from '~/assets/firebase/alertDBError';
+import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 
 interface WorkspaceFormErrors extends FormValidationErrors {
   name: string | null;
@@ -163,7 +167,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
         icon: 'warning',
         title: (
           <span>
-            Sure you want to leave{' '}
+            Sure you want to leave&nbsp;
             <span className="text-main">{workspace!.name}</span>?
           </span>
         ),
@@ -217,7 +221,7 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
           await swal({
             icon: 'error',
             title: "Couldn't leave workspace.",
-            text: `Request failed with error: ${(err as FirestoreError).code}`,
+            text: getDBErrorMessage(err),
             timer: 3000,
           });
         });
@@ -238,27 +242,59 @@ const WorkspaceSettingsPage: PageWithLayout = () => {
           if (confirmed) {
             const db = getFirestore();
             const batch = writeBatch(db);
-            // const;
-            const workspaceRef = doc(db, 'workspaces', workspace!.id!);
-            return deleteDoc(workspaceRef);
+            const foldersQuery = query(
+              collection(db, 'folders'),
+              where('workspaceID', '==', workspace.id),
+            );
+            const tasksQuery = query(
+              collection(db, 'tasks'),
+              where('workspace.id', '==', workspace.id),
+            );
+
+            const [foldersSnapshot, tasksSnapshot] = await Promise.all([
+              getDocs(foldersQuery),
+              getDocs(tasksQuery),
+            ]);
+            foldersSnapshot.docs.forEach((_doc) => {
+              const folderRef = doc(db, 'folders', _doc.id);
+              batch.delete(folderRef);
+            });
+            tasksSnapshot.docs.forEach((_doc) => {
+              const taskRef = doc(db, 'tasks', _doc.id);
+              batch.delete(taskRef);
+            });
+
+            const workspaceRef = doc(db, 'workspaces', workspace.id!);
+            return deleteDoc(workspaceRef).then(() => {
+              batch.commit();
+            });
           }
           return null;
         },
-      }).then(async (results) => {
-        if (results.isConfirmed) {
-          await router.replace('/app/workspaces');
+      })
+        .then(async (results) => {
+          if (results.isConfirmed) {
+            await router.replace('/app/workspaces');
 
+            await swal({
+              icon: 'success',
+              title: (
+                <span>
+                  Deleted workspace,{' '}
+                  <span className="text-main">{workspace.name}</span>!
+                </span>
+              ),
+            });
+          }
+        })
+        .catch(async (err) => {
           await swal({
-            icon: 'success',
-            title: (
-              <span>
-                Deleted workspace,{' '}
-                <span className="text-main">{workspace.name}</span>!
-              </span>
-            ),
+            icon: 'error',
+            title: "Couldn't delete workspace.",
+            text: getDBErrorMessage(err),
+            timer: 3000,
           });
-        }
-      });
+        });
     }
   }
 
