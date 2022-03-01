@@ -11,12 +11,17 @@ import { useRouter } from 'next/router';
 import Image from 'next/image';
 import useSWR from 'swr';
 import {
+  collection,
+  deleteDoc,
   doc,
+  getDocs,
   getFirestore,
   onSnapshot,
+  query,
   serverTimestamp,
   Unsubscribe,
   updateDoc,
+  where,
   writeBatch,
 } from 'firebase/firestore';
 import ReactTooltip from 'react-tooltip';
@@ -62,6 +67,7 @@ import swal from '~/assets/ts/sweetalert';
 import alertDBError from '~/assets/firebase/alertDBError';
 import { getMembers } from '~/assets/fetchers/workspace';
 import { User } from 'firebase/auth';
+import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 
 const TaskDescriptionEditor = dynamic(
   () => import('~/components/workspace/TaskDescriptionEditor'),
@@ -404,6 +410,52 @@ const TaskDescriptionPage: PageWithLayout = () => {
     }
   }
 
+  function onDeleteTask() {
+    if (task) {
+      swal({
+        icon: 'warning',
+        title: 'Proceed to delete task?',
+        showConfirmButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Delete!',
+        cancelButtonText: 'Cancel',
+        showLoaderOnConfirm: true,
+        async preConfirm(confirmed: boolean): Promise<any> {
+          if (confirmed) {
+            const db = getFirestore();
+            const taskRef = doc(db, 'tasks', task.id!);
+
+            return deleteDoc(taskRef);
+          }
+          return null;
+        },
+      })
+        .then(async (results) => {
+          if (results.isConfirmed) {
+            await router.replace('/app/workspaces');
+
+            await swal({
+              icon: 'success',
+              title: (
+                <span>
+                  Deleted&nbsp;
+                  <span className="text-main">{task.title}</span>!
+                </span>
+              ),
+            });
+          }
+        })
+        .catch(async (err) => {
+          await swal({
+            icon: 'error',
+            title: "Couldn't delete task.",
+            text: getDBErrorMessage(err),
+            timer: 3000,
+          });
+        });
+    }
+  }
+
   function listenForChanges() {
     const taskRef = doc(getFirestore(), 'tasks', taskID as string);
     return onSnapshot(taskRef, (snapshot) => {
@@ -703,7 +755,7 @@ const TaskDescriptionPage: PageWithLayout = () => {
         <main className="page-new-task">
           <form onSubmit={(e) => e.preventDefault()}>
             <div className="name">
-              <div>
+              <div className="flex justify-between items-center">
                 <span
                   className={`status-badge text-sm font-medium text-white px-2 py-1 rounded-md cursor-default ${
                     !task.isCompleted ? 'bg-gray-400' : 'bg-green-500'
@@ -711,6 +763,13 @@ const TaskDescriptionPage: PageWithLayout = () => {
                 >
                   {!task.isCompleted ? 'In Progress' : 'Completed'}
                 </span>
+
+                <button
+                  className="text-sm px-3 py-1 rounded-md flex items-center bg-red-500 text-white"
+                  onClick={onDeleteTask}
+                >
+                  Delete
+                </button>
               </div>
 
               <br />

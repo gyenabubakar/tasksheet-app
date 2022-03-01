@@ -16,7 +16,8 @@ const Workspace: React.FC<WorkspaceProps> = ({ workspace }) => {
         <p className="text-2xl font-bold mb-5 text-main">{name}</p>
 
         <span className="text-base text-darkgray">
-          {description.slice(0, 140)}...
+          {description.slice(0, 140)}
+          {description.length > 140 && '...'}
         </span>
 
         {foldersCount && membersCount && tasksCount && (
