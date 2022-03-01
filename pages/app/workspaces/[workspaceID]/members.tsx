@@ -10,9 +10,9 @@ import Button from '~/components/common/Button';
 import useSWR from 'swr';
 import { getMembers } from '~/assets/fetchers/workspace';
 import useUser from '~/hooks/useUser';
-import { Workspace, WorkspaceModel } from '~/assets/firebase/firebaseTypes';
+import { Workspace } from '~/assets/firebase/firebaseTypes';
 import swal from '~/assets/ts/sweetalert';
-import { deleteDoc, doc, getFirestore, updateDoc } from 'firebase/firestore';
+import { doc, getFirestore, updateDoc } from 'firebase/firestore';
 import alertDBError from '~/assets/firebase/alertDBError';
 
 interface WorkspaceSubpageProps {
@@ -30,14 +30,9 @@ const WorkspaceMembersPage: PageWithLayout<WorkspaceSubpageProps> = ({
     getMembers(workspace.id!, user),
   );
 
-  function onAssignTask(member: MemberType) {
-    // eslint-disable-next-line no-console
-    console.log('onAssignTask:', member);
-  }
-  async function onDelete(member: MemberType) {
-    // eslint-disable-next-line no-console
-    console.log('onDelete:', member);
+  function onAssignTask(member: MemberType) {}
 
+  async function onDelete(member: MemberType) {
     await swal({
       icon: 'warning',
       title: (
@@ -69,7 +64,7 @@ const WorkspaceMembersPage: PageWithLayout<WorkspaceSubpageProps> = ({
             icon: 'success',
             title: (
               <span>
-                Deleted&nbsp;
+                Removed&nbsp;
                 <span className="text-main">{member.name}</span>!
               </span>
             ),
@@ -77,13 +72,10 @@ const WorkspaceMembersPage: PageWithLayout<WorkspaceSubpageProps> = ({
         }
       })
       .catch((err) => {
-        alertDBError(err, `Couldn't remove user.`);
+        alertDBError(err, `Couldn't remove member.`);
       });
   }
-  function onMakeAdmin(member: MemberType) {
-    // eslint-disable-next-line no-console
-    console.log('onMakeAdmin:', member);
-  }
+  function onMakeAdmin(member: MemberType) {}
 
   return (
     <>

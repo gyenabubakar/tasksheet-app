@@ -53,11 +53,6 @@ const PasswordForm: React.FC<Props> = ({ handleSubmittedPasswords }) => {
     e.preventDefault();
 
     if (formIsValid && !submitting) {
-      const form = {
-        password,
-        confirmPassword,
-      };
-
       setSubmitting(true);
       setTimeout(() => {
         setSubmitting(false);
