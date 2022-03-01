@@ -52,13 +52,6 @@ export function getUserTasks(user: User, status: AppHomeTabType = 'To do') {
       let tasksQuery: Query<DocumentData> | null = null;
 
       switch (status) {
-        case 'To do':
-          tasksQuery = query(
-            tasksCollRef,
-            where('createdBy.uid', '==', user.uid),
-            where('isCompleted', '==', false),
-          );
-          break;
         case 'Done':
           tasksQuery = query(
             tasksCollRef,
@@ -66,14 +59,62 @@ export function getUserTasks(user: User, status: AppHomeTabType = 'To do') {
             where('isCompleted', '==', true),
           );
           break;
+        case 'To do':
         default:
           tasksQuery = query(
             tasksCollRef,
             where('createdBy.uid', '==', user.uid),
             where('isCompleted', '==', false),
-            where('dueDate', '>=', new Date()),
+          );
+      }
+
+      getDocs(tasksQuery)
+        .then((snapshot) => {
+          snapshot.docs.forEach((_doc) =>
+            tasks.push({
+              id: _doc.id,
+              ..._doc.data(),
+            } as TaskModel),
+          );
+
+          resolve(tasks);
+        })
+        .catch((err) => {
+          reject({
+            title: `Failed to get tasks.`,
+            message: getDBErrorMessage(err),
+          });
+        });
+    });
+  };
+}
+
+export function getFolderTasks(
+  folderID: string,
+  status: AppHomeTabType = 'To do',
+) {
+  return () => {
+    return new Promise<TaskModel[]>((resolve, reject) => {
+      const tasks: TaskModel[] = [];
+
+      const tasksCollRef = collection(getFirestore(), 'tasks');
+      let tasksQuery: Query<DocumentData> | null = null;
+
+      switch (status) {
+        case 'Done':
+          tasksQuery = query(
+            tasksCollRef,
+            where('folder.id', '==', folderID),
+            where('isCompleted', '==', true),
           );
           break;
+        case 'To do':
+        default:
+          tasksQuery = query(
+            tasksCollRef,
+            where('folder.id', '==', folderID),
+            where('isCompleted', '==', false),
+          );
       }
 
       getDocs(tasksQuery)

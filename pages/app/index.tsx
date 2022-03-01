@@ -28,6 +28,10 @@ const TasksPage: PageWithLayout = () => {
   const [tasks, setTasks] = useState<TaskModel[] | null>(null);
   const [tasksError, setTasksError] = useState<any>(null);
 
+  const filteredTasks =
+    tasks?.filter((t) => new RegExp(`${searchKeyword}`, 'ig').test(t.title)) ||
+    [];
+
   const isTodoTab = activeTab === 'To do';
   const isDoneTab = activeTab === 'Done';
   // const isOverdueTab = activeTab === 'Overdue';
@@ -141,74 +145,80 @@ const TasksPage: PageWithLayout = () => {
 
           {tasks && !tasksError && (
             <div className="content">
-              {tasks.length ? (
+              {filteredTasks.length ? (
                 <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {tasks
-                    .filter((t) =>
-                      new RegExp(`${searchKeyword}`, 'ig').test(t.title),
-                    )
-                    .map(
-                      ({
-                        id,
-                        title,
-                        assignees,
-                        dueDate,
-                        priority,
-                        folder,
-                        checklist,
-                        createdBy,
-                        isCompleted,
-                      }) => (
-                        <div key={id}>
-                          <Task
-                            task={{
-                              id: id!,
-                              name: title,
-                              dueDate: moment(dueDate),
-                              priority: priority as TaskPriority,
-                              folder: {
-                                id: folder.id,
-                                colour: folder.colour,
-                              },
-                              checkLists: checklist.map((item) => ({
-                                id: item.description,
-                                name: item.description,
-                                complete: item.isDone,
-                              })),
-                              createdBy: {
-                                name: createdBy.name,
-                                avatar: createdBy.avatar,
-                              },
-                              members: assignees.map((a) => ({
-                                id: a.uid,
-                                name: a.name,
-                                avatar: a.avatar,
-                              })),
-                              isCompleted,
-                            }}
-                          />
-                        </div>
-                      ),
-                    )}
+                  {filteredTasks.map(
+                    ({
+                      id,
+                      title,
+                      assignees,
+                      dueDate,
+                      priority,
+                      folder: _folder,
+                      checklist,
+                      createdBy,
+                      isCompleted,
+                    }) => (
+                      <div key={id}>
+                        <Task
+                          task={{
+                            id: id!,
+                            name: title,
+                            dueDate: moment(dueDate),
+                            priority: priority as TaskPriority,
+                            folder: {
+                              id: _folder.id,
+                              colour: _folder.colour,
+                            },
+                            checkLists: checklist.map((item) => ({
+                              id: item.description,
+                              name: item.description,
+                              complete: item.isDone,
+                            })),
+                            createdBy: {
+                              name: createdBy.name,
+                              avatar: createdBy.avatar,
+                            },
+                            members: assignees.map((a) => ({
+                              id: a.uid,
+                              name: a.name,
+                              avatar: a.avatar,
+                            })),
+                            isCompleted,
+                          }}
+                        />
+                      </div>
+                    ),
+                  )}
                 </div>
               ) : (
                 <div className="empty-state flex flex-col justify-center items-center mt-24">
-                  <div className="w-[247px] h-[241px] relative">
+                  <div className="w-[150px] h-[145px] relative">
                     <Image src={illustrationEmpty} />
                   </div>
 
-                  <h3 className="font-bold text-[24px] text-center mt-10">
-                    There are no tasks in this category.
-                  </h3>
+                  {!searchKeyword && (
+                    <h3 className="font-bold text-[24px] text-center mt-10">
+                      There are no tasks in this category.
+                    </h3>
+                  )}
 
-                  <div className="mt-10">
-                    <Button
-                      paddingClasses="px-8 py-6"
-                      onClick={() => router.push(`/app/new-task`)}
-                    >
-                      Create New Task
-                    </Button>
-                  </div>
+                  {searchKeyword && (
+                    <h3 className="font-bold text-[24px] text-center mt-10">
+                      Nothing matched your query.
+                    </h3>
+                  )}
+
+                  {!searchKeyword && (
+                    <div className="mt-10">
+                      <Button
+                        paddingClasses="px-8 py-6"
+                        onClick={() => router.push(`/app/new-task`)}
+                      >
+                        Create New Task
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

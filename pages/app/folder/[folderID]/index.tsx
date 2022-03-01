@@ -1,11 +1,15 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import moment from 'moment';
 import Image from 'next/image';
 import useSWR from 'swr';
 
-import { PageWithLayout, TaskType } from '~/assets/ts/types';
+import {
+  AppHomeTabType,
+  PageWithLayout,
+  TaskPriority,
+} from '~/assets/ts/types';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
 import Navigation from '~/components/common/Navigation';
 import hexToRGB from '~/assets/ts/hexToRGB';
@@ -17,8 +21,8 @@ import { getFolder } from '~/assets/fetchers/folder';
 import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
 import useUser from '~/hooks/useUser';
-
-type TabType = 'To do' | 'Done' | 'Overdue';
+import { TaskModel } from '~/assets/firebase/firebaseTypes';
+import { getUserTasks } from '~/assets/fetchers/task';
 
 const FolderDetailsPage: PageWithLayout = () => {
   const router = useRouter();
@@ -26,17 +30,25 @@ const FolderDetailsPage: PageWithLayout = () => {
 
   const { user } = useUser();
 
+  const [searchKeyword, setSearchKeyword] = useState('');
+
   const { error, data: folder } = useSWR(
     `get-folder-details-${folderID}`,
     getFolder(folderID as string, user.uid),
   );
 
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [activeTab, setActiveTab] = useState<TabType>('To do');
+  const [tasks, setTasks] = useState<TaskModel[] | null>(null);
+  const [tasksError, setTasksError] = useState<any>(null);
+
+  const filteredTasks =
+    tasks?.filter((t) => new RegExp(`${searchKeyword}`, 'ig').test(t.title)) ||
+    [];
+
+  const [activeTab, setActiveTab] = useState<AppHomeTabType>('To do');
 
   const isTodoTab = activeTab === 'To do';
   const isDoneTab = activeTab === 'Done';
-  const isOverdueTab = activeTab === 'Overdue';
+  // const isOverdueTab = activeTab === 'Overdue';
 
   const pageTitle = (() => {
     if (folder && !error) {
@@ -45,107 +57,22 @@ const FolderDetailsPage: PageWithLayout = () => {
     return `Folder${pageTitleSuffix}`;
   })();
 
-  const tasks: TaskType[] = [
-    {
-      id: '1',
-      name: 'Build Navbar',
-      description:
-        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
-      checkLists: [
-        {
-          id: '1',
-          name: 'Make nav fill screen',
-          complete: false,
-        },
-      ],
-      dueDate: moment().add(5, 'days'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-          for (let i = 0; i < 5; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-          return members;
-        })(),
-      ],
-      priority: 'High',
-      folder: {
-        id: '1',
-        colour: '#14CC8A',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-    {
-      id: '2',
-      name: 'Improve Signup UX',
-      description:
-        ' Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus! ',
-      checkLists: [],
-      dueDate: moment().add(10, 'hours'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-          for (let i = 0; i < 10; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-          return members;
-        })(),
-      ],
-      priority: 'Low',
-      folder: {
-        id: '1',
-        colour: '#5C68FF',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-    {
-      id: '3',
-      name: 'Redesign FAQs page',
-      description:
-        'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Fuga, dolores minima harum atque temporibus veniam optio in debitis consequatur ducimus quia assumenda error ex distinctio nobis sapiente adipisci aut. Delectus!',
-      checkLists: [],
-      dueDate: moment().add(45, 'minutes'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-          for (let i = 0; i < 1; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-          return members;
-        })(),
-      ],
-      priority: 'Urgent',
-      folder: {
-        id: '1',
-        colour: '#AD0033',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-  ];
+  useEffect(() => {
+    if (folder) {
+      setTasks(null);
+      setTasksError(null);
+
+      getUserTasks(user, activeTab)()
+        .then((_tasks) => {
+          setTasks(_tasks);
+          setTasksError(null);
+        })
+        .catch((err) => {
+          setTasksError(err);
+          setTasks(null);
+        });
+    }
+  }, [folder, activeTab]);
 
   return (
     <>
@@ -202,13 +129,13 @@ const FolderDetailsPage: PageWithLayout = () => {
                 Done
               </div>
 
-              <div
-                className={`tab ${isOverdueTab ? 'active' : ''}`}
-                onClick={() => setActiveTab('Overdue')}
-              >
-                <span>Overdue</span>
-                <span className="important ml-2 inline-block" />
-              </div>
+              {/* <div */}
+              {/*   className={`tab ${isOverdueTab ? 'active' : ''}`} */}
+              {/*   onClick={() => setActiveTab('Overdue')} */}
+              {/* > */}
+              {/*   <span>Overdue</span> */}
+              {/*   <span className="important ml-2 inline-block" /> */}
+              {/* </div> */}
             </div>
 
             <div className="search mt-3 md:mt-0 md:flex justify-end">
@@ -259,34 +186,86 @@ const FolderDetailsPage: PageWithLayout = () => {
             </div>
           </nav>
 
-          <div className="content">
-            {tasks.length ? (
-              <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {tasks.map((task) => (
-                  <Task key={task.id} task={task} />
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state flex flex-col justify-center items-center mt-24">
-                <div className="w-[247px] h-[241px] relative">
-                  <Image src={illustrationEmpty} />
+          {tasks && !tasksError && (
+            <div className="content">
+              {filteredTasks.length ? (
+                <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {filteredTasks.map(
+                    ({
+                      id,
+                      title,
+                      assignees,
+                      dueDate,
+                      priority,
+                      folder: _folder,
+                      checklist,
+                      createdBy,
+                      isCompleted,
+                    }) => (
+                      <div key={id}>
+                        <Task
+                          task={{
+                            id: id!,
+                            name: title,
+                            dueDate: moment(dueDate),
+                            priority: priority as TaskPriority,
+                            folder: {
+                              id: _folder.id,
+                              colour: _folder.colour,
+                            },
+                            checkLists: checklist.map((item) => ({
+                              id: item.description,
+                              name: item.description,
+                              complete: item.isDone,
+                            })),
+                            createdBy: {
+                              name: createdBy.name,
+                              avatar: createdBy.avatar,
+                            },
+                            members: assignees.map((a) => ({
+                              id: a.uid,
+                              name: a.name,
+                              avatar: a.avatar,
+                            })),
+                            isCompleted,
+                          }}
+                        />
+                      </div>
+                    ),
+                  )}
                 </div>
+              ) : (
+                <div className="empty-state flex flex-col justify-center items-center mt-24">
+                  <div className="w-[150px] h-[145px] relative">
+                    <Image src={illustrationEmpty} />
+                  </div>
 
-                <h3 className="font-bold text-[24px] text-center mt-10">
-                  There are no tasks in this category.
-                </h3>
+                  {!searchKeyword && (
+                    <h3 className="font-bold text-[24px] text-center mt-10">
+                      There are no tasks in this category.
+                    </h3>
+                  )}
 
-                <div className="mt-10">
-                  <Button
-                    paddingClasses="px-8 py-6"
-                    onClick={() => router.push(`/app/new-task`)}
-                  >
-                    Create New Task
-                  </Button>
+                  {searchKeyword && (
+                    <h3 className="font-bold text-[24px] text-center mt-10">
+                      Nothing matched your query.
+                    </h3>
+                  )}
+
+                  {!searchKeyword && (
+                    <div className="mt-10">
+                      <Button
+                        paddingClasses="px-8 py-6"
+                        onClick={() => router.push(`/app/new-task`)}
+                      >
+                        Create New Task
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </main>
       )}
     </>
