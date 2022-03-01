@@ -23,18 +23,25 @@ const Task: React.FC<TaskProps> = ({ task }) => {
     priority,
     folder,
     createdBy,
+    isCompleted,
   } = task;
 
   const timeLeft = calculateTimeLeft(moment(), dueDate);
 
   function getProgressPercent() {
     const { checkLists: checklist } = task!;
+
     const completedChecklistItems = checklist.filter(
       (item) => item.complete,
     ).length;
     const percent = (completedChecklistItems / checklist.length) * 100;
 
-    return Number.isNaN(percent) ? 0 : parseFloat(percent.toFixed(2));
+    if (Number.isNaN(percent)) {
+      if (isCompleted) return 100;
+      return 0;
+    }
+
+    return parseFloat(percent.toFixed(2));
   }
 
   useEffect(() => {
@@ -102,7 +109,11 @@ const Task: React.FC<TaskProps> = ({ task }) => {
                 className="point absolute w-4 h-4 rounded-full -top-1"
                 style={{
                   backgroundColor: folder.colour,
-                  left: `${getProgressPercent() - 1}%`,
+                  left: `${
+                    getProgressPercent() === 100
+                      ? getProgressPercent() - 4
+                      : getProgressPercent() - 1
+                  }%`,
                 }}
               />
 

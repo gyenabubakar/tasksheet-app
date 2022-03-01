@@ -1,16 +1,18 @@
 import {
   collection,
   doc,
+  DocumentData,
   getDoc,
   getDocs,
   getFirestore,
+  Query,
   query,
   where,
 } from 'firebase/firestore';
 import { TaskModel } from '~/assets/firebase/firebaseTypes';
 import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 import { User } from 'firebase/auth';
-import { reject } from 'lodash';
+import { AppHomeTabType } from '~/assets/ts/types';
 
 export function getTask(id: string) {
   return () => {
@@ -41,31 +43,56 @@ export function getTask(id: string) {
   };
 }
 
-export function getUserTasks(user: User) {
+export function getUserTasks(user: User, status: AppHomeTabType = 'To do') {
   return () => {
     return new Promise<TaskModel[]>((resolve, reject) => {
       const tasks: TaskModel[] = [];
 
-      const tasksQuery = query(
-        collection(getFirestore(), 'tasks'),
-        where('createdBy.uid', '==', user.uid),
-      );
+      const tasksCollRef = collection(getFirestore(), 'tasks');
+      let tasksQuery: Query<DocumentData> | null = null;
 
-      getDocs(tasksQuery).then((snapshot) => {
-        snapshot.docs.forEach((_doc) =>
-          tasks.push({
-            id: _doc.id,
-            ..._doc.data(),
-          } as TaskModel),
-        );
+      switch (status) {
+        case 'To do':
+          tasksQuery = query(
+            tasksCollRef,
+            where('createdBy.uid', '==', user.uid),
+            where('isCompleted', '==', false),
+          );
+          break;
+        case 'Done':
+          tasksQuery = query(
+            tasksCollRef,
+            where('createdBy.uid', '==', user.uid),
+            where('isCompleted', '==', true),
+          );
+          break;
+        default:
+          tasksQuery = query(
+            tasksCollRef,
+            where('createdBy.uid', '==', user.uid),
+            where('isCompleted', '==', false),
+            where('dueDate', '>=', new Date()),
+          );
+          break;
+      }
 
-        resolve(tasks);
-      });
-    }).catch((err) => {
-      reject({
-        title: `Failed to get tasks.`,
-        message: getDBErrorMessage(err),
-      });
+      getDocs(tasksQuery)
+        .then((snapshot) => {
+          snapshot.docs.forEach((_doc) =>
+            tasks.push({
+              id: _doc.id,
+              ..._doc.data(),
+            } as TaskModel),
+          );
+
+          resolve(tasks);
+        })
+        .catch((err) => {
+          reject({
+            title: `Failed to get tasks.`,
+            message: getDBErrorMessage(err),
+          });
+        });
     });
   };
 }

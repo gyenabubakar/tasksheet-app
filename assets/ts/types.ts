@@ -91,6 +91,7 @@ export interface TaskType {
     name: string;
     avatar: string | null;
   };
+  isCompleted: boolean;
 }
 
 export enum TaskPriorityColour {
@@ -105,3 +106,5 @@ export interface DropdownItem {
   value: React.ReactNode;
   searchable?: string;
 }
+
+export type AppHomeTabType = 'To do' | 'Done';

@@ -4,30 +4,48 @@ import moment from 'moment';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-import { PageWithLayout, TaskPriority, TaskType } from '~/assets/ts/types';
+import {
+  AppHomeTabType,
+  PageWithLayout,
+  TaskPriority,
+} from '~/assets/ts/types';
 import Input from '~/components/common/Input';
 import Task from '~/components/workspace/Task';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
 import { getUserTasks } from '~/assets/fetchers/task';
 import useUser from '~/hooks/useUser';
-import useSWR from 'swr';
 import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
-
-type TabType = 'To do' | 'Done' | 'Overdue';
+import { TaskModel } from '~/assets/firebase/firebaseTypes';
 
 const TasksPage: PageWithLayout = () => {
   const { user } = useUser();
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [activeTab, setActiveTab] = useState<TabType>('To do');
+  const [activeTab, setActiveTab] = useState<AppHomeTabType>('To do');
   const router = useRouter();
 
-  const { error, data: tasks } = useSWR('get-user-tasks', getUserTasks(user));
+  const [tasks, setTasks] = useState<TaskModel[] | null>(null);
+  const [tasksError, setTasksError] = useState<any>(null);
 
   const isTodoTab = activeTab === 'To do';
   const isDoneTab = activeTab === 'Done';
-  const isOverdueTab = activeTab === 'Overdue';
+  // const isOverdueTab = activeTab === 'Overdue';
+
+  useEffect(() => {
+    setTasks(null);
+    setTasksError(null);
+
+    getUserTasks(user, activeTab)()
+      .then((_tasks) => {
+        setTasks(_tasks);
+        setTasksError(null);
+      })
+      .catch((error) => {
+        setTasksError(error);
+        setTasks(null);
+      });
+  }, [activeTab]);
 
   return (
     <>
@@ -59,14 +77,6 @@ const TasksPage: PageWithLayout = () => {
                 onClick={() => setActiveTab('Done')}
               >
                 Done
-              </div>
-
-              <div
-                className={`tab ${isOverdueTab ? 'active' : ''}`}
-                onClick={() => setActiveTab('Overdue')}
-              >
-                <span>Overdue</span>
-                <span className="important ml-2 inline-block" />
               </div>
             </div>
 
@@ -118,59 +128,68 @@ const TasksPage: PageWithLayout = () => {
             </div>
           </nav>
 
-          {!tasks && !error && (
+          {!tasks && !tasksError && (
             <Loading loadingText="Loading tasks..." className="mt-12" />
           )}
 
-          {error && !tasks && (
-            <ErrorFallback title={error.title} message={error.message} />
+          {tasksError && !tasks && (
+            <ErrorFallback
+              title={tasksError.title}
+              message={tasksError.message}
+            />
           )}
 
-          {tasks && !error && (
+          {tasks && !tasksError && (
             <div className="content">
               {tasks.length ? (
                 <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {tasks.map(
-                    ({
-                      id,
-                      title,
-                      assignees,
-                      dueDate,
-                      priority,
-                      folder,
-                      checklist,
-                      createdBy,
-                    }) => (
-                      <div key={id}>
-                        <Task
-                          task={{
-                            id: id!,
-                            name: title,
-                            dueDate: moment(dueDate),
-                            priority: priority as TaskPriority,
-                            folder: {
-                              id: folder.id,
-                              colour: folder.colour,
-                            },
-                            checkLists: checklist.map((item) => ({
-                              id: item.description,
-                              name: item.description,
-                              complete: item.isDone,
-                            })),
-                            createdBy: {
-                              name: createdBy.name,
-                              avatar: createdBy.avatar,
-                            },
-                            members: assignees.map((a) => ({
-                              id: a.uid,
-                              name: a.name,
-                              avatar: a.avatar,
-                            })),
-                          }}
-                        />
-                      </div>
-                    ),
-                  )}
+                  {tasks
+                    .filter((t) =>
+                      new RegExp(`${searchKeyword}`, 'ig').test(t.title),
+                    )
+                    .map(
+                      ({
+                        id,
+                        title,
+                        assignees,
+                        dueDate,
+                        priority,
+                        folder,
+                        checklist,
+                        createdBy,
+                        isCompleted,
+                      }) => (
+                        <div key={id}>
+                          <Task
+                            task={{
+                              id: id!,
+                              name: title,
+                              dueDate: moment(dueDate),
+                              priority: priority as TaskPriority,
+                              folder: {
+                                id: folder.id,
+                                colour: folder.colour,
+                              },
+                              checkLists: checklist.map((item) => ({
+                                id: item.description,
+                                name: item.description,
+                                complete: item.isDone,
+                              })),
+                              createdBy: {
+                                name: createdBy.name,
+                                avatar: createdBy.avatar,
+                              },
+                              members: assignees.map((a) => ({
+                                id: a.uid,
+                                name: a.name,
+                                avatar: a.avatar,
+                              })),
+                              isCompleted,
+                            }}
+                          />
+                        </div>
+                      ),
+                    )}
                 </div>
               ) : (
                 <div className="empty-state flex flex-col justify-center items-center mt-24">
