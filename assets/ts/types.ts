@@ -66,7 +66,7 @@ export interface WorkspaceCardInfo {
 export interface TaskMember {
   id: string;
   name: string;
-  avatar: string;
+  avatar: string | null;
 }
 
 export interface TaskChecklist {
@@ -78,7 +78,7 @@ export interface TaskChecklist {
 export interface TaskType {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   dueDate: Moment;
   priority: TaskPriorityType;
   folder: {
@@ -89,7 +89,7 @@ export interface TaskType {
   members: TaskMember[];
   createdBy: {
     name: string;
-    avatar: string;
+    avatar: string | null;
   };
 }
 

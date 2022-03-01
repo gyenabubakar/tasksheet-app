@@ -1,126 +1,33 @@
 import Head from 'next/head';
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import moment from 'moment';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-import { PageWithLayout, TaskType } from '~/assets/ts/types';
+import { PageWithLayout, TaskPriority, TaskType } from '~/assets/ts/types';
 import Input from '~/components/common/Input';
 import Task from '~/components/workspace/Task';
 import illustrationEmpty from '~/assets/illustrations/empty.svg';
 import Button from '~/components/common/Button';
+import { getUserTasks } from '~/assets/fetchers/task';
+import useUser from '~/hooks/useUser';
+import useSWR from 'swr';
+import Loading from '~/components/common/Loading';
+import ErrorFallback from '~/components/common/ErrorFallback';
 
 type TabType = 'To do' | 'Done' | 'Overdue';
 
 const TasksPage: PageWithLayout = () => {
+  const { user } = useUser();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [activeTab, setActiveTab] = useState<TabType>('To do');
   const router = useRouter();
 
+  const { error, data: tasks } = useSWR('get-user-tasks', getUserTasks(user));
+
   const isTodoTab = activeTab === 'To do';
   const isDoneTab = activeTab === 'Done';
   const isOverdueTab = activeTab === 'Overdue';
-
-  const tasks: TaskType[] = [
-    {
-      id: '1',
-      name: 'Build Navbar',
-      description:
-        "The current navigation bar we have still isn't responsive. Let's fix that.",
-      checkLists: [
-        {
-          id: '1',
-          name: 'Make nav fill screen',
-          complete: false,
-        },
-      ],
-      dueDate: moment().add(5, 'days'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-          for (let i = 0; i < 5; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-          return members;
-        })(),
-      ],
-      priority: 'High',
-      folder: {
-        id: '1',
-        colour: '#14CC8A',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-    {
-      id: '2',
-      name: 'Improve Signup UX',
-      description:
-        'Our event monitoring records indicate that users spend averagely 3 minutes during sign up. Can we reduce the number of fields they have to fill before creating an account?',
-      checkLists: [],
-      dueDate: moment().add(10, 'hours'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-          for (let i = 0; i < 10; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-          return members;
-        })(),
-      ],
-      priority: 'Low',
-      folder: {
-        id: '1',
-        colour: '#5C68FF',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-    {
-      id: '3',
-      name: 'Redesign FAQs page',
-      description: "The FAQs page looks too archaic. It's time to update it!",
-      checkLists: [],
-      dueDate: moment().add(45, 'minutes'),
-      members: [
-        ...(() => {
-          const members: any[] = [];
-          for (let i = 0; i < 1; i++) {
-            members.push({
-              id: i.toString(),
-              avatar:
-                'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-              name: 'De Graft Arthur',
-            });
-          }
-          return members;
-        })(),
-      ],
-      priority: 'Urgent',
-      folder: {
-        id: '1',
-        colour: '#AD0033',
-      },
-      createdBy: {
-        name: 'Gyen Abubakar',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde',
-      },
-    },
-  ];
 
   return (
     <>
@@ -211,36 +118,82 @@ const TasksPage: PageWithLayout = () => {
             </div>
           </nav>
 
-          <div className="content">
-            {tasks.length ? (
-              <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {tasks.map((task) => (
-                  <div key={task.id}>
-                    <Task task={task} />
+          {!tasks && !error && (
+            <Loading loadingText="Loading tasks..." className="mt-12" />
+          )}
+
+          {error && !tasks && (
+            <ErrorFallback title={error.title} message={error.message} />
+          )}
+
+          {tasks && !error && (
+            <div className="content">
+              {tasks.length ? (
+                <div className="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {tasks.map(
+                    ({
+                      id,
+                      title,
+                      assignees,
+                      dueDate,
+                      priority,
+                      folder,
+                      checklist,
+                      createdBy,
+                    }) => (
+                      <div key={id}>
+                        <Task
+                          task={{
+                            id: id!,
+                            name: title,
+                            dueDate: moment(dueDate),
+                            priority: priority as TaskPriority,
+                            folder: {
+                              id: folder.id,
+                              colour: folder.colour,
+                            },
+                            checkLists: checklist.map((item) => ({
+                              id: item.description,
+                              name: item.description,
+                              complete: item.isDone,
+                            })),
+                            createdBy: {
+                              name: createdBy.name,
+                              avatar: createdBy.avatar,
+                            },
+                            members: assignees.map((a) => ({
+                              id: a.uid,
+                              name: a.name,
+                              avatar: a.avatar,
+                            })),
+                          }}
+                        />
+                      </div>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <div className="empty-state flex flex-col justify-center items-center mt-24">
+                  <div className="w-[247px] h-[241px] relative">
+                    <Image src={illustrationEmpty} />
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state flex flex-col justify-center items-center mt-24">
-                <div className="w-[247px] h-[241px] relative">
-                  <Image src={illustrationEmpty} />
-                </div>
 
-                <h3 className="font-bold text-[24px] text-center mt-10">
-                  There are no tasks in this category.
-                </h3>
+                  <h3 className="font-bold text-[24px] text-center mt-10">
+                    There are no tasks in this category.
+                  </h3>
 
-                <div className="mt-10">
-                  <Button
-                    paddingClasses="px-8 py-6"
-                    onClick={() => router.push(`/app/new-task`)}
-                  >
-                    Create New Task
-                  </Button>
+                  <div className="mt-10">
+                    <Button
+                      paddingClasses="px-8 py-6"
+                      onClick={() => router.push(`/app/new-task`)}
+                    >
+                      Create New Task
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </>

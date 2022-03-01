@@ -473,7 +473,6 @@ const TaskDescriptionPage: PageWithLayout = () => {
   function updateLocalTask(_fetchedTask: TaskModel | undefined) {
     if (_fetchedTask) {
       if (task === undefined) {
-        console.log(_fetchedTask);
         setTask(_fetchedTask);
         return;
       }

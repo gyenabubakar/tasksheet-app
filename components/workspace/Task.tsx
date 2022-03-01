@@ -27,6 +27,16 @@ const Task: React.FC<TaskProps> = ({ task }) => {
 
   const timeLeft = calculateTimeLeft(moment(), dueDate);
 
+  function getProgressPercent() {
+    const { checkLists: checklist } = task!;
+    const completedChecklistItems = checklist.filter(
+      (item) => item.complete,
+    ).length;
+    const percent = (completedChecklistItems / checklist.length) * 100;
+
+    return Number.isNaN(percent) ? 0 : parseFloat(percent.toFixed(2));
+  }
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -70,17 +80,21 @@ const Task: React.FC<TaskProps> = ({ task }) => {
 
         <div className="content px-5 mt-3">
           <p className="font-medium text-xl">{name}</p>
-          <span className="text-base text-darkgray font-medium inline-block mt-3">
-            {description.slice(0, 120)}
-            {description.length > 120 && '...'}
-          </span>
+          {description && (
+            <span className="text-base text-darkgray font-medium inline-block mt-3">
+              {description.slice(0, 120)}
+              {description.length > 120 && '...'}
+            </span>
+          )}
 
           <div className="progress mt-3">
             <div className="flex justify-between items-center mb-1">
               <span className="text-gray-400 text-base font-medium">
                 Progress
               </span>
-              <span className="text-base font-medium">80%</span>
+              <span className="text-base font-medium">
+                {getProgressPercent()}%
+              </span>
             </div>
 
             <div className="progress-bar relative">
@@ -88,14 +102,14 @@ const Task: React.FC<TaskProps> = ({ task }) => {
                 className="point absolute w-4 h-4 rounded-full -top-1"
                 style={{
                   backgroundColor: folder.colour,
-                  left: `${80}%`,
+                  left: `${getProgressPercent() - 1}%`,
                 }}
               />
 
               <div
                 className="bar-inner absolute h-full rounded-l-full"
                 style={{
-                  width: `${80 + 0.3}%`,
+                  width: `${getProgressPercent() + 0.3}%`,
                   backgroundColor: folder.colour,
                 }}
               />
@@ -119,9 +133,15 @@ const Task: React.FC<TaskProps> = ({ task }) => {
                 <div
                   data-tip
                   data-for={`assignee-${member.id}-${id}`}
-                  className="h-8 w-8 rounded-full ring-2 ring-white inline-block overflow-hidden relative"
+                  className="h-8 w-8 rounded-full bg-main ring-2 ring-white inline-block overflow-hidden relative"
                 >
-                  <Image src={member.avatar} alt={member.name} layout="fill" />
+                  {member.avatar && (
+                    <Image
+                      src={member.avatar}
+                      alt={member.name}
+                      layout="fill"
+                    />
+                  )}
 
                   {members.length > 4 && index === 3 && (
                     <div className="overlay absolute h-full w-full bg-black opacity-70 text-white text-sm font-medium flex items-center justify-center">
@@ -152,13 +172,15 @@ const Task: React.FC<TaskProps> = ({ task }) => {
             <div
               data-tip
               data-for={`assigner-${id}`}
-              className="h-8 w-8 rounded-full ring-2 ring-white inline-block overflow-hidden relative"
+              className="h-8 w-8 rounded-full bg-main ring-2 ring-white inline-block overflow-hidden relative"
             >
-              <Image
-                src={createdBy.avatar}
-                alt={createdBy.name}
-                layout="fill"
-              />
+              {createdBy.avatar && (
+                <Image
+                  src={createdBy.avatar}
+                  alt={createdBy.name}
+                  layout="fill"
+                />
+              )}
             </div>
 
             {isMounted && (
