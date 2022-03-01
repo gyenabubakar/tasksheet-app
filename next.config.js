@@ -4,7 +4,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['images.unsplash.com'],
+    domains: ['images.unsplash.com', 'firebasestorage.googleapis.com'],
     formats: ['image/avif', 'image/webp'],
   },
   cssModules: true,

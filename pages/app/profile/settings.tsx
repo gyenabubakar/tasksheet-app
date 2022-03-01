@@ -8,6 +8,8 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { updateProfile } from 'firebase/auth';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
@@ -23,6 +25,14 @@ import iconEmail from '~/assets/icons/email.svg';
 import Button from '~/components/common/Button';
 import validator from 'validator';
 import iconLock from '~/assets/icons/lock.svg';
+import useUser from '~/hooks/useUser';
+import swal from '~/assets/ts/sweetalert';
+import {
+  doc,
+  getFirestore,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
 
 type TabType = 'general' | 'security';
 
@@ -44,6 +54,8 @@ interface SecurityFormErrors extends FormValidationErrors {
 
 const UserProfileSettingsPage: PageWithLayout = () => {
   const router = useRouter();
+  const { user, updateUser } = useUser();
+
   const [activeTab, setActiveTab] = useState<TabType>('general');
 
   // general tab
@@ -51,8 +63,7 @@ const UserProfileSettingsPage: PageWithLayout = () => {
   const [uploading, setUploading] = useState(false);
   const [submittingGeneralForm, setSubmittingGeneralForm] = useState(false);
   const [name, setName] = useState('');
-  const email = 'john@doe.com';
-  const avatar = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde';
+  const [email, setEmail] = useState('');
 
   const nameIsValid = name ? FormValidation.isValidName(name) : null;
   const generalFormIsValid = nameIsValid && validator.isEmail(email);
@@ -145,18 +156,48 @@ const UserProfileSettingsPage: PageWithLayout = () => {
       }
 
       setUploading(true);
-      setTimeout(() => {
-        setSelectedFile(null);
-        fileInputRef.current!.value = '';
+      setSelectedFile(null);
+      fileInputRef.current!.value = '';
 
-        // eslint-disable-next-line no-console
-        console.log(selectedFile);
+      const fbStorage = getStorage();
+      const avatarRef = ref(
+        fbStorage,
+        `avatars/${user.uid}.${selectedFile?.type.split('/')[1]}`,
+      );
 
-        notify('New avatar uploaded!', {
-          type: 'success',
-        });
-        setUploading(false);
-      }, 2000);
+      uploadBytes(avatarRef, selectedFile)
+        .then((result) => {
+          notify('New avatar uploaded!', {
+            type: 'success',
+          });
+
+          return getDownloadURL(result.ref).then((url) => {
+            return updateProfile(user, {
+              photoURL: url,
+            }).then(() => {
+              const userRef = doc(getFirestore(), 'users', user.uid);
+              updateDoc(userRef, {
+                avatar: url,
+                updatedAt: serverTimestamp(),
+              });
+
+              updateUser({
+                ...user,
+                photoURL: url,
+              });
+            });
+          });
+        })
+        .catch((error) => {
+          if (error) {
+            swal({
+              icon: 'error',
+              title: 'Upload failed.',
+              text: error.message,
+            });
+          }
+        })
+        .finally(() => setUploading(false));
     }
   }
 
@@ -164,21 +205,32 @@ const UserProfileSettingsPage: PageWithLayout = () => {
     e.preventDefault();
 
     if (generalFormIsValid && !submittingGeneralForm) {
-      const form: FormDataType = {
-        name,
-        email,
-      };
-
       setSubmittingGeneralForm(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
+      updateProfile(user, {
+        displayName: name,
+      })
+        .then(() => {
+          const userRef = doc(getFirestore(), 'users', user.uid);
+          return updateDoc(userRef, {
+            displayName: name,
+            updatedAt: serverTimestamp(),
+          }).then(() => {
+            notify('Profile updated successfully.', {
+              type: 'success',
+            });
 
-        notify('Details updated successfully.', {
-          type: 'success',
-        });
-        setSubmittingGeneralForm(false);
-      }, 3000);
+            updateUser({
+              ...user,
+              displayName: name,
+            });
+          });
+        })
+        .catch(() => {
+          notify('Profile update failed.', {
+            type: 'error',
+          });
+        })
+        .finally(() => setSubmittingGeneralForm(false));
     }
   }
 
@@ -201,6 +253,15 @@ const UserProfileSettingsPage: PageWithLayout = () => {
       }, 2000);
     }
   }
+
+  function prePopulate() {
+    setName(user.displayName!);
+    setEmail(user.email!);
+  }
+
+  useEffect(() => {
+    prePopulate();
+  }, []);
 
   useEffect(() => {
     if (!router.query.tab) {
@@ -268,8 +329,11 @@ const UserProfileSettingsPage: PageWithLayout = () => {
                     }}
                   />
 
-                  <div className="h-32 w-32 rounded-full overflow-hidden relative ring-4 ring-white">
-                    <Image src={newAvatar || avatar} layout="fill" />
+                  <div className="h-32 w-32 bg-main rounded-full overflow-hidden relative ring-4 ring-white">
+                    {newAvatar && <Image src={newAvatar} layout="fill" />}
+                    {user.photoURL && !newAvatar && (
+                      <Image src={user.photoURL} layout="fill" />
+                    )}
                   </div>
 
                   <button

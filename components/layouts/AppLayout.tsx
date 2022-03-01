@@ -322,9 +322,11 @@ const AppLayout: React.FC = ({ children }) => {
 
           <div className="flex relative">
             <div
-              className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-main cursor-pointer my-3 lg:my-0"
+              className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-main cursor-pointer my-3 lg:my-0 relative ring-2 ring-main overflow-hidden"
               onClick={() => setShowUserMenu((prevState) => !prevState)}
-            />
+            >
+              {user.photoURL && <Image src={user.photoURL} layout="fill" />}
+            </div>
 
             {showUserMenu && (
               <div
