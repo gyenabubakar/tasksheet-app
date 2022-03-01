@@ -81,14 +81,16 @@ const FolderDetailsPage: PageWithLayout = () => {
       </Head>
 
       <Navigation>
-        {folder && !error && (
-          <button
-            className="text-sm px-3 py-1 rounded-md bg-faintmain font-medium flex items-center"
-            onClick={() => router.push(`/app/folder/${folderID}/edit`)}
-          >
-            Edit folder
-          </button>
-        )}
+        {folder &&
+          !error &&
+          (folder.workspace.isOwner || folder.workspace.isAdmin) && (
+            <button
+              className="text-sm px-3 py-1 rounded-md bg-faintmain font-medium flex items-center"
+              onClick={() => router.push(`/app/folder/${folderID}/edit`)}
+            >
+              Edit folder
+            </button>
+          )}
       </Navigation>
 
       {!folder && !error && (

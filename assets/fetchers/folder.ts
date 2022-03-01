@@ -12,7 +12,7 @@ import {
 import getDBErrorMessage from '~/assets/firebase/getDBErrorMessage';
 import { getWorkspace } from '~/assets/fetchers/workspace';
 
-export function getFolder(id: string, uid: string, withTasks = false) {
+export function getFolder(id: string, uid: string) {
   return () => {
     return new Promise<Folder>((resolve, reject) => {
       const app = getFirebaseApp();
@@ -39,6 +39,8 @@ export function getFolder(id: string, uid: string, withTasks = false) {
             workspace: {
               id: workspace.id,
               name: workspace.name,
+              isAdmin: workspace.isAdmin,
+              isOwner: workspace.isOwner,
             },
           } as Folder);
         })

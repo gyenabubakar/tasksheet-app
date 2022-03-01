@@ -128,6 +128,8 @@ export interface Folder extends FolderModel {
   workspace: {
     id: string;
     name: string;
+    isAdmin?: boolean;
+    isOwner?: boolean;
   };
   tasks: any[];
 }
