@@ -6,7 +6,6 @@ import iconLock from '~/assets/icons/lock.svg';
 import Input from '~/components/common/Input';
 import useFormValidation from '~/hooks/useFormValidation';
 import Button from '~/components/common/Button';
-import { ResetPasswordPasswordsInfo } from '~/_serverless/lib/types';
 
 interface Props {
   handleSubmittedPasswords: () => void;
@@ -54,15 +53,13 @@ const PasswordForm: React.FC<Props> = ({ handleSubmittedPasswords }) => {
     e.preventDefault();
 
     if (formIsValid && !submitting) {
-      const form: ResetPasswordPasswordsInfo = {
+      const form = {
         password,
         confirmPassword,
       };
 
       setSubmitting(true);
       setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
         setSubmitting(false);
         handleSubmittedPasswords();
       }, 3000);

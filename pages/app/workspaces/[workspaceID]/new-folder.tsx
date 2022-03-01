@@ -91,10 +91,6 @@ const NewFolderPage: PageWithLayout = () => {
     }
   }
 
-  useEffect(() => {
-    console.log(workspace);
-  }, [workspace]);
-
   return (
     <>
       <Head>

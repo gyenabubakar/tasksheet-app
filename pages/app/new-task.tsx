@@ -491,7 +491,6 @@ const NewTaskPage: PageWithLayout = () => {
       setGettingMembers(true);
       getMembers(workspace.id, user)()
         .then((_members) => {
-          console.log(_members.length);
           setMembers([..._members]);
         })
         .catch(async (err) => {
@@ -966,7 +965,6 @@ const NewTaskPage: PageWithLayout = () => {
                   <TaskDescriptionEditor
                     value={description}
                     onChange={(newDesc) => {
-                      console.log(description);
                       setDescription(JSON.stringify(newDesc));
                     }}
                   />

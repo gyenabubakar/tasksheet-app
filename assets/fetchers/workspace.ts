@@ -124,7 +124,6 @@ export function getMembers(workspaceID: string, user: User) {
           getDoc(doc(db, 'users', workspace.createdBy)).then((_doc) => {
             const allMembers: UserModel[] = [_doc.data() as UserModel];
 
-            console.log(workspace.members.length);
             if (workspace.members.length) {
               const usersCollRef = collection(db, 'users');
               const membersQuery = query(
