@@ -22,7 +22,7 @@ import Loading from '~/components/common/Loading';
 import ErrorFallback from '~/components/common/ErrorFallback';
 import useUser from '~/hooks/useUser';
 import { TaskModel } from '~/assets/firebase/firebaseTypes';
-import { getUserTasks } from '~/assets/fetchers/task';
+import { getFolderTasks, getUserTasks } from '~/assets/fetchers/task';
 
 const FolderDetailsPage: PageWithLayout = () => {
   const router = useRouter();
@@ -62,7 +62,7 @@ const FolderDetailsPage: PageWithLayout = () => {
       setTasks(null);
       setTasksError(null);
 
-      getUserTasks(user, activeTab)()
+      getFolderTasks(folder.id!, activeTab)()
         .then((_tasks) => {
           setTasks(_tasks);
           setTasksError(null);

@@ -60,7 +60,7 @@ const TasksPage: PageWithLayout = () => {
       <main className="page-app-home">
         <div className="heading">
           <h1 className="text-3xl md:text-[36px] font-bold">
-            Howdy, <span className="text-main">Gyen Abubakar</span>!
+            Howdy, <span className="text-main">{user.displayName!}</span>!
           </h1>
 
           <p className="mt-5 text-xl md:text-2xl text-darkgray">
