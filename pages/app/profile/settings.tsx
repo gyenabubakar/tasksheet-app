@@ -9,7 +9,12 @@ import React, {
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { updateProfile } from 'firebase/auth';
+import {
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  updatePassword,
+  updateProfile,
+} from 'firebase/auth';
 
 import { PageWithLayout } from '~/assets/ts/types';
 import pageTitleSuffix from '~/assets/pageTitleSuffix';
@@ -234,23 +239,40 @@ const UserProfileSettingsPage: PageWithLayout = () => {
     }
   }
 
-  function handleChangePassword() {
+  function handleChangePassword(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
     if (securityFormIsValid) {
       setSubmittingSecurityForm(true);
-      setTimeout(() => {
-        const form = {
-          currentPassword,
-          newPassword,
-          confirmPassword,
-        };
-        // eslint-disable-next-line no-console
-        console.log(form);
 
-        notify('Password changed!', {
-          type: 'success',
+      const credential = EmailAuthProvider.credential(
+        user.email!,
+        currentPassword,
+      );
+
+      reauthenticateWithCredential(user, credential)
+        .then(() => {
+          return updatePassword(user, newPassword).then(() => {
+            notify('Password changed!', {
+              type: 'success',
+            });
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+          });
+        })
+        .catch((err) => {
+          if (err) {
+            if (err.code === 'auth/wrong-password') {
+              notify(`Current password is incorrect.`, {
+                type: 'error',
+              });
+            }
+          }
+        })
+        .finally(() => {
+          setSubmittingSecurityForm(false);
         });
-        setSubmittingSecurityForm(false);
-      }, 2000);
     }
   }
 
