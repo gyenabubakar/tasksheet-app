@@ -225,10 +225,3 @@ textarea::placeholder {
 .settings-tabs > .settings-tab.active {
     @apply text-main border-b-main lg:border-l-main lg:border-b-secondarybg bg-faintmain;
 }
-
-.landing-page header {
-    /*@apply bg-main min-h-[700px];*/
-}
-
-.landing-page nav {
-}
