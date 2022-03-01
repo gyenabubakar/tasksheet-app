@@ -13,9 +13,7 @@ import logoWhite from '~/public/images/logo-white.svg';
 const Home: NextPage = () => (
   <>
     <Head>
-      <title>
-        TaskSheet - Simple, straight-forward task management solution
-      </title>
+      <title>TaskSheet - An open-source project management solution</title>
       <meta
         name="description"
         content="A web application for creating and managing tasks."
@@ -224,7 +222,7 @@ const Home: NextPage = () => (
               <div className="logo w-[40px] h-[37px] relative">
                 <Image src={logoWhite} layout="fill" alt="TaskSheet logo" />
               </div>
-              <h3 className="hidden md:block text-3xl font-bold text-white ml-2 select-none">
+              <h3 className="text-3xl font-bold text-white ml-2 select-none">
                 TaskSheet
               </h3>
             </a>
