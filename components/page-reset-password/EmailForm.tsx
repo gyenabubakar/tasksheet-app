@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import Image from 'next/image';
+import { AuthErrorCodes, getAuth, sendPasswordResetEmail } from 'firebase/auth';
 
 import illustrationResetPassword from '~/assets/illustrations/reset-password.svg';
 import Input from '~/components/common/Input';
@@ -7,13 +8,16 @@ import iconEmail from '~/assets/icons/email.svg';
 import Button from '~/components/common/Button';
 import useFormValidation from '~/hooks/useFormValidation';
 import validator from 'validator';
-import { ResetPasswordEmailInfo } from '~/_serverless/lib/types';
+import { useRouter } from 'next/router';
+import swal from '~/assets/ts/sweetalert';
 
 interface Props {
   handleEmailFormSubmitted: () => void;
 }
 
-const EmailForm: React.FC<Props> = ({ handleEmailFormSubmitted }) => {
+const EmailForm: React.FC<Props> = () => {
+  const router = useRouter();
+
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -24,27 +28,42 @@ const EmailForm: React.FC<Props> = ({ handleEmailFormSubmitted }) => {
       email: null,
     },
     [emailIsValid],
-    [
-      'Password must be at least 6 characters long with at least 1 uppercase and lowercase letter, 1 number and 1 symbol.',
-      "Passwords aren't the same.",
-    ],
+    ['Enter a valid email address.'],
   );
 
   function handleConfirmEmail(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (emailIsValid && !submitting) {
-      const form: ResetPasswordEmailInfo = {
-        email,
-      };
-
       setSubmitting(true);
-      setTimeout(() => {
-        // eslint-disable-next-line no-console
-        console.log(form);
-        setSubmitting(false);
-        handleEmailFormSubmitted();
-      }, 3000);
+
+      sendPasswordResetEmail(getAuth(), email, {
+        url: `http://${window.location.host}/login`,
+      })
+        .then(() => {
+          swal({
+            icon: 'success',
+            title: 'Email sent!',
+            html: `<span>
+                We sent an email to <span class="text-main font-medium">${email}</span>.<br /><br />
+                Click on the link in the mail to reset your password.<br /><br/>
+                Check your Spam folder if it's not in your inbox.
+              </span>`,
+          });
+          router.push('/login');
+        })
+        .catch((err) => {
+          if (err.message.includes(AuthErrorCodes.NETWORK_REQUEST_FAILED)) {
+            swal({
+              icon: 'error',
+              title:
+                "Couldn't make request. Check your connection and try again.",
+            });
+          }
+        })
+        .finally(() => {
+          setSubmitting(false);
+        });
     }
   }
 
@@ -61,11 +80,10 @@ const EmailForm: React.FC<Props> = ({ handleEmailFormSubmitted }) => {
           <Image src={illustrationResetPassword} layout="fill" />
         </div>
 
-        <p className="text-darkgray text-center mt-5">
-          Enter the email you created your account with.{' '}
+        <p className="text-darkgray text-center mt-5 max-w-[450px] mx-auto">
+          Enter the email you created your account with.&nbsp;
           <br className="hidden md:block" /> If the account exists, we’ll send
-          you a <span className="text-fakeblack font-medium">5-digit</span>{' '}
-          code.
+          you an email with instructions on how to reset your password.
         </p>
       </div>
 
