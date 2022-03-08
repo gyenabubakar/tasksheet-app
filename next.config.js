@@ -8,6 +8,13 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
   cssModules: true,
+  webpack: (config) => {
+    // Important: return the modified config
+    return {
+      ...config,
+      allowedHosts: 'all',
+    };
+  },
 };
 
 module.exports = nextConfig;
