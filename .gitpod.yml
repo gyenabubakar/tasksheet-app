@@ -2,6 +2,7 @@ tasks:
   - name: Dev Server
     before: npm install && clear
     init: npm run dev -- -p 6500
+    command: npm run dev -- -p 6500
   - name: Git
     init: git status -s
 
