@@ -1,13 +1,13 @@
 tasks:
   - name: Dev Server
     before: npm install && clear
-    init: sleep 3 && clear && npm run dev -- -p 6500
+    init: npm run dev -- -p 6500
   - name: Git
     init: git status -s
 
 ports:
   - port: 6500
-    onOpen: open-browser
+    onOpen: notify
     visibility: public
 
 vscode:
